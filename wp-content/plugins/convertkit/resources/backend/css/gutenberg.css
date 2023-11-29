@@ -1,0 +1,34 @@
+.wp-block .convertkit-no-content {
+	padding: 120px 20px 20px 20px;
+	background: url(../images/convertkit-stacked.svg) 50% 20px no-repeat;
+	background-size: 100px auto;
+	background-color: #fff;
+	border: 1px solid #000;
+	font-size: 16px;
+	text-align: center;
+	color: #000;
+}
+.wp-block .convertkit-no-content iframe {
+	max-width: 400px;
+}
+.wp-block .convertkit-no-content a {
+	display: block;
+	padding: calc(0.667em + 2px) calc(1.333em + 2px);
+}
+.wp-block .convertkit-no-content button.convertkit-block-refresh {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	line-height: 22px;
+}
+.wp-block .convertkit-no-content button.convertkit-block-refresh span.dashicon {
+	display: inline-block;
+	padding: 0;
+}
+.wp-block .convertkit-no-content .spinner {
+	float: none;
+}
+.convertkit-popover .components-popover__content {
+	width: 300px;
+	padding: 15px;
+}
