@@ -1,4 +1,4 @@
-/*! elementor - v3.18.0 - 04-12-2023 */
+/*! elementor - v3.18.0 - 08-12-2023 */
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -858,7 +858,7 @@ var UpgradeChip = function UpgradeChip(_ref3) {
   }, /*#__PURE__*/_react.default.createElement(Chip, {
     color: "accent",
     label: (0, _i18n.__)('Upgrade', 'elementor'),
-    icon: /*#__PURE__*/_react.default.createElement(_icons.UpgradeIcon, null),
+    icon: /*#__PURE__*/_react.default.createElement(_icons.AIIcon, null),
     size: "small"
   }), /*#__PURE__*/_react.default.createElement(_ui.Popper, {
     open: isPopoverOpen,
@@ -903,7 +903,7 @@ var UpgradeChip = function UpgradeChip(_ref3) {
     size: "small",
     href: actionUrl,
     target: "_blank",
-    startIcon: /*#__PURE__*/_react.default.createElement(_icons.UpgradeIcon, null),
+    startIcon: /*#__PURE__*/_react.default.createElement(_icons.AIIcon, null),
     sx: {
       '&:hover': {
         color: 'accent.contrastText'
@@ -1138,6 +1138,7 @@ var normalizeResponse = function normalizeResponse(_ref) {
   if (optional.base_template_id) {
     normalized.baseTemplateId = optional.base_template_id;
   }
+  normalized.type = optional.template_type;
   return normalized;
 };
 var usePrompt = function usePrompt(fetchData, initialState) {
@@ -1467,6 +1468,45 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ "../modules/ai/assets/js/editor/icons/lock-icon.js":
+/*!*********************************************************!*\
+  !*** ../modules/ai/assets/js/editor/icons/lock-icon.js ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+var _extends2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/extends */ "../node_modules/@babel/runtime/helpers/extends.js"));
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
+var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
+var LockIcon = _react.default.forwardRef(function (props, ref) {
+  return /*#__PURE__*/_react.default.createElement(_ui.SvgIcon, (0, _extends2.default)({
+    viewBox: "0 0 24 24"
+  }, props, {
+    ref: ref
+  }), /*#__PURE__*/_react.default.createElement("path", {
+    fillRule: "evenodd",
+    clipRule: "evenodd",
+    d: "M7.8125 11.9996C7.29473 11.9996 6.875 12.4473 6.875 12.9996V18.9996C6.875 19.5519 7.29473 19.9996 7.8125 19.9996H17.1875C17.7053 19.9996 18.125 19.5519 18.125 18.9996V12.9996C18.125 12.4473 17.7053 11.9996 17.1875 11.9996H7.8125ZM5 12.9996C5 11.3428 6.2592 9.99963 7.8125 9.99963H17.1875C18.7408 9.99963 20 11.3428 20 12.9996V18.9996C20 20.6565 18.7408 21.9996 17.1875 21.9996H7.8125C6.2592 21.9996 5 20.6565 5 18.9996V12.9996Z"
+  }), /*#__PURE__*/_react.default.createElement("path", {
+    fillRule: "evenodd",
+    clipRule: "evenodd",
+    d: "M12.5 3.90527C11.7044 3.90527 10.9413 4.22134 10.3787 4.78395C9.81607 5.34656 9.5 6.10962 9.5 6.90527V10.9053C9.5 11.4576 9.05228 11.9053 8.5 11.9053C7.94772 11.9053 7.5 11.4576 7.5 10.9053V6.90527C7.5 5.57919 8.02678 4.30742 8.96447 3.36974C9.90215 2.43206 11.1739 1.90527 12.5 1.90527C13.8261 1.90527 15.0979 2.43206 16.0355 3.36974C16.9732 4.30742 17.5 5.57919 17.5 6.90527V10.9053C17.5 11.4576 17.0523 11.9053 16.5 11.9053C15.9477 11.9053 15.5 11.4576 15.5 10.9053V6.90527C15.5 6.10962 15.1839 5.34656 14.6213 4.78395C14.0587 4.22134 13.2956 3.90527 12.5 3.90527Z"
+  }), /*#__PURE__*/_react.default.createElement("path", {
+    d: "M6 12H19V20H6V12Z"
+  }));
+});
+var _default = LockIcon;
+exports["default"] = _default;
+
+/***/ }),
+
 /***/ "../modules/ai/assets/js/editor/icons/minimize-diagonal-icon.js":
 /*!**********************************************************************!*\
   !*** ../modules/ai/assets/js/editor/icons/minimize-diagonal-icon.js ***!
@@ -1673,6 +1713,40 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ "../modules/ai/assets/js/editor/layout-app-wrapper.js":
+/*!************************************************************!*\
+  !*** ../modules/ai/assets/js/editor/layout-app-wrapper.js ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
+var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
+var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "../node_modules/prop-types/index.js"));
+var LayoutAppWrapper = function LayoutAppWrapper(props) {
+  return /*#__PURE__*/_react.default.createElement(_ui.DirectionProvider, {
+    rtl: props.isRTL
+  }, /*#__PURE__*/_react.default.createElement(_ui.ThemeProvider, {
+    colorScheme: props.colorScheme
+  }, props.children));
+};
+LayoutAppWrapper.propTypes = {
+  children: _propTypes.default.node,
+  isRTL: _propTypes.default.bool,
+  colorScheme: _propTypes.default.oneOf(['auto', 'light', 'dark'])
+};
+var _default = LayoutAppWrapper;
+exports["default"] = _default;
+
+/***/ }),
+
 /***/ "../modules/ai/assets/js/editor/layout-app.js":
 /*!****************************************************!*\
   !*** ../modules/ai/assets/js/editor/layout-app.js ***!
@@ -1688,49 +1762,34 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
-var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
 var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "../node_modules/prop-types/index.js"));
 var _layoutContent = _interopRequireDefault(__webpack_require__(/*! ./layout-content */ "../modules/ai/assets/js/editor/layout-content.js"));
 var _attachment = __webpack_require__(/*! ./types/attachment */ "../modules/ai/assets/js/editor/types/attachment.js");
 var _config = __webpack_require__(/*! ./pages/form-layout/context/config */ "../modules/ai/assets/js/editor/pages/form-layout/context/config.js");
 var _remoteConfig = __webpack_require__(/*! ./pages/form-layout/context/remote-config */ "../modules/ai/assets/js/editor/pages/form-layout/context/remote-config.js");
-var LayoutApp = function LayoutApp(_ref) {
-  var mode = _ref.mode,
-    isRTL = _ref.isRTL,
-    colorScheme = _ref.colorScheme,
-    attachmentsTypes = _ref.attachmentsTypes,
-    attachments = _ref.attachments,
-    onClose = _ref.onClose,
-    onConnect = _ref.onConnect,
-    onData = _ref.onData,
-    onInsert = _ref.onInsert,
-    onSelect = _ref.onSelect,
-    onGenerate = _ref.onGenerate,
-    currentContext = _ref.currentContext;
-  return /*#__PURE__*/_react.default.createElement(_ui.DirectionProvider, {
-    rtl: isRTL
-  }, /*#__PURE__*/_react.default.createElement(_ui.ThemeProvider, {
-    colorScheme: colorScheme
-  }, /*#__PURE__*/_react.default.createElement(_remoteConfig.RemoteConfigProvider, {
-    onError: onClose
+var _generateIds = __webpack_require__(/*! ./utils/generate-ids */ "../modules/ai/assets/js/editor/utils/generate-ids.js");
+var LayoutApp = function LayoutApp(props) {
+  return /*#__PURE__*/_react.default.createElement(_remoteConfig.RemoteConfigProvider, {
+    onError: props.onClose
   }, /*#__PURE__*/_react.default.createElement(_config.ConfigProvider, {
-    mode: mode,
-    attachmentsTypes: attachmentsTypes,
-    onClose: onClose,
-    onConnect: onConnect,
-    onData: onData,
-    onInsert: onInsert,
-    onSelect: onSelect,
-    onGenerate: onGenerate,
-    currentContext: currentContext
+    mode: props.mode,
+    attachmentsTypes: props.attachmentsTypes,
+    onClose: props.onClose,
+    onConnect: props.onConnect,
+    onData: props.onData,
+    onInsert: props.onInsert,
+    onSelect: props.onSelect,
+    onGenerate: props.onGenerate,
+    currentContext: props.currentContext,
+    hasPro: props.hasPro,
+    sessionId: "session-".concat((0, _generateIds.getUniqueId)()),
+    editorSessionId: props.editorSessionId
   }, /*#__PURE__*/_react.default.createElement(_layoutContent.default, {
-    attachments: attachments
-  })))));
+    attachments: props.attachments
+  })));
 };
 LayoutApp.propTypes = {
   mode: _propTypes.default.oneOf(_config.LAYOUT_APP_MODES).isRequired,
-  colorScheme: _propTypes.default.oneOf(['auto', 'light', 'dark']),
-  isRTL: _propTypes.default.bool,
   attachmentsTypes: _attachment.AttachmentsTypesPropType,
   attachments: _propTypes.default.arrayOf(_attachment.AttachmentPropType),
   onClose: _propTypes.default.func.isRequired,
@@ -1739,7 +1798,10 @@ LayoutApp.propTypes = {
   onInsert: _propTypes.default.func.isRequired,
   onSelect: _propTypes.default.func.isRequired,
   onGenerate: _propTypes.default.func.isRequired,
-  currentContext: _propTypes.default.object
+  currentContext: _propTypes.default.object,
+  hasPro: _propTypes.default.bool,
+  sessionId: _propTypes.default.string,
+  editorSessionId: _propTypes.default.string
 };
 var _default = LayoutApp;
 exports["default"] = _default;
@@ -1948,7 +2010,7 @@ var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/inte
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports["default"] = void 0;
+exports["default"] = exports.ATTACHMENT_TYPE_URL = exports.ATTACHMENT_TYPE_JSON = void 0;
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
 var _extends2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/extends */ "../node_modules/@babel/runtime/helpers/extends.js"));
 var _menu = __webpack_require__(/*! ./attachments/menu */ "../modules/ai/assets/js/editor/pages/form-layout/components/attachments/menu.js");
@@ -1960,7 +2022,9 @@ var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ ".
 var _attachment = __webpack_require__(/*! ../../../types/attachment */ "../modules/ai/assets/js/editor/types/attachment.js");
 var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
 var ATTACHMENT_TYPE_JSON = 'json';
+exports.ATTACHMENT_TYPE_JSON = ATTACHMENT_TYPE_JSON;
 var ATTACHMENT_TYPE_URL = 'url';
+exports.ATTACHMENT_TYPE_URL = ATTACHMENT_TYPE_URL;
 var Attachments = function Attachments(props) {
   if (!props.attachments.length) {
     return /*#__PURE__*/_react.default.createElement(_menu.Menu, {
@@ -2719,6 +2783,236 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ "../modules/ai/assets/js/editor/pages/form-layout/components/pro-template-indicator.js":
+/*!*********************************************************************************************!*\
+  !*** ../modules/ai/assets/js/editor/pages/form-layout/components/pro-template-indicator.js ***!
+  \*********************************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+var _typeof = __webpack_require__(/*! @babel/runtime/helpers/typeof */ "../node_modules/@babel/runtime/helpers/typeof.js");
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.ProTemplateIndicator = void 0;
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "../node_modules/@babel/runtime/helpers/slicedToArray.js"));
+var _i18n = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
+var _lockIcon = _interopRequireDefault(__webpack_require__(/*! ../../../icons/lock-icon */ "../modules/ai/assets/js/editor/icons/lock-icon.js"));
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+var popoverId = 'e-pro-upgrade-popover';
+var StyledContent = (0, _ui.styled)(_ui.Paper)(function (_ref) {
+  var theme = _ref.theme;
+  return {
+    position: 'relative',
+    padding: theme.spacing(3),
+    boxShadow: theme.shadows[4],
+    zIndex: '9999'
+  };
+});
+var StyledArrow = (0, _ui.styled)(_ui.Box)(function (_ref2) {
+  var theme = _ref2.theme;
+  return {
+    position: 'absolute',
+    width: theme.spacing(5),
+    height: theme.spacing(5),
+    overflow: 'hidden',
+    // Override Popper inline styles.
+    left: '100% !important',
+    transform: 'translateX(-50%) translateY(-50%) rotate(var(--rotate, 0deg)) !important',
+    '&::after': {
+      backgroundColor: theme.palette.background.paper,
+      content: '""',
+      display: 'block',
+      position: 'absolute',
+      width: theme.spacing(2.5),
+      height: theme.spacing(2.5),
+      top: '50%',
+      left: '50%',
+      transform: 'translateX(-50%) translateY(-50%) rotate(45deg)',
+      boxShadow: '5px -5px 5px 0px rgba(0, 0, 0, 0.2)',
+      backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))'
+    }
+  };
+});
+var ProTemplateIndicator = function ProTemplateIndicator() {
+  var actionUrl = 'https://go.elementor.com/go-pro-ai/';
+  var actionLabel = (0, _i18n.__)('Go Pro', 'elementor');
+  var _useState = (0, _react.useState)(false),
+    _useState2 = (0, _slicedToArray2.default)(_useState, 2),
+    isPopoverOpen = _useState2[0],
+    setIsPopoverOpen = _useState2[1];
+  var anchorEl = (0, _react.useRef)(null);
+  var arrowEl = (0, _react.useRef)(null);
+  var showPopover = function showPopover() {
+    return setIsPopoverOpen(true);
+  };
+  var hidePopover = function hidePopover() {
+    return setIsPopoverOpen(false);
+  };
+  return /*#__PURE__*/_react.default.createElement(_ui.Box, {
+    flexDirection: "row-reverse",
+    component: "span",
+    display: "flex",
+    onMouseLeave: hidePopover,
+    alignItems: "center"
+  }, /*#__PURE__*/_react.default.createElement(_ui.IconButton, {
+    ref: anchorEl,
+    onMouseEnter: showPopover,
+    onClick: function onClick(e) {
+      return e.stopPropagation();
+    } /* Do nothing */,
+    "aria-owns": isPopoverOpen ? popoverId : undefined,
+    "aria-haspopup": "true",
+    sx: {
+      m: 1,
+      '&:hover': {
+        backgroundColor: 'action.selected'
+      }
+    }
+  }, /*#__PURE__*/_react.default.createElement(_lockIcon.default, {
+    sx: {
+      color: 'text.primary'
+    }
+  })), /*#__PURE__*/_react.default.createElement(_ui.Popper, {
+    open: isPopoverOpen,
+    popperOptions: {
+      placement: 'left-start',
+      modifiers: [{
+        name: 'arrow',
+        enabled: true,
+        options: {
+          element: arrowEl.current,
+          padding: 5
+        }
+      }, {
+        name: 'offset',
+        options: {
+          offset: [0, 10]
+        }
+      }]
+    },
+    anchorEl: anchorEl.current,
+    sx: {
+      zIndex: '9999',
+      maxWidth: 300
+    }
+  }, /*#__PURE__*/_react.default.createElement(StyledContent, null, /*#__PURE__*/_react.default.createElement(StyledArrow, {
+    ref: arrowEl
+  }), /*#__PURE__*/_react.default.createElement(_ui.Stack, {
+    alignItems: "start",
+    spacing: 2
+  }, /*#__PURE__*/_react.default.createElement(_ui.Chip, {
+    color: "accent",
+    variant: "outlined",
+    size: "small",
+    label: (0, _i18n.__)('Pro', 'elementor'),
+    icon: /*#__PURE__*/_react.default.createElement(_lockIcon.default, null)
+  }), /*#__PURE__*/_react.default.createElement(_ui.Typography, {
+    variant: "body2"
+  }, (0, _i18n.__)("This result includes an Elementor Pro widget that's not available with your current plan. Upgrade to use all the widgets in this result.", 'elementor')), /*#__PURE__*/_react.default.createElement(_ui.Button, {
+    variant: "contained",
+    color: "accent",
+    size: "small",
+    href: actionUrl,
+    target: "_blank",
+    sx: {
+      alignSelf: 'flex-end'
+    }
+  }, actionLabel)))));
+};
+exports.ProTemplateIndicator = ProTemplateIndicator;
+
+/***/ }),
+
+/***/ "../modules/ai/assets/js/editor/pages/form-layout/components/pro-widgets-notice.js":
+/*!*****************************************************************************************!*\
+  !*** ../modules/ai/assets/js/editor/pages/form-layout/components/pro-widgets-notice.js ***!
+  \*****************************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+var _typeof = __webpack_require__(/*! @babel/runtime/helpers/typeof */ "../node_modules/@babel/runtime/helpers/typeof.js");
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.ProWidgetsNotice = void 0;
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "../node_modules/@babel/runtime/helpers/slicedToArray.js"));
+var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
+var _i18n = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+var _lockIcon = _interopRequireDefault(__webpack_require__(/*! ../../../icons/lock-icon */ "../modules/ai/assets/js/editor/icons/lock-icon.js"));
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+var ProWidgetsNotice = function ProWidgetsNotice() {
+  var _useState = (0, _react.useState)(false),
+    _useState2 = (0, _slicedToArray2.default)(_useState, 2),
+    isViewed = _useState2[0],
+    setIsViewed = _useState2[1];
+  if (isViewed) {
+    return null;
+  }
+  return /*#__PURE__*/_react.default.createElement(_ui.Box, {
+    sx: {
+      pt: 2,
+      px: 2,
+      pb: 0
+    }
+  }, /*#__PURE__*/_react.default.createElement(_ui.Alert, {
+    severity: "info",
+    variant: "filled",
+    color: "accent",
+    onClose: function onClose() {
+      return setIsViewed(true);
+    },
+    icon: /*#__PURE__*/_react.default.createElement(_lockIcon.default, null),
+    sx: {
+      '& .MuiAlert-message': {
+        width: '100%'
+      }
+    }
+  }, /*#__PURE__*/_react.default.createElement(_ui.Stack, {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "space-between"
+  }, /*#__PURE__*/_react.default.createElement(_ui.Typography, {
+    variant: "body2",
+    component: "span",
+    sx: {
+      paddingInlineEnd: 0.5
+    }
+  }, /*#__PURE__*/_react.default.createElement(_ui.Typography, {
+    variant: "body2",
+    component: "span",
+    sx: {
+      paddingInlineEnd: 1
+    }
+  }, (0, _i18n.__)('Upgrade your plan for best results.', 'elementor')), (0, _i18n.__)('You won’t be able to use layouts with Elementor Pro widgets until you do.', 'elementor')), /*#__PURE__*/_react.default.createElement(_ui.Button, {
+    variant: "outlined",
+    size: "small",
+    href: "https://go.elementor.com/upgrade-pro/",
+    target: "_blank",
+    sx: {
+      color: 'accent.contrastText',
+      borderColor: 'accent.contrastText',
+      '&:hover': {
+        borderColor: 'accent.contrastText'
+      }
+    }
+  }, (0, _i18n.__)('Go Pro', 'elementor')))));
+};
+exports.ProWidgetsNotice = ProWidgetsNotice;
+
+/***/ }),
+
 /***/ "../modules/ai/assets/js/editor/pages/form-layout/components/prompt-autocomplete.js":
 /*!******************************************************************************************!*\
   !*** ../modules/ai/assets/js/editor/pages/form-layout/components/prompt-autocomplete.js ***!
@@ -3167,11 +3461,13 @@ var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
 var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "../node_modules/prop-types/index.js"));
 var _screenshotContainer = _interopRequireDefault(__webpack_require__(/*! ./screenshot-container */ "../modules/ai/assets/js/editor/pages/form-layout/components/screenshot-container.js"));
 var _screenshotUnavailable = _interopRequireDefault(__webpack_require__(/*! ./screenshot-unavailable */ "../modules/ai/assets/js/editor/pages/form-layout/components/screenshot-unavailable.js"));
+var _templateBadge = _interopRequireDefault(__webpack_require__(/*! ./template-badge */ "../modules/ai/assets/js/editor/pages/form-layout/components/template-badge.js"));
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var SCREENSHOT_HEIGHT = '138px';
 var Screenshot = function Screenshot(_ref) {
   var url = _ref.url,
+    type = _ref.type,
     _ref$isLoading = _ref.isLoading,
     isLoading = _ref$isLoading === void 0 ? false : _ref$isLoading,
     _ref$isSelected = _ref.isSelected,
@@ -3217,7 +3513,9 @@ var Screenshot = function Screenshot(_ref) {
     onClick: onClick,
     height: SCREENSHOT_HEIGHT,
     outlineOffset: outlineOffset
-  });
+  }, /*#__PURE__*/_react.default.createElement(_templateBadge.default, {
+    type: type
+  }));
 };
 Screenshot.propTypes = {
   isSelected: _propTypes.default.bool,
@@ -3226,11 +3524,46 @@ Screenshot.propTypes = {
   disabled: _propTypes.default.bool,
   onClick: _propTypes.default.func.isRequired,
   url: _propTypes.default.string,
+  type: _propTypes.default.string,
   sx: _propTypes.default.object,
   outlineOffset: _propTypes.default.string
 };
 var _default = Screenshot;
 exports["default"] = _default;
+
+/***/ }),
+
+/***/ "../modules/ai/assets/js/editor/pages/form-layout/components/template-badge.js":
+/*!*************************************************************************************!*\
+  !*** ../modules/ai/assets/js/editor/pages/form-layout/components/template-badge.js ***!
+  \*************************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
+var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "../node_modules/prop-types/index.js"));
+var _config = __webpack_require__(/*! ../context/config */ "../modules/ai/assets/js/editor/pages/form-layout/context/config.js");
+var _proTemplateIndicator = __webpack_require__(/*! ./pro-template-indicator */ "../modules/ai/assets/js/editor/pages/form-layout/components/pro-template-indicator.js");
+var TemplateBadge = function TemplateBadge(props) {
+  var _useConfig = (0, _config.useConfig)(),
+    hasPro = _useConfig.hasPro;
+  if ('Pro' === props.type && !hasPro) {
+    return /*#__PURE__*/_react.default.createElement(_proTemplateIndicator.ProTemplateIndicator, null);
+  }
+  return null;
+};
+var _default = TemplateBadge;
+exports["default"] = _default;
+TemplateBadge.propTypes = {
+  type: _propTypes.default.string
+};
 
 /***/ }),
 
@@ -3326,7 +3659,10 @@ var ConfigProvider = function ConfigProvider(props) {
       onInsert: props.onInsert,
       onSelect: props.onSelect,
       onGenerate: props.onGenerate,
-      currentContext: props.currentContext
+      currentContext: props.currentContext,
+      hasPro: props.hasPro,
+      sessionId: props.sessionId,
+      editorSessionId: props.editorSessionId
     }
   }, props.children);
 };
@@ -3341,7 +3677,10 @@ ConfigProvider.propTypes = {
   onInsert: _propTypes.default.func.isRequired,
   onSelect: _propTypes.default.func.isRequired,
   onGenerate: _propTypes.default.func.isRequired,
-  currentContext: _propTypes.default.object
+  currentContext: _propTypes.default.object,
+  hasPro: _propTypes.default.bool,
+  sessionId: _propTypes.default.string,
+  editorSessionId: _propTypes.default.string
 };
 var _default = ConfigContext;
 exports["default"] = _default;
@@ -3582,8 +3921,9 @@ var useScreenshot = function useScreenshot(type, onData) {
                 return layoutData.sendUsageData(data);
               };
               createdScreenshot.baseTemplateId = data.baseTemplateId;
+              createdScreenshot.type = data.type;
               return _context.abrupt("return", createdScreenshot);
-            case 6:
+            case 7:
             case "end":
               return _context.stop();
           }
@@ -3631,6 +3971,7 @@ var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runt
 var _react = __webpack_require__(/*! react */ "react");
 var _useScreenshot = _interopRequireDefault(__webpack_require__(/*! ./use-screenshot */ "../modules/ai/assets/js/editor/pages/form-layout/hooks/use-screenshot.js"));
 var _config = __webpack_require__(/*! ../context/config */ "../modules/ai/assets/js/editor/pages/form-layout/context/config.js");
+var _generateIds = __webpack_require__(/*! ../../../utils/generate-ids */ "../modules/ai/assets/js/editor/utils/generate-ids.js");
 var PENDING_VALUE = {
   isPending: true
 };
@@ -3640,8 +3981,22 @@ var useScreenshots = function useScreenshots(_ref) {
     _useState2 = (0, _slicedToArray2.default)(_useState, 2),
     screenshots = _useState2[0],
     setScreenshots = _useState2[1];
+
+  /**
+   * The ids for each request are:
+   * - editorSessionId: a unique id for each editor opening
+   * - sessionId: a unique id for each session. (open the AI builder)
+   * - generateId: a unique id for each generate request. (prompt change)
+   * - batchId: a unique id for each batch of generate requests. (generate, regenerate)
+   * - requestId: a unique id for each generate request.
+   */
+
   var _useConfig = (0, _config.useConfig)(),
-    currentContext = _useConfig.currentContext;
+    currentContext = _useConfig.currentContext,
+    sessionId = _useConfig.sessionId,
+    editorSessionId = _useConfig.editorSessionId;
+  var generateIdRef = (0, _react.useRef)('');
+  var batchId = "batch-".concat((0, _generateIds.getUniqueId)());
   var screenshotsData = [(0, _useScreenshot.default)(0, onData), (0, _useScreenshot.default)(1, onData), (0, _useScreenshot.default)(2, onData)];
   var screenshotsGroupCount = screenshotsData.length;
   var error = screenshotsData.every(function (s) {
@@ -3691,6 +4046,13 @@ var useScreenshots = function useScreenshots(_ref) {
                 prompt: prompt,
                 prevGeneratedIds: prevGeneratedIds,
                 currentContext: currentContext,
+                ids: {
+                  editorSessionId: editorSessionId,
+                  sessionId: sessionId,
+                  generateId: generateIdRef.current,
+                  batchId: batchId,
+                  requestId: "request-".concat((0, _generateIds.getUniqueId)())
+                },
                 attachments: attachments.map(function (_ref4) {
                   var type = _ref4.type,
                     content = _ref4.content,
@@ -3731,6 +4093,7 @@ var useScreenshots = function useScreenshots(_ref) {
   }();
   var generate = function generate(prompt, attachments) {
     var placeholders = Array(screenshotsGroupCount).fill(PENDING_VALUE);
+    generateIdRef.current = "generate-".concat((0, _generateIds.getUniqueId)());
     setScreenshots(placeholders);
     createScreenshots(prompt, attachments);
   };
@@ -3844,6 +4207,8 @@ var _expandDiagonalIcon = _interopRequireDefault(__webpack_require__(/*! ../../i
 var _config = __webpack_require__(/*! ./context/config */ "../modules/ai/assets/js/editor/pages/form-layout/context/config.js");
 var _attachment = __webpack_require__(/*! ../../types/attachment */ "../modules/ai/assets/js/editor/types/attachment.js");
 var _promptPowerNotice = __webpack_require__(/*! ./components/attachments/prompt-power-notice */ "../modules/ai/assets/js/editor/pages/form-layout/components/attachments/prompt-power-notice.js");
+var _proWidgetsNotice = __webpack_require__(/*! ./components/pro-widgets-notice */ "../modules/ai/assets/js/editor/pages/form-layout/components/pro-widgets-notice.js");
+var _attachments = __webpack_require__(/*! ./components/attachments */ "../modules/ai/assets/js/editor/pages/form-layout/components/attachments.js");
 var _excluded = ["children"];
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -3887,7 +4252,8 @@ var FormLayout = function FormLayout(_ref) {
     onInsert = _useConfig.onInsert,
     onSelect = _useConfig.onSelect,
     onClose = _useConfig.onClose,
-    onGenerate = _useConfig.onGenerate;
+    onGenerate = _useConfig.onGenerate,
+    hasPro = _useConfig.hasPro;
   var _useScreenshots = (0, _useScreenshots2.default)({
       onData: onData
     }),
@@ -3937,6 +4303,9 @@ var FormLayout = function FormLayout(_ref) {
   // When there are no screenshots the prompt field should be editable.
   var shouldFallbackToEditPrompt = !!(error && 0 === screenshots.length);
   var isPromptFormActive = isPromptEditable || shouldFallbackToEditPrompt;
+  var mayContainProWidgets = 0 === attachments.length || attachments.some(function (attachment) {
+    return _attachments.ATTACHMENT_TYPE_URL === attachment.type;
+  });
   var abortAndClose = function abortAndClose() {
     abort();
     onClose();
@@ -4049,7 +4418,7 @@ var FormLayout = function FormLayout(_ref) {
       px: 2,
       pb: 0
     }
-  }, dialogContentChildren), attachments.length > 0 && /*#__PURE__*/_react.default.createElement(_promptPowerNotice.PromptPowerNotice, null), error && /*#__PURE__*/_react.default.createElement(_ui.Box, {
+  }, dialogContentChildren), mayContainProWidgets && !hasPro && /*#__PURE__*/_react.default.createElement(_proWidgetsNotice.ProWidgetsNotice, null), attachments.length > 0 && /*#__PURE__*/_react.default.createElement(_promptPowerNotice.PromptPowerNotice, null), error && /*#__PURE__*/_react.default.createElement(_ui.Box, {
     sx: {
       pt: 2,
       px: 2,
@@ -4107,12 +4476,14 @@ var FormLayout = function FormLayout(_ref) {
     }
   }, screenshots.map(function (_ref2, index) {
     var screenshot = _ref2.screenshot,
+      type = _ref2.type,
       template = _ref2.template,
       isError = _ref2.isError,
       isPending = _ref2.isPending;
     return /*#__PURE__*/_react.default.createElement(_screenshot.default, {
       key: index,
       url: screenshot,
+      type: type,
       disabled: isPromptFormActive,
       isPlaceholder: isError,
       isLoading: isPending,
@@ -4426,7 +4797,8 @@ var _layoutApp = _interopRequireDefault(__webpack_require__(/*! ../layout-app */
 var _screenshot = __webpack_require__(/*! ./screenshot */ "../modules/ai/assets/js/editor/utils/screenshot.js");
 var _history = __webpack_require__(/*! ./history */ "../modules/ai/assets/js/editor/utils/history.js");
 var _i18n = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-var _genereateIds = __webpack_require__(/*! ./genereate-ids */ "../modules/ai/assets/js/editor/utils/genereate-ids.js");
+var _generateIds = __webpack_require__(/*! ./generate-ids */ "../modules/ai/assets/js/editor/utils/generate-ids.js");
+var _layoutAppWrapper = _interopRequireDefault(__webpack_require__(/*! ../layout-app-wrapper */ "../modules/ai/assets/js/editor/layout-app-wrapper.js"));
 var closePanel = function closePanel() {
   $e.run('panel/close');
   $e.components.get('panel').blockUserInteractions();
@@ -4473,6 +4845,7 @@ var VARIATIONS_PROMPTS = [{
   text: (0, _i18n.__)('Warm hues with comforting visuals about', 'elementor')
 }];
 var PROMPT_PLACEHOLDER = (0, _i18n.__)("Press '/' for suggestions or describe the changes you want to apply (optional)...", 'elementor');
+var EDITOR_SESSION_ID = "editor-session-".concat((0, _generateIds.getUniqueId)());
 var renderLayoutApp = function renderLayoutApp() {
   var _options$onRenderApp;
   var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
@@ -4496,10 +4869,11 @@ var renderLayoutApp = function renderLayoutApp() {
   var rootElement = document.createElement('div');
   document.body.append(rootElement);
   var bodyStyle = window.elementorFrontend.elements.$window[0].getComputedStyle(window.elementorFrontend.elements.$body[0]);
-  ReactDOM.render( /*#__PURE__*/_react.default.createElement(_layoutApp.default, {
-    mode: options.mode,
+  ReactDOM.render( /*#__PURE__*/_react.default.createElement(_layoutAppWrapper.default, {
     isRTL: isRTL,
-    colorScheme: colorScheme,
+    colorScheme: colorScheme
+  }, /*#__PURE__*/_react.default.createElement(_layoutApp.default, {
+    mode: options.mode,
     currentContext: {
       body: {
         backgroundColor: bodyStyle.backgroundColor,
@@ -4583,8 +4957,10 @@ var renderLayoutApp = function renderLayoutApp() {
       (_options$onSelect = options.onSelect) === null || _options$onSelect === void 0 ? void 0 : _options$onSelect.call(options);
       previewContainer.setContent(template);
     },
-    onInsert: options.onInsert
-  }), rootElement);
+    onInsert: options.onInsert,
+    hasPro: elementor.helpers.hasPro(),
+    editorSessionId: EDITOR_SESSION_ID
+  })), rootElement);
   (_options$onRenderApp = options.onRenderApp) === null || _options$onRenderApp === void 0 ? void 0 : _options$onRenderApp.call(options, {
     previewContainer: previewContainer
   });
@@ -4607,7 +4983,7 @@ var importToEditor = function importToEditor(_ref2) {
   }
   $e.run('document/elements/create', {
     container: elementor.getPreviewContainer(),
-    model: (0, _genereateIds.generateIds)(template),
+    model: (0, _generateIds.generateIds)(template),
     options: {
       at: at,
       edit: true
@@ -4619,10 +4995,10 @@ exports.importToEditor = importToEditor;
 
 /***/ }),
 
-/***/ "../modules/ai/assets/js/editor/utils/genereate-ids.js":
-/*!*************************************************************!*\
-  !*** ../modules/ai/assets/js/editor/utils/genereate-ids.js ***!
-  \*************************************************************/
+/***/ "../modules/ai/assets/js/editor/utils/generate-ids.js":
+/*!************************************************************!*\
+  !*** ../modules/ai/assets/js/editor/utils/generate-ids.js ***!
+  \************************************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -4632,10 +5008,12 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.generateIds = generateIds;
+exports.getUniqueId = void 0;
 // Create missing IDs for the elements.
 var getUniqueId = function getUniqueId() {
   return Math.random().toString(16).substr(2, 7);
 };
+exports.getUniqueId = getUniqueId;
 function generateIds(template) {
   var _template$elements;
   template.id = getUniqueId().toString();
@@ -4819,7 +5197,7 @@ var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/
 var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "../node_modules/@babel/runtime/helpers/asyncToGenerator.js"));
 var _htmlToImage = __webpack_require__(/*! html-to-image */ "../node_modules/html-to-image/es/index.js");
 var _history = __webpack_require__(/*! ./history */ "../modules/ai/assets/js/editor/utils/history.js");
-var _genereateIds = __webpack_require__(/*! ./genereate-ids */ "../modules/ai/assets/js/editor/utils/genereate-ids.js");
+var _generateIds = __webpack_require__(/*! ./generate-ids */ "../modules/ai/assets/js/editor/utils/generate-ids.js");
 var takeScreenshot = /*#__PURE__*/function () {
   var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(template) {
     var hiddenWrapper, container, screenshot;
@@ -4921,7 +5299,7 @@ function createHiddenWrapper() {
   return wrapper;
 }
 function createContainer(template) {
-  var model = (0, _genereateIds.generateIds)(template);
+  var model = (0, _generateIds.generateIds)(template);
 
   // Set a custom ID, so it can be used later on in the backend.
   model.id = "e-ai-screenshot-container-".concat(model.id);

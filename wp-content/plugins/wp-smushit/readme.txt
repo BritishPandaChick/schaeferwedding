@@ -1,13 +1,13 @@
 === Smush - Optimize, Compress and Lazy Load Images ===
 Plugin Name: Smush - Lazy Load Images, Optimize & Compress Images
-Version: 3.15.1
+Version: 3.15.2
 Author: WPMU DEV
 Author URI: https://wpmudev.com/
 Contributors: WPMUDEV, alexdunae
 Tags: optimize images, convert webp, webp, image optimization, compress images, lazy load, resize images, image optimizer, image compressor, performance, reduce image size
 Requires at least: 5.3
 Tested up to: 6.4
-Stable tag: 3.15.1
+Stable tag: 3.15.2
 Requires PHP: 7.4
 License: GPL v2 - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -231,6 +231,10 @@ It depends what side of the pond you live on... but whether you say optimize, op
 4. Automatically resize images on upload.
 
 == Changelog ==
+
+= 3.15.2 ( 2023-12-11 ) =
+- Fix: Compatibility issues with WP Offload Media integration
+- Fix: Resize module deletes thumbnail when there is a naming conflict
 
 = 3.15.1 ( 2023-11-15 ) =
 - Improvement: Code stability improvements
