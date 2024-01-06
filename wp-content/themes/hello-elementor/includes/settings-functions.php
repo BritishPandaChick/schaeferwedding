@@ -59,6 +59,43 @@ function hello_elementor_settings_page_scripts() {
 		$script_asset['version']
 	);
 
+	$plugins = get_plugins();
+
+	if ( ! isset( $plugins['elementor/elementor.php'] ) ) {
+		$action_link_type = 'install-elementor';
+		$action_link_url = wp_nonce_url(
+			add_query_arg(
+				[
+					'action' => 'install-plugin',
+					'plugin' => 'elementor',
+				],
+				admin_url( 'update.php' )
+			),
+			'install-plugin_elementor'
+		);
+	} elseif ( ! defined( 'ELEMENTOR_VERSION' ) ) {
+		$action_link_type = 'activate-elementor';
+		$action_link_url = wp_nonce_url( 'plugins.php?action=activate&plugin=elementor/elementor.php', 'activate-plugin_elementor/elementor.php' );
+	} elseif ( hello_header_footer_experiment_active() && ! hello_header_footer_experiment_active() ) {
+		$action_link_type = 'activate-header-footer-experiment';
+		$action_link_url = wp_nonce_url( 'admin.php?page=elementor#tab-experiments' );
+	} elseif ( hello_header_footer_experiment_active() ) {
+		$action_link_type = 'style-header-footer';
+		$action_link_url = wp_nonce_url( 'post.php?post=' . get_option( 'elementor_active_kit' ) . '&action=elementor' );
+	} else {
+		$action_link_type = '';
+		$action_link_url = '';
+	}
+
+	wp_localize_script(
+		$handle,
+		'helloAdminData',
+		[
+			'actionLinkType' => $action_link_type,
+			'actionLinkURL' => $action_link_url,
+			'templateDirectoryURI' => get_template_directory_uri(),
+		]
+	);
 }
 
 /**
@@ -80,6 +117,7 @@ function hello_elementor_tweak_settings() {
 	$settings = [
 		'DESCRIPTION_META_TAG' => '_description_meta_tag',
 		'SKIP_LINK' => '_skip_link',
+		'HEADER_FOOTER' => '_header_footer',
 		'PAGE_TITLE' => '_page_title',
 		'HELLO_STYLE' => '_hello_style',
 		'HELLO_THEME' => '_hello_theme',
@@ -131,6 +169,10 @@ function hello_elementor_render_tweaks( $settings_group, $settings ) {
 
 	hello_elementor_do_tweak( $settings_group . $settings['SKIP_LINK'], function() {
 		add_filter( 'hello_elementor_enable_skip_link', '__return_false' );
+	} );
+
+	hello_elementor_do_tweak( $settings_group . $settings['HEADER_FOOTER'], function() {
+		add_filter( 'hello_elementor_header_footer', '__return_false' );
 	} );
 
 	hello_elementor_do_tweak( $settings_group . $settings['PAGE_TITLE'], function() {

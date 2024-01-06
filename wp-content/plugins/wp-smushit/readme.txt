@@ -1,13 +1,13 @@
 === Smush - Optimize, Compress and Lazy Load Images ===
 Plugin Name: Smush - Lazy Load Images, Optimize & Compress Images
-Version: 3.15.2
+Version: 3.15.3
 Author: WPMU DEV
 Author URI: https://wpmudev.com/
 Contributors: WPMUDEV, alexdunae
 Tags: optimize images, convert webp, webp, image optimization, compress images, lazy load, resize images, image optimizer, image compressor, performance, reduce image size
 Requires at least: 5.3
 Tested up to: 6.4
-Stable tag: 3.15.2
+Stable tag: 3.15.3
 Requires PHP: 7.4
 License: GPL v2 - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -17,7 +17,7 @@ Compress images & optimize images with built-in lossless compression, lazy load,
 
 ### The #1 Image Optimization Plugin for WordPress ###
 
-[Smush](https://wpmudev.com/project/wp-smush-pro/) is the leading image optimization plugin - optimize, resize, and compress images, as well as converting images to WebP format for faster loading web pages. 
+[Smush](https://wpmudev.com/project/wp-smush-pro/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=smush-readme&utm_content=wp_smush_pro#trial) is the leading image optimization plugin - optimize, resize, and compress images, as well as converting images to WebP format for faster loading web pages. 
 
 Brought to you by the WPMU DEV team - founded in 2007 and trusted by web professionals from freelancer to agency worldwide ever since. 
 
@@ -27,7 +27,7 @@ Whether you spell it 'optimise' or 'optimize' - with Smush’s image optimizer y
 
 ### Award-Winning Image Optimizer ###
 
-Smush has been benchmarked and tested number one for speed and quality. Beyond that, it's also the [award-winning](https://wpmudev.com/blog/smush-wins-plugin-madness-champion-back-to-back/), back-to-back proven crowd-favorite WordPress image optimizer trusted by over 1M+ worldwide to: 
+Smush has been benchmarked and tested number one for speed and quality. Beyond that, it's also the [award-winning](https://wpmudev.com/blog/smush-wins-plugin-madness-champion-back-to-back/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=smush-readme&utm_content=wpmu_dev_blog_award_winning), back-to-back proven crowd-favorite WordPress image optimizer trusted by over 1M+ worldwide to: 
 
 - Optimize images
 - Compress images
@@ -66,10 +66,10 @@ Discover the features that set Smush apart from other image optimization plugins
 
 ### Learn More With These Hands-On Image Optimization & Performance Tutorials
 
-- [How To Convert Images to WebP In WordPress](https://wpmudev.com/blog/serve-images-next-gen-formats-webp)
-- [The Ultimate Guide to Image Optimization for WordPress](https://wpmudev.com/blog/image-optimization-guide/)
-- [How To Resize and Compress Multiple Images (In Bulk)](https://wpmudev.com/blog/smush-bulk-optimize-images/)
-- [How To Ace Google PageSpeed's Image Recommendations with Smush](https://wpmudev.com/blog/smush-pagespeed-image-compression/)
+- [How To Convert Images to WebP In WordPress](https://wpmudev.com/blog/serve-images-next-gen-formats-webp?utm_source=wordpress.org&utm_medium=readme&utm_campaign=smush-readme&utm_content=wpmu_dev_blog_webp)
+- [The Ultimate Guide to Image Optimization for WordPress](https://wpmudev.com/blog/image-optimization-guide/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=smush-readme&utm_content=wpmu_dev_blog_ultimateguide)
+- [How To Resize and Compress Multiple Images (In Bulk)](https://wpmudev.com/blog/smush-bulk-optimize-images/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=smush-readme&utm_content=wpmu_dev_blog_bulk)
+- [How To Ace Google PageSpeed's Image Recommendations with Smush](https://wpmudev.com/blog/smush-pagespeed-image-compression/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=smush-readme&utm_content=wpmu_dev_blog_pagespeed)
 
 
 ### Convert WebP - Serve Images In Next-Gen Formats
@@ -80,7 +80,7 @@ With Smush, you can take advantage of next-gen image formats by converting all o
 
 **The best part:** Smush's Convert WebP feature makes this incredibly easy to set up with the ability to host all images locally (not requiring the use of a CDN). Our Convert WebP feature includes automatically replacing PNG, JPEG, and GIF images on your website's frontend to serve WebP images - with the necessary fallbacks for browsers that don't support WebP yet. 
 
-Learn more: [How To Convert Images to WebP In WordPress](https://wpmudev.com/blog/serve-images-next-gen-formats-webp)
+Learn more: [How To Convert Images to WebP In WordPress](https://wpmudev.com/blog/serve-images-next-gen-formats-webp?utm_source=wordpress.org&utm_medium=readme&utm_campaign=smush-readme&utm_content=wpmu_dev_blog_webp)
 
 Note: Yes, Smush supports WebP conversion for all image formats - GIF to WebP, JPEG to WebP, and - of course - PNG to WebP. 
 
@@ -223,6 +223,10 @@ WebP and other Next-Gen formats are not supported on all browsers and require fa
 = Is it optimize or optimise? =
 It depends what side of the pond you live on... but whether you say optimize, optimise, optimizer, or Smush goddess of speed, this plugin will make sure your images are loading lightning fast.
 
+= How can I report security issues or bugs? =
+
+We take plugin security incredibly seriously; if you have a bug or vulnerability to report, you can do so through the Patchstack Vulnerability Disclosure Program. It’s fast, easy, and you will be notified when the issue is fixed. [Report a vulnerability](https://patchstack.com/database/vdp/wp-smushit).
+
 == Screenshots ==
 
 1. Getting started couldn't be easier with the Smush setup wizard.
@@ -231,6 +235,9 @@ It depends what side of the pond you live on... but whether you say optimize, op
 4. Automatically resize images on upload.
 
 == Changelog ==
+
+= 3.15.3 ( 2023-12-20 ) =
+- Improvement: Code stability improvements
 
 = 3.15.2 ( 2023-12-11 ) =
 - Fix: Compatibility issues with WP Offload Media integration

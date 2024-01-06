@@ -1,4 +1,4 @@
-/*! elementor - v3.18.0 - 08-12-2023 */
+/*! elementor - v3.18.0 - 20-12-2023 */
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -27125,7 +27125,7 @@ var EditorBase = /*#__PURE__*/function (_Marionette$Applicati) {
       if (!this.config.elements[elType]) {
         return false;
       }
-      var elementConfig = elementorCommon.helpers.cloneObject(this.config.elements[elType]);
+      var elementConfig = structuredClone(this.config.elements[elType]);
       if ('section' === elType && model.get('isInner')) {
         elementConfig.title = __('Inner Section', 'elementor');
       }
@@ -28170,7 +28170,7 @@ var EditorBase = /*#__PURE__*/function (_Marionette$Applicati) {
         var devicesArrayToDuplicate = controlDevices || devices;
         devicesArrayToDuplicate.forEach(function (device, index) {
           var _controlArgs$popover;
-          var controlArgs = elementorCommon.helpers.cloneObject(controlConfig);
+          var controlArgs = structuredClone(controlConfig);
           if (controlArgs.device_args) {
             if (controlArgs.device_args[device]) {
               controlArgs = _objectSpread(_objectSpread({}, controlArgs), controlArgs.device_args[device]);
@@ -28796,7 +28796,7 @@ ElementModel = _baseElementModel.default.extend({
       },
       SettingsModel = settingModels[elType] || elementorModules.editor.elements.models.BaseSettings;
     if (jQuery.isEmptyObject(settings)) {
-      settings = elementorCommon.helpers.cloneObject(settings);
+      settings = structuredClone(settings);
     }
     if ('widget' === elType) {
       settings.widgetType = this.get('widgetType');
@@ -40082,7 +40082,7 @@ presetsFactory = {
     };
   },
   getAbsolutePresetValues: function getAbsolutePresetValues(preset) {
-    var clonedPreset = elementorCommon.helpers.cloneObject(preset),
+    var clonedPreset = structuredClone(preset),
       presetDictionary = this.getPresetsDictionary();
     _.each(clonedPreset, function (unitValue, unitIndex) {
       if (presetDictionary[unitValue]) {
@@ -40092,7 +40092,7 @@ presetsFactory = {
     return clonedPreset;
   },
   getPresets: function getPresets(columnsCount, presetIndex) {
-    var presets = elementorCommon.helpers.cloneObject(elementor.config.elements.section.presets);
+    var presets = structuredClone(elementor.config.elements.section.presets);
     if (columnsCount) {
       presets = presets[columnsCount];
     }

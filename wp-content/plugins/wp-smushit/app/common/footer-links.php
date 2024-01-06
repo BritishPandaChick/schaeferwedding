@@ -31,19 +31,19 @@ if ( WP_Smush::is_pro() ) {
 		<li><a href="https://profiles.wordpress.org/wpmudev#content-plugins" target="_blank">
 				<?php esc_html_e( 'Free Plugins', 'wp-smushit' ); ?>
 			</a></li>
-		<li><a href="https://wpmudev.com/roadmap/" target="_blank">
+		<li><a href="https://wpmudev.com/roadmap/?utm_source=smush&utm_medium=plugin&utm_campaign=smush_footer_roadmap" target="_blank">
 				<?php esc_html_e( 'Roadmap', 'wp-smushit' ); ?>
 			</a></li>
 		<li><a href="https://wordpress.org/support/plugin/wp-smushit" target="_blank">
 				<?php esc_html_e( 'Support', 'wp-smushit' ); ?>
 			</a></li>
-		<li><a href="https://wpmudev.com/docs/" target="_blank">
+		<li><a href="https://wpmudev.com/docs/?utm_source=smush&utm_medium=plugin&utm_campaign=smush_footer_docs" target="_blank">
 				<?php esc_html_e( 'Docs', 'wp-smushit' ); ?>
 			</a></li>
-		<li><a href="https://wpmudev.com/hub-welcome/" target="_blank">
+		<li><a href="https://wpmudev.com/hub-welcome/?utm_source=smush&utm_medium=plugin&utm_campaign=smush_footer_hub" target="_blank">
 				<?php esc_html_e( 'The Hub', 'wp-smushit' ); ?>
 			</a></li>
-		<li><a href="https://wpmudev.com/terms-of-service/" target="_blank">
+		<li><a href="https://wpmudev.com/terms-of-service/?utm_source=smush&utm_medium=plugin&utm_campaign=smush_footer_tos" target="_blank">
 				<?php esc_html_e( 'Terms of Service', 'wp-smushit' ); ?>
 			</a></li>
 		<li><a href="https://incsub.com/privacy-policy/" target="_blank">

@@ -18,7 +18,7 @@ class Settings_Footer extends Tab_Base {
 	}
 
 	public function get_title() {
-		return esc_html__( 'Footer', 'hello-elementor' );
+		return esc_html__( 'Hello Theme Footer', 'hello-elementor' );
 	}
 
 	public function get_icon() {
@@ -92,6 +92,25 @@ class Settings_Footer extends Tab_Base {
 		);
 
 		$this->add_control(
+			'hello_footer_disable_note',
+			[
+				'type' => Controls_Manager::RAW_HTML,
+				'raw' => sprintf(
+					/* translators: %s: Link that opens the theme settings page. */
+					__( 'Note: Hiding all the elements, only hides them visually. To disable them completely go to <a href="%s">Theme Settings</a> .', 'hello-elementor' ),
+					admin_url( 'themes.php?page=hello-theme-settings' )
+				),
+				'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
+				'condition' => [
+					'hello_footer_logo_display' => '',
+					'hello_footer_tagline_display' => '',
+					'hello_footer_menu_display' => '',
+					'hello_footer_copyright_display' => '',
+				],
+			]
+		);
+
+		$this->add_control(
 			'hello_footer_layout',
 			[
 				'type' => Controls_Manager::SELECT,
@@ -103,6 +122,7 @@ class Settings_Footer extends Tab_Base {
 				],
 				'selector' => '.site-footer',
 				'default' => 'default',
+				'separator' => 'before',
 			]
 		);
 
@@ -479,38 +499,31 @@ class Settings_Footer extends Tab_Base {
 	}
 
 	public function get_additional_tab_content() {
+		$content_template = '
+			<div class="hello-elementor elementor-nerd-box">
+				<img src="%1$s" class="elementor-nerd-box-icon">
+				<p class="elementor-nerd-box-title">%2$s</p>
+				<p class="elementor-nerd-box-message">%3$s</p>
+				<a class="elementor-nerd-box-link elementor-button" target="_blank" href="%4$s">%5$s</a>
+			</div>';
+
 		if ( ! defined( 'ELEMENTOR_PRO_VERSION' ) ) {
-			return sprintf( '
-				<div class="hello-elementor elementor-nerd-box">
-					<img src="%4$s" class="elementor-nerd-box-icon">
-					<div class="elementor-nerd-box-message">
-						<p class="elementor-panel-heading-title elementor-nerd-box-title">%1$s</p>
-						<p>%2$s</p>
-					</div>
-					<a class="elementor-button go-pro" target="_blank" href="https://go.elementor.com/hello-theme-footer/">%3$s</a>
-				</div>
-				',
+			return sprintf(
+				$content_template,
+				get_template_directory_uri() . '/assets/images/go-pro.svg',
 				esc_html__( 'Create a custom footer with multiple options', 'hello-elementor' ),
 				esc_html__( 'Upgrade to Elementor Pro and enjoy free design and many more features', 'hello-elementor' ),
-				esc_html__( 'Upgrade', 'hello-elementor' ),
-				get_template_directory_uri() . '/assets/images/go-pro.svg'
+				'https://go.elementor.com/hello-theme-footer/',
+				esc_html__( 'Upgrade', 'hello-elementor' )
 			);
 		} else {
-			return sprintf( '
-				<div class="hello-elementor elementor-nerd-box">
-					<img src="%4$s" class="elementor-nerd-box-icon">
-					<div class="elementor-nerd-box-message">
-						<p class="elementor-panel-heading-title elementor-nerd-box-title">%1$s</p>
-						<p class="elementor-nerd-box-message">%2$s</p>
-					</div>
-					<a class="elementor-button e-primary" target="_blank" href="%5$s">%3$s</a>
-				</div>
-				',
-				esc_html__( 'Create a custom footer with the new Theme Builder', 'hello-elementor' ),
-				esc_html__( 'With the new Theme Builder you can jump directly into each part of your site', 'hello-elementor' ),
-				esc_html__( 'Create Footer', 'hello-elementor' ),
+			return sprintf(
+				$content_template,
 				get_template_directory_uri() . '/assets/images/go-pro.svg',
-				get_admin_url( null, 'admin.php?page=elementor-app#/site-editor/templates/footer' )
+				esc_html__( 'Create a custom footer with the Theme Builder', 'hello-elementor' ),
+				esc_html__( 'With the Theme Builder you can jump directly into each part of your site', 'hello-elementor' ),
+				get_admin_url( null, 'admin.php?page=elementor-app#/site-editor/templates/footer' ),
+				esc_html__( 'Create Footer', 'hello-elementor' )
 			);
 		}
 	}

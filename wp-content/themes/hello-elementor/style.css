@@ -1,31 +1,25 @@
 /*
 	Theme Name: Hello Elementor
 	Theme URI: https://elementor.com/hello-theme/?utm_source=wp-themes&utm_campaign=theme-uri&utm_medium=wp-dash
-	Description: Hello Elementor is a lightweight and minimalist WordPress theme that was built specifically to work seamlessly with the Elementor page builder plugin. The theme is free, open-source, and designed for users who want a flexible, easy-to-use, and customizable website. The theme, which is optimized for performance, provides a solid foundation for users to build their own unique designs using the Elementor drag-and-drop site builder. Its simplicity and flexibility make it a great choice for both beginners and experienced Web Creators.
+	Description: Hello Elementor is a lightweight and minimalist WordPress theme that was built specifically to work seamlessly with the Elementor site builder plugin. The theme is free, open-source, and designed for users who want a flexible, easy-to-use, and customizable website. The theme, which is optimized for performance, provides a solid foundation for users to build their own unique designs using the Elementor drag-and-drop site builder. Its simplicity and flexibility make it a great choice for both beginners and experienced Web Creators.
 	Author: Elementor Team
 	Author URI: https://elementor.com/?utm_source=wp-themes&utm_campaign=author-uri&utm_medium=wp-dash
-	Version: 2.9.0
-	Stable tag: 2.9.0
+	Version: 3.0.0
+	Stable tag: 3.0.0
 	Requires at least: 6.0
-	Tested up to: 6.3
-	Requires PHP: 7.0
+	Tested up to: 6.4
+	Requires PHP: 7.3
 	License: GNU General Public License v3 or later.
 	License URI: https://www.gnu.org/licenses/gpl-3.0.html
 	Text Domain: hello-elementor
 	Tags: accessibility-ready, flexible-header, custom-colors, custom-menu, custom-logo, featured-images, rtl-language-support, threaded-comments, translation-ready,
 */
 /**
- * DO NOT CHANGE THIS FILE!
- * To override any of the settings in this section, add your styling code in the custom directory.
  * Loading first in the style.scss & classic-editor.scss
  */
-/*
- * Inspired by Normalize.css, HTML5 Boilerplate & Bootstrap Reboot Projects under MIT License
- */
 /**
- * Document basic styling
- * DO NOT CHANGE THIS FILE!
- * To override any of the settings in this section, add your styling code in the custom directory.
+* Document basic styling
+* Inspired by Normalize.css, HTML5 Boilerplate & Bootstrap Reboot Projects under MIT License
  */
 /**
  * 1. Correct the line height in all browsers.
@@ -303,8 +297,6 @@ template {
 }
 /**
  * Form styling
- * DO NOT CHANGE THIS FILE!
- * To override any of the settings in this section, add your styling code in the custom directory.
  */
 label {
   display: inline-block;
@@ -528,8 +520,6 @@ select {
 
 /**
  * Table styling
- * DO NOT CHANGE THIS FILE!
- * To override any of the settings in this section, add your styling code in the custom directory.
  */
 table {
   background-color: transparent;
@@ -594,8 +584,6 @@ table tbody + tbody {
 
 /**
  * List styling
- * DO NOT CHANGE THIS FILE!
- * To override any of the settings in this section, add your styling code in the custom directory.
  */
 dl,
 dt,

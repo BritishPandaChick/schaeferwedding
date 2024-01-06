@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'HELLO_ELEMENTOR_VERSION', '2.9.0' );
+define( 'HELLO_ELEMENTOR_VERSION', '3.0.0' );
 
 if ( ! isset( $content_width ) ) {
 	$content_width = 800; // Pixels.
@@ -101,6 +101,19 @@ function hello_maybe_update_theme_version_in_db() {
 	}
 }
 
+if ( ! function_exists( 'hello_elementor_display_header_footer' ) ) {
+	/**
+	 * Check whether to display header footer.
+	 *
+	 * @return bool
+	 */
+	function hello_elementor_display_header_footer() {
+		$hello_elementor_header_footer = true;
+
+		return apply_filters( 'hello_elementor_header_footer', $hello_elementor_header_footer );
+	}
+}
+
 if ( ! function_exists( 'hello_elementor_scripts_styles' ) ) {
 	/**
 	 * Theme Scripts & Styles.
@@ -123,6 +136,15 @@ if ( ! function_exists( 'hello_elementor_scripts_styles' ) ) {
 			wp_enqueue_style(
 				'hello-elementor-theme-style',
 				get_template_directory_uri() . '/theme' . $min_suffix . '.css',
+				[],
+				HELLO_ELEMENTOR_VERSION
+			);
+		}
+
+		if ( hello_elementor_display_header_footer() ) {
+			wp_enqueue_style(
+				'hello-elementor-header-footer',
+				get_template_directory_uri() . '/header-footer' . $min_suffix . '.css',
 				[],
 				HELLO_ELEMENTOR_VERSION
 			);
@@ -192,8 +214,24 @@ if ( is_admin() ) {
 // Settings page
 require get_template_directory() . '/includes/settings-functions.php';
 
-// Allow active/inactive via the Experiments
+// Header & footer styling option, inside Elementor
 require get_template_directory() . '/includes/elementor-functions.php';
+
+if ( ! function_exists( 'hello_elementor_customizer' ) ) {
+	// Customizer controls
+	function hello_elementor_customizer() {
+		if ( ! is_customize_preview() ) {
+			return;
+		}
+
+		if ( ! hello_elementor_display_header_footer() ) {
+			return;
+		}
+
+		require get_template_directory() . '/includes/customizer-functions.php';
+	}
+}
+add_action( 'init', 'hello_elementor_customizer' );
 
 if ( ! function_exists( 'hello_elementor_check_hide_title' ) ) {
 	/**
