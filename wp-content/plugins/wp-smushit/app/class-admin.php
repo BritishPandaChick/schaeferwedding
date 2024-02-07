@@ -23,6 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
  */
 class Admin {
 	const PLUGIN_DISCOUNT_PERCENT = 80;
+	const CDN_POP_LOCATIONS       = 123;
 
 	/**
 	 * Plugin pages.
