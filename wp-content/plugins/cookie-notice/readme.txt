@@ -3,8 +3,8 @@ Contributors: humanityco
 Tags: gdpr, ccpa, cookies, consent, compliance, privacy
 Requires at least: 4.9.6
 Requires PHP: 7.4
-Tested up to: 6.4.1
-Stable tag: 2.4.13
+Tested up to: 6.4.3
+Stable tag: 2.4.15
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -51,6 +51,8 @@ Cookie Compliance gives you access to the most up-to-date formatting guidelines 
 * <strong>Consent analytics dashboard</strong> shows event data for number of visits and provides a “trust score” to help you track how site visitors are setting their consent. Make adjustments to your banner to improve your cookie acceptance rate and monitor progress via the consent activity graph.
 * <strong>Default configurations</strong> for GDPR, CCPA and more help to remove dark patterns and allow for quick and easy deployment of the consent banner without any guesswork. Customize the design of any default configuration to match the look and feel of your site.
 * <strong>Automatic script blocking</strong> blocks all non-essential cookie scripts and iFrames by default and <em>complies with valid consent rules under GDPR and other data protection laws</em>; in order to be compliant, your site must record visitor consent before setting or sending cookies.
+* <strong>Google Consent Mode</strong> ensures that your website can still gather valuable insights and perform effectively while respecting users' privacy preferences by <em>dynamically adjusting the behavior of Google services according to user consent.</em>
+* <strong>Facebook Consent Mode</strong> allows your website to <em>measure the impact of your ads on Facebook</em>, track website activities and conversions and automatically deliver ads to Facebook if the user has agreed to.
 * <strong>Consent record storage</strong> automatically stores a record of each consent and makes these records available for export. <em>Complies with proof-of-consent requirements prescribed under GDPR and other data protection laws.</em>
 * <strong>Multilingual support</strong> automatically translates all banner text strings and allows you to provide custom translations for every text field to ensure visitors get a consistent consent experience.
 * <strong>Multidomain management</strong> allows you to manage additional Free or Professional domains under a single account and enables you to customize banner configuration and design for each domain independently.
@@ -120,6 +122,14 @@ Yes! The plugin + web appliaction version includes technical compliance features
 4. Cookie Compliance settings
 
 == Changelog ==
+
+= 2.4.15 =
+* New: Passing Google Consent default parameters (Cookie Compliance only)
+* Fix: Invalid Norwegian language locale code
+
+= 2.4.14 =
+* New: Google Consent V2 support (Cookie Compliance only)
+* New: Added scripts option to Compliance Settings
 
 = 2.4.13 =
 * Fix: Removed unneeded parameter from WP Fastest Cache compatibility fix
@@ -492,5 +502,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 2.4.13 =
-* Fix: Removed unneeded parameter from WP Fastest Cache compatibility fix
+= 2.4.15 =
+* New: Passing Google Consent default parameters (Cookie Compliance only)

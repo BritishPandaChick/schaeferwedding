@@ -161,6 +161,21 @@ class ConvertKit_Output {
 		// Replace the favicon with the WordPress site's favicon, if specified.
 		$landing_page = $this->landing_pages->replace_favicon( $landing_page );
 
+		/**
+		 * Perform any actions immediately prior to outputting the Landing Page.
+		 *
+		 * Caching and minification Plugins may need to hook here to prevent
+		 * CSS / JS minification and lazy loading images, which can interfere
+		 * with Landing Pages.
+		 *
+		 * @since   2.4.4
+		 *
+		 * @param   string  $landing_page       ConvertKit Landing Page HTML.
+		 * @param   int     $landing_page_id    ConvertKit Landing Page ID.
+		 * @param   int     $post_id            WordPress Page ID.
+		 */
+		do_action( 'convertkit_output_landing_page_before', $landing_page, $landing_page_id, $post_id );
+
 		// Output Landing Page.
 		// Output is supplied from ConvertKit's API, which is already sanitized.
 		echo $landing_page; // phpcs:ignore WordPress.Security.EscapeOutput
@@ -486,8 +501,17 @@ class ConvertKit_Output {
 
 		// Iterate through scripts, building the <script> tag for each.
 		foreach ( $scripts as $script ) {
-			$output = '<script';
+			/**
+			 * Filter the form <script> key/value pairs immediately before the script is output.
+			 *
+			 * @since   2.4.5
+			 *
+			 * @param   array   $script     Form script key/value pairs to output as <script> tag.
+			 */
+			$script = apply_filters( 'convertkit_output_script_footer', $script );
 
+			// Build output.
+			$output = '<script';
 			foreach ( $script as $attribute => $value ) {
 				// If the value is true, just output the attribute.
 				if ( $value === true ) {
@@ -495,9 +519,14 @@ class ConvertKit_Output {
 					continue;
 				}
 
+				// Sanitize attribute and value.
+				$attribute = esc_attr( $attribute );
+				$value     = ( $attribute === 'src' ? esc_url( $value ) : esc_attr( $value ) );
+
 				// Output the attribute and value.
-				$output .= ' ' . esc_attr( $attribute ) . '="' . esc_attr( $value ) . '"';
+				$output .= ' ' . $attribute . '="' . $value . '"';
 			}
+
 			$output .= '></script>';
 
 			// Add to array.

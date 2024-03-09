@@ -2,7 +2,7 @@
 /*
 Plugin Name: Cookie Notice & Compliance for GDPR / CCPA
 Description: Cookie Notice allows you to you elegantly inform users that your site uses cookies and helps you comply with GDPR, CCPA and other data privacy laws.
-Version: 2.4.13
+Version: 2.4.15
 Author: Hu-manity.co
 Author URI: https://hu-manity.co/
 Plugin URI: https://cookie-compliance.co/
@@ -12,7 +12,7 @@ Text Domain: cookie-notice
 Domain Path: /languages
 
 Cookie Notice
-Copyright (C) 2023, Hu-manity.co - info@hu-manity.co
+Copyright (C) 2024, Hu-manity.co - info@hu-manity.co
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) )
  * Cookie Notice class.
  *
  * @class Cookie_Notice
- * @version	2.4.13
+ * @version	2.4.15
  */
 class Cookie_Notice {
 
@@ -128,7 +128,7 @@ class Cookie_Notice {
 			'subscription'			=> 'basic',
 			'threshold_exceeded'	=> false
 		],
-		'version'	=> '2.4.13'
+		'version'	=> '2.4.15'
 	];
 
 	/**
@@ -667,7 +667,7 @@ class Cookie_Notice {
 
 		$network = $this->is_network_admin();
 
-		$current_update = 9;
+		$current_update = 10;
 
 		if ( version_compare( $this->db_version, $this->defaults['version'], '<' ) ) {
 			if ( $this->options['general']['update_version'] < $current_update ) {
@@ -712,9 +712,16 @@ class Cookie_Notice {
 		// get cookie compliance status
 		$status = $this->get_status();
 
+		// get subscription
+		$subscription = $this->get_subscription();
+
 		// show notice, if no compliance only
-		if ( $this->options['general']['update_notice'] === true && empty( $status ) ) {
-			$this->add_notice( '<div class="cn-notice-text"><h2>' . esc_html__( 'Facebook Tracking Pixel Illegal in EU?', 'cookie-notice' ) . '</h2><p>' . esc_html__( 'The Austrian Data Protection Authority recently declared that the use of Facebook\'s tracking pixel directly violates the GDPR. This decision could affect many websites in the European Union. To use Facebook Pixel, prior consent from visitors for tracking is required. Click "Run Compliance Check" to check if your website compliance with the latest privacy regulations.', 'cookie-notice' ) . '</p><p class="cn-notice-actions"><a href="' . esc_url( $network ? network_admin_url( 'admin.php?page=cookie-notice&welcome=1' ) : admin_url( 'admin.php?page=cookie-notice&welcome=1' ) ) . '" class="button button-primary cn-button">' . esc_html__( 'Run Compliance Check', 'cookie-notice' ) . '</a> <a href="#" class="button-link cn-notice-dismiss">' . esc_html__( 'Dismiss Notice', 'cookie-notice' ) . '</a></p></div>', 'error', 'div' );
+		if ( $this->options['general']['update_notice'] === true ) {
+			if ( empty( $status ) ) {
+				$this->add_notice( '<div class="cn-notice-text"><h2>' . esc_html__( 'Google Consent Mode required by March 2024', 'cookie-notice' ) . '</h2><p>' . sprintf( __( '<a href="%s" target="_blank">Google Consent Mode</a> is a tool that allows websites to more effectively communicate users\' cookie consent choices to Google tags. With the introduction of Google Consent Mode V2, its implementation is mandatory by March 2024 for all sites using Google services. Make sure your site is compatible with Google Consent Mode V2 and integrate it with Cookie Compliance. Click "Run Compliance Check" to proceed and test other compliance features.', 'cookie-notice' ), 'https://cookie-compliance.co/documentation/google-consent-mode/' ) . '</p><p class="cn-notice-actions"><a href="' . esc_url( $network ? network_admin_url( 'admin.php?page=cookie-notice&welcome=1' ) : admin_url( 'admin.php?page=cookie-notice&welcome=1' ) ) . '" class="button button-primary cn-button">' . esc_html__( 'Run Compliance Check', 'cookie-notice' ) . '</a> <a href="#" class="button-link cn-notice-dismiss">' . esc_html__( 'Dismiss Notice', 'cookie-notice' ) . '</a></p></div>', 'error', 'div' );
+			} else if ( $subscription !== 'pro' ) {
+				$this->add_notice( '<div class="cn-notice-text"><h2>' . esc_html__( 'Google Consent Mode required by March 2024', 'cookie-notice' ) . '</h2><p>' . sprintf( __( '<a href="%s" target="_blank">Google Consent Mode</a> is a tool that allows websites to more effectively communicate users\' cookie consent choices to Google tags. With the introduction of Google Consent Mode V2, its implementation is mandatory by March 2024 for all sites using Google services. Cookie Compliance Professional plans include seamless integration with Google Consent Mode. Upgrade to Pro and make sure your site is compatible with it with.', 'cookie-notice' ), 'https://cookie-compliance.co/documentation/google-consent-mode/' ) . '</p><p class="cn-notice-actions"><a href="' . esc_url( $this->get_url( 'host', '?utm_campaign=upgrade+to+pro&utm_source=wordpress&utm_medium=link#/en/cc/dashboard?app-id=' . $this->options['general']['app_id'] . '&open-modal=payment' ) ) . '" class="button button-primary cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'cookie-notice' ) . '</a> <a href="#" class="button-link cn-notice-dismiss">' . esc_html__( 'Dismiss Notice', 'cookie-notice' ) . '</a></p></div>', 'error', 'div' );
+			}
 		}
 
 		// show threshold limit warning, compliance only
@@ -875,7 +882,7 @@ class Cookie_Notice {
 	 */
 	public function cookies_accepted_shortcode( $args, $content ) {
 		if ( $this->cookies_accepted() ) {
-			$scripts = html_entity_decode( trim( wp_kses( $content, $this->get_allowed_html() ) ) );
+			$scripts = html_entity_decode( trim( wp_kses( $content, $this->get_allowed_html( 'body' ) ) ) );
 
 			if ( ! empty( $scripts ) ) {
 				if ( preg_match_all( '/' . get_shortcode_regex() . '/', $content ) )
@@ -1248,34 +1255,81 @@ class Cookie_Notice {
 	/**
 	 * Get allowed script blocking HTML.
 	 *
+	 * @param string $type
 	 * @return array
 	 */
-	public function get_allowed_html() {
-		return apply_filters(
-			'cn_refuse_code_allowed_html',
-			array_merge(
-				wp_kses_allowed_html( 'post' ),
-				[
-					'script'	=> [
-						'type'		=> true,
-						'src'		=> true,
-						'charset'	=> true,
-						'async'		=> true
-					],
-					'noscript'	=> [],
-					'style'		=> [
-						'type'	=> true
-					],
-					'iframe'	=> [
-						'src'				=> true,
-						'height'			=> true,
-						'width'				=> true,
-						'frameborder'		=> true,
-						'allowfullscreen'	=> true
-					]
-				]
-			)
-		);
+	public function get_allowed_html( $type = 'head' ) {
+		// default allowed html for both types
+		$allowed_html = [
+			'script'	=> [
+				'type'				=> true,
+				'src'				=> true,
+				'charset'			=> true,
+				'async'				=> true,
+				'defer'				=> true,
+				'crossorigin'		=> true,
+				'fetchpriority'		=> true,
+				'referrerpolicy'	=> true,
+				'nomodule'			=> true,
+				'nonce'				=> true,
+				'integrity'			=> true,
+				'class'				=> true,
+				'id'				=> true
+			],
+			'noscript'	=> [
+				'class'	=> true,
+				'id'	=> true
+			],
+			'style'		=> [
+				'type'	=> true,
+				'media'	=> true,
+				'nonce'	=> true,
+				'class'	=> true,
+				'id'	=> true
+			]
+		];
+
+		if ( $type === 'head' ) {
+			// allow links for head
+			$allowed_html['link'] = [
+				'as'				=> true,
+				'crossorigin'		=> true,
+				'fetchpriority'		=> true,
+				'imagesizes'		=> true,
+				'imagesrcset'		=> true,
+				'referrerpolicy'	=> true,
+				'sizes'				=> true,
+				'integrity'			=> true,
+				'href'				=> true,
+				'hreflang'			=> true,
+				'rel'				=> true,
+				'type'				=> true,
+				'title'				=> true,
+				'media'				=> true,
+				'class'				=> true,
+				'id'				=> true
+			];
+		} elseif ( $type === 'body' ) {
+			// allow ifarmes for body
+			$allowed_html['iframe'] = [
+				'src'				=> true,
+				'srcdoc'			=> true,
+				'height'			=> true,
+				'width'				=> true,
+				'class'				=> true,
+				'id'				=> true,
+				'allow'				=> true,
+				'loading'			=> true,
+				'name'				=> true,
+				'title'				=> true,
+				'referrerpolicy'	=> true,
+				'sandbox'			=> true,
+				'allowfullscreen'	=> true
+			];
+		}
+
+		// combine allowed tags with default post allowed tags
+		return apply_filters( 'cn_refuse_code_allowed_html', array_merge( wp_kses_allowed_html( 'post' ), $allowed_html ), $type );
 	}
 
 	/**

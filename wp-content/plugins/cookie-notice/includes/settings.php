@@ -621,14 +621,15 @@ class Cookie_Notice_Settings {
 		// compliance enabled
 		if ( $status === 'active' ) {
 			// compliance section
-			add_settings_section( 'cookie_notice_compliance', esc_html__( 'Compliance Settings', 'cookie-notice' ), '', 'cookie_notice_options', [ 'before_section' => '<div class="%s">', 'after_section' => '</div>', 'section_class' => 'cn-section-container compliance-section' ] );
+			add_settings_section( 'cookie_notice_compliance', esc_html__( 'Compliance Integration', 'cookie-notice' ), '', 'cookie_notice_options', [ 'before_section' => '<div class="%s">', 'after_section' => '</div>', 'section_class' => 'cn-section-container compliance-section' ] );
 			add_settings_field( 'cn_app_status', esc_html__( 'Compliance status', 'cookie-notice' ), [ $this, 'cn_app_status' ], 'cookie_notice_options', 'cookie_notice_compliance' );
 			add_settings_field( 'cn_app_id', esc_html__( 'App ID', 'cookie-notice' ), [ $this, 'cn_app_id' ], 'cookie_notice_options', 'cookie_notice_compliance' );
 			add_settings_field( 'cn_app_key', esc_html__( 'App Key', 'cookie-notice' ), [ $this, 'cn_app_key' ], 'cookie_notice_options', 'cookie_notice_compliance' );
 
 			// configuration section
-			add_settings_section( 'cookie_notice_configuration', esc_html__( 'Miscellaneous Settings', 'cookie-notice' ), '', 'cookie_notice_options', [ 'before_section' => '<div class="%s">', 'after_section' => '</div>', 'section_class' => 'cn-section-container misc-section' ] );
+			add_settings_section( 'cookie_notice_configuration', esc_html__( 'Compliance Settings', 'cookie-notice' ), '', 'cookie_notice_options', [ 'before_section' => '<div class="%s">', 'after_section' => '</div>', 'section_class' => 'cn-section-container misc-section' ] );
 			add_settings_field( 'cn_app_blocking', esc_html__( 'Autoblocking', 'cookie-notice' ), [ $this, 'cn_app_blocking' ], 'cookie_notice_options', 'cookie_notice_configuration' );
+			add_settings_field( 'cn_refuse_code', esc_html__( 'Scripts', 'cookie-notice' ), [ $this, 'cn_refuse_code' ], 'cookie_notice_options', 'cookie_notice_configuration' );
 			add_settings_field( 'cn_debug_mode', esc_html__( 'Debug mode', 'cookie-notice' ), [ $this, 'cn_debug_mode' ], 'cookie_notice_options', 'cookie_notice_configuration' );
 			add_settings_field( 'cn_caching_compatibility', esc_html__( 'Caching compatibility', 'cookie-notice' ), [ $this, 'cn_caching_compatibility' ], 'cookie_notice_options', 'cookie_notice_configuration' );
 			add_settings_field( 'cn_app_purge_cache', esc_html__( 'Cache', 'cookie-notice' ), [ $this, 'cn_app_purge_cache' ], 'cookie_notice_options', 'cookie_notice_configuration' );
@@ -638,7 +639,7 @@ class Cookie_Notice_Settings {
 		// compliance disabled
 		} else {
 			// compliance section
-			add_settings_section( 'cookie_notice_compliance', esc_html__( 'Compliance Settings', 'cookie-notice' ), '', 'cookie_notice_options', [ 'before_section' => '<div class="%s">', 'after_section' => '</div>', 'section_class' => 'cn-section-container compliance-section' ] );
+			add_settings_section( 'cookie_notice_compliance', esc_html__( 'Compliance Integration', 'cookie-notice' ), '', 'cookie_notice_options', [ 'before_section' => '<div class="%s">', 'after_section' => '</div>', 'section_class' => 'cn-section-container compliance-section' ] );
 			add_settings_field( 'cn_app_status', esc_html__( 'Compliance status', 'cookie-notice' ), [ $this, 'cn_app_status' ], 'cookie_notice_options', 'cookie_notice_compliance' );
 			add_settings_field( 'cn_app_id', esc_html__( 'App ID', 'cookie-notice' ), [ $this, 'cn_app_id' ], 'cookie_notice_options', 'cookie_notice_compliance' );
 			add_settings_field( 'cn_app_key', esc_html__( 'App Key', 'cookie-notice' ), [ $this, 'cn_app_key' ], 'cookie_notice_options', 'cookie_notice_compliance' );
@@ -1002,7 +1003,6 @@ class Cookie_Notice_Settings {
 		// get main instance
 		$cn = Cookie_Notice();
 
-		$allowed_html = $cn->get_allowed_html();
 		$active = ! empty( $cn->options['general']['refuse_code'] ) && empty( $cn->options['general']['refuse_code_head'] ) ? 'body' : 'head';
 
 		echo '
@@ -1014,14 +1014,14 @@ class Cookie_Notice_Settings {
 				</h2>
 				<div id="refuse_head" class="refuse-code-tab' . ( $active === 'head' ? ' active' : '' ) . '">
 					<p class="description">' . esc_html__( 'The code to be used in your site header, before the closing head tag.', 'cookie-notice' ) . '</p>
-					<textarea name="cookie_notice_options[refuse_code_head]" class="large-text" cols="50" rows="8">' . html_entity_decode( trim( wp_kses( $cn->options['general']['refuse_code_head'], $allowed_html ) ) ) . '</textarea>
+					<textarea name="cookie_notice_options[refuse_code_head]" class="large-text" cols="50" rows="8">' . html_entity_decode( trim( wp_kses( $cn->options['general']['refuse_code_head'], $cn->get_allowed_html( 'head' ) ) ) ) . '</textarea>
 				</div>
 				<div id="refuse_body" class="refuse-code-tab' . ( $active === 'body' ? ' active' : '' ) . '">
 					<p class="description">' . esc_html__( 'The code to be used in your site footer, before the closing body tag.', 'cookie-notice' ) . '</p>
-					<textarea name="cookie_notice_options[refuse_code]" class="large-text" cols="50" rows="8">' . html_entity_decode( trim( wp_kses( $cn->options['general']['refuse_code'], $allowed_html ) ) ) . '</textarea>
+					<textarea name="cookie_notice_options[refuse_code]" class="large-text" cols="50" rows="8">' . html_entity_decode( trim( wp_kses( $cn->options['general']['refuse_code'], $cn->get_allowed_html( 'body' ) ) ) ) . '</textarea>
 				</div>
 			</div>
-			<p class="description">' . esc_html__( 'Enter non functional cookies Javascript code here (for e.g. Google Analitycs) to be used after the notice is accepted.', 'cookie-notice' ) . '</br>' . sprintf( esc_html__( 'To get the user consent status use the %scn_cookies_accepted()%s function.', 'cookie-notice' ), '<code>', '</code>' ) . '</p>
+			<p class="description">' . esc_html__( 'Enter non functional cookies Javascript code here (for e.g. Google Analitycs) to be used after the visitor consent is given.', 'cookie-notice' ) . '</p>
 		</div>';
 	}
 
@@ -1554,18 +1554,15 @@ class Cookie_Notice_Settings {
 			} else
 				$input['revoke_cookies_opt'] = $cn->defaults['general']['revoke_cookies_opt'];
 
-			// get allowed html
-			$allowed_html = $cn->get_allowed_html();
-
 			// body refuse code
 			if ( isset( $input['refuse_code'] ) )
-				$input['refuse_code'] = wp_kses( trim( $input['refuse_code'] ), $allowed_html );
+				$input['refuse_code'] = wp_kses( trim( $input['refuse_code'] ), $cn->get_allowed_html( 'body' ) );
 			else
 				$input['refuse_code'] = $cn->defaults['general']['refuse_code'];
 
 			// head refuse code
 			if ( isset( $input['refuse_code_head'] ) )
-				$input['refuse_code_head'] = wp_kses( trim( $input['refuse_code_head'] ), $allowed_html );
+				$input['refuse_code_head'] = wp_kses( trim( $input['refuse_code_head'] ), $cn->get_allowed_html( 'head' ) );
 			else
 				$input['refuse_code_head'] = $cn->defaults['general']['refuse_code_head'];
 

@@ -74,6 +74,8 @@ class Cookie_Notice_Frontend {
 			// cookie compliance initialization
 			if ( $cn->get_status() === 'active' ) {
 				add_action( 'wp_head', [ $this, 'add_cookie_compliance' ], 0 );
+				add_action( 'wp_head', [ $this, 'wp_print_header_scripts' ] );
+				add_action( 'wp_print_footer_scripts', [ $this, 'wp_print_footer_scripts' ] );
 
 				// is caching compatibility active?
 				if ( $cn->options['general']['caching_compatibility'] ) {
@@ -238,8 +240,8 @@ class Cookie_Notice_Frontend {
 		$locale_code = explode( '_', $locale );
 
 		// exceptions, norwegian
-		if ( in_array( $locale_code, [ 'nb', 'nn' ] ) )
-			$locale_code = 'no';
+		if ( is_array( $locale_code ) && in_array( $locale_code[0], [ 'nb', 'nn' ] ) )
+			$locale_code[0] = 'no';
 
 		$options = apply_filters(
 			'cn_cookie_compliance_args',
@@ -279,6 +281,19 @@ class Cookie_Notice_Frontend {
 
 			$options['customProviders'] = ! empty( $providers ) ? $providers : [];
 			$options['customPatterns'] = ! empty( $patterns ) ? $patterns : [];
+
+			// google consent mode default categories
+			$gcd = [];
+
+			if ( ! empty( $blocking['google_consent_default'] ) && is_array( $blocking['google_consent_default'] ) ) {
+				foreach ( $blocking['google_consent_default'] as $storage => $category ) {
+					if ( (int) $category === 1 )
+						$gcd[$storage] = 'granted';
+				}
+			}
+
+			if ( ! empty( $gcd ) )
+				$options['googleConsentDefault'] = $gcd;
 		}
 
 		return $options;
@@ -468,6 +483,64 @@ class Cookie_Notice_Frontend {
 	}
 
 	/**
+	 * Add blocking class to scripts, iframes and links.
+	 *
+	 * @param string $type
+	 * @param string $code
+	 * @return string
+	 */
+	public function add_block_class( $type, $code ) {
+		// clear and disable libxml errors and allow user to fetch error information as needed
+		libxml_use_internal_errors( true );
+
+		// create new dom object
+		$document = new DOMDocument( '1.0', 'UTF-8' );
+
+		// set attributes
+		$document->formatOutput = true;
+		$document->preserveWhiteSpace = false;
+
+		// load code
+		$document->loadHTML( '<div>' . wp_kses( trim( $code ), Cookie_Notice()->get_allowed_html( $type ) ) . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+
+		$container = $document->getElementsByTagName( 'div' )->item( 0 );
+		$container = $container->parentNode->removeChild( $container );
+
+		while ( $document->firstChild ) {
+			$document->removeChild( $document->firstChild );
+		}
+
+		while ( $container->firstChild ) {
+			$document->appendChild( $container->firstChild );
+		}
+
+		// set blocked tags
+		if ( $type === 'body' )
+			$blocked_tags = [ 'script', 'iframe' ];
+		elseif ( $type === 'head' )
+			$blocked_tags = [ 'script', 'link' ];
+
+		foreach ( $blocked_tags as $blocked_tag ) {
+			$tags = $document->getElementsByTagName( $blocked_tag );
+
+			// any tags?
+			if ( ! empty( $tags ) && is_object( $tags ) ) {
+				foreach ( $tags as $tag ) {
+					$tag->setAttribute( 'class', 'hu-block' );
+				}
+			}
+		}
+
+		// save new HTML
+		$output = $document->saveHTML();
+
+		// reenable libxml errors
+		libxml_use_internal_errors( false );
+
+		return $output;
+	}
+
+	/**
 	 * Load notice scripts and styles - frontend.
 	 *
 	 * @return void
@@ -526,11 +599,14 @@ class Cookie_Notice_Frontend {
 		// get main instance
 		$cn = Cookie_Notice();
 
-		if ( $cn->cookies_accepted() ) {
+		// get compliance status
+		$status = $cn->get_status();
+
+		if ( $cn->cookies_accepted() || $status === 'active' ) {
 			$scripts = apply_filters( 'cn_refuse_code_scripts_html', $cn->options['general']['refuse_code'], 'body' );
 
 			if ( ! empty( $scripts ) )
-				echo html_entity_decode( wp_kses( $scripts, $cn->get_allowed_html() ) );
+				echo html_entity_decode( wp_kses( $scripts, $cn->get_allowed_html( 'body' ) ) );
 		}
 	}
 
@@ -543,11 +619,14 @@ class Cookie_Notice_Frontend {
 		// get main instance
 		$cn = Cookie_Notice();
 
-		if ( $cn->cookies_accepted() ) {
+		// get compliance status
+		$status = $cn->get_status();
+
+		if ( $cn->cookies_accepted() || $status === 'active' ) {
 			$scripts = apply_filters( 'cn_refuse_code_scripts_html', $cn->options['general']['refuse_code_head'], 'head' );
 
 			if ( ! empty( $scripts ) )
-				echo html_entity_decode( wp_kses( $scripts, $cn->get_allowed_html() ) );
+				echo html_entity_decode( wp_kses( $scripts, $cn->get_allowed_html( 'head' ) ) );
 		}
 	}
 
