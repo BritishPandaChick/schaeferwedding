@@ -108,16 +108,16 @@ class Cookie_Notice_Consent_Logs {
 				$categories = [];
 
 				if ( $consent_log->ev_essential )
-					$categories[] = esc_html__( 'Essential', 'cookie-notice' );
+					$categories[] = esc_html__( 'Basic Operations', 'cookie-notice' );
 
 				if ( $consent_log->ev_functional )
-					$categories[] = esc_html__( 'Functional', 'cookie-notice' );
+					$categories[] = esc_html__( 'Content Personalization', 'cookie-notice' );
 
 				if ( $consent_log->ev_analytics )
-					$categories[] = esc_html__( 'Analytics', 'cookie-notice' );
+					$categories[] = esc_html__( 'Site Optimization', 'cookie-notice' );
 
 				if ( $consent_log->ev_marketing )
-					$categories[] = esc_html__( 'Marketing', 'cookie-notice' );
+					$categories[] = esc_html__( 'Ad Personalization', 'cookie-notice' );
 
 				// get current date
 				$timestamp = new DateTime( $consent_log->timestamp );

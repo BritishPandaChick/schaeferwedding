@@ -176,7 +176,7 @@
 			else
 				$( '#cn_on_scroll_offset' ).slideUp( 'fast' );
 		} );
-		
+
 		// conditional display option
 		$( '#cn_conditional_display_opt' ).on( 'change', function() {
 			if ( $( this ).is( ':checked' ) )

@@ -32,6 +32,10 @@ class Cookie_Notice_Modules_AMP {
 	 * @return void
 	 */
 	public function load_amp_consent() {
+		// is banner allowed to display?
+		if ( ! Cookie_Notice()->frontend->maybe_display_banner( [ 'skip_amp' => true ] ) )
+			return;
+
 		if ( function_exists( 'amp_is_request' ) && amp_is_request() ) {
 			// load styles
 			echo '

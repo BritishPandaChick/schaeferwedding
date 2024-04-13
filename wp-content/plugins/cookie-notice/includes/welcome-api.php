@@ -32,18 +32,18 @@ class Cookie_Notice_Welcome_API {
 	public function api_request() {
 		// check capabilities
 		if ( ! current_user_can( apply_filters( 'cn_manage_cookie_notice_cap', 'manage_options' ) ) )
-			wp_die( _( 'You do not have permission to access this page.', 'cookie-notice' ) );
+			wp_die( __( 'You do not have permission to access this page.', 'cookie-notice' ) );
 
 		// check main nonce
 		if ( ! check_ajax_referer( 'cookie-notice-welcome', 'nonce' ) )
-			wp_die( _( 'You do not have permission to access this page.', 'cookie-notice' ) );
+			wp_die( __( 'You do not have permission to access this page.', 'cookie-notice' ) );
 
 		// get request
 		$request = isset( $_POST['request'] ) ? sanitize_key( $_POST['request'] ) : '';
 
 		// no valid request?
 		if ( ! in_array( $request, [ 'register', 'login', 'configure', 'select_plan', 'payment', 'get_bt_init_token', 'use_license' ], true ) )
-			wp_die( _( 'You do not have permission to access this page.', 'cookie-notice' ) );
+			wp_die( __( 'You do not have permission to access this page.', 'cookie-notice' ) );
 
 		$special_actions = [ 'register', 'login', 'configure', 'payment' ];
 
@@ -56,7 +56,7 @@ class Cookie_Notice_Welcome_API {
 
 		// check additional nonce
 		if ( in_array( $request, $special_actions, true ) && ! wp_verify_nonce( $nonce, 'cn_api_' . $request ) )
-			wp_die( _( 'You do not have permission to access this page.', 'cookie-notice' ) );
+			wp_die( __( 'You do not have permission to access this page.', 'cookie-notice' ) );
 
 		$errors = [];
 		$response = false;
@@ -1212,7 +1212,7 @@ class Cookie_Notice_Welcome_API {
 			// remove schedule if needed
 			if ( wp_next_scheduled( 'cookie_notice_get_app_analytics' ) )
 				wp_clear_scheduled_hook( 'cookie_notice_get_app_analytics' );
-			
+
 			// remove schedule if needed
 			if ( wp_next_scheduled( 'cookie_notice_get_app_config' ) )
 				wp_clear_scheduled_hook( 'cookie_notice_get_app_config' );

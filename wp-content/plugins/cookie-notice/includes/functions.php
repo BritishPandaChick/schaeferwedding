@@ -87,6 +87,14 @@ function cn_get_active_caching_plugins( $args = [] ) {
 			$active_plugins[] = 'WP Rocket';
 	}
 
+	// hummingbird 2.1.0+
+	if ( cn_is_plugin_active( 'hummingbird' ) ) {
+		if ( $version )
+			$active_plugins['Hummingbird'] = '2.1.0';
+		else
+			$active_plugins[] = 'Hummingbird';
+	}
+
 	// wp super cache 1.6.9+
 	if ( cn_is_plugin_active( 'wpsupercache' ) ) {
 		if ( $version )
@@ -108,7 +116,7 @@ function cn_get_active_caching_plugins( $args = [] ) {
  */
 function cn_is_plugin_active( $plugin = '' ) {
 	// no valid plugin?
-	if ( ! in_array( $plugin, [ 'autoptimize', 'wpoptimize', 'litespeed', 'sgoptimizer', 'wpfastestcache', 'wprocket', 'wpsupercache', 'contactform7', 'elementor', 'amp' ], true ) )
+	if ( ! in_array( $plugin, [ 'autoptimize', 'wpoptimize', 'litespeed', 'sgoptimizer', 'wpfastestcache', 'wprocket', 'wpsupercache', 'contactform7', 'elementor', 'amp', 'hummingbird' ], true ) )
 		return false;
 
 	// set default flag
@@ -176,6 +184,12 @@ function cn_is_plugin_active( $plugin = '' ) {
 		// amp 2.0.0+
 		case 'amp':
 			if ( function_exists( 'amp_is_enabled' ) && defined( 'AMP__VERSION' ) && version_compare( AMP__VERSION, '2.0', '>=' ) )
+				$is_plugin_active = true;
+			break;
+
+		// hummingbird 2.1.0+
+		case 'hummingbird':
+			if ( class_exists( 'Hummingbird\\WP_Hummingbird' ) && defined( 'WPHB_VERSION' ) && version_compare( WPHB_VERSION, '2.1.0', '>=' ) )
 				$is_plugin_active = true;
 			break;
 	}

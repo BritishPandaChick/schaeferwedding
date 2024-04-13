@@ -331,7 +331,7 @@ class Cookie_Notice_Bot_Detect {
 			'Attach',
 			'attohttpc',
 			'autocite',
-			'AutomaticWPTester',
+			// 'AutomaticWPTester',
 			'Autonomy',
 			'awin\.com',
 			'AWS Security Scanner',
@@ -1221,7 +1221,7 @@ class Cookie_Notice_Bot_Detect {
 			'Searchestate',
 			'SearchExpress',
 			'SearchSight',
-			'SearchWP',
+			// 'SearchWP',
 			'search\.thunderstone',
 			'Seeker',
 			'semanticdiscovery',
@@ -1541,10 +1541,10 @@ class Cookie_Notice_Bot_Detect {
 			'Word\/',
 			'worldping-api',
 			'wotbox',
-			'WP Engine Install Performance API',
+			// 'WP Engine Install Performance API',
 			'wpif',
 			'wprecon\.com survey',
-			'WPScan',
+			// 'WPScan',
 			'wscheck',
 			'Wtrace',
 			'WWW-Collector-E',
@@ -1596,7 +1596,7 @@ class Cookie_Notice_Bot_Detect {
 			'Zoom\.Mac',
 			'ZoteroTranslationServer',
 			'ZyBorg',
-			'[a-z0-9\-_]*(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)'
+			// '[a-z0-9\-_]*(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)'
 		];
 	}
 

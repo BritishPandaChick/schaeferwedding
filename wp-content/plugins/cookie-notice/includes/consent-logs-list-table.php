@@ -11,6 +11,24 @@ if ( ! defined( 'ABSPATH' ) )
 class Cookie_Notice_Consent_Logs_List_Table extends WP_List_Table {
 
 	/**
+	 * Display content.
+	 *
+	 * @return void
+	 */
+	public function views() {
+		// get main instance
+		$cn = Cookie_Notice();
+
+		$message = __( 'The table below shows the consent records from your website accumulated from the last thirty days. You can view individual records by expanding a single row of data.', 'cookie-notice' );
+
+		// disable if basic plan and data older than 7 days
+		if ( $cn->get_subscription() === 'basic' )
+			$message .= '<br/><span class="cn-asterix">*</span> ' . __( 'Note: domains using Cookie Compliance limited, Basic plan allow you to view consent records from the last 7 days and store data only for 30 days.', 'cookie-notice' );
+
+		echo '<p class="description">' . wp_kses_post( $message ) . '</p>';
+	}
+
+	/**
 	 * Prepare the items for the table to process.
 	 *
 	 * @return void
@@ -161,8 +179,19 @@ class Cookie_Notice_Consent_Logs_List_Table extends WP_List_Table {
 	 * @return void
 	 */
 	public function single_row( $item ) {
+		$disabled = false;
+
+		// disable if basic plan and data older than 7 days
+		if ( Cookie_Notice()->get_subscription() === 'basic' ) {
+			$last_date = strtotime( '-7 day' );
+			$event_date = strtotime( $item[ 'date_iso' ] );
+
+			if ( $event_date < $last_date )
+				$disabled = true;
+		}
+
 		echo '
-		<tr id="cn_consent_log_' . esc_attr( $item['slug'] ) . '" class="cn-consent-log" data-date="' . esc_attr( $item['date_iso'] ) . '">';
+		<tr id="cn_consent_log_' . esc_attr( $item['slug'] ) . '" class="cn-consent-log' . ( $disabled ? ' disabled' : '' ) . '" data-date="' . esc_attr( $item['date_iso'] ) . '">';
 
 		$this->single_row_columns( $item );
 
@@ -188,8 +217,14 @@ class Cookie_Notice_Consent_Logs_List_Table extends WP_List_Table {
 	 * @return string
 	 */
 	function column_cb( $item ) {
+		$disabled = false;
+
+		// disable if no data
+		if ( $item['total'] === 0 )
+			$disabled = true;
+
 		return '
-		<label for="cn-consent-log-' . esc_attr( $item['slug'] ) . '" class="cn-consent-log-item ' . ( $item['total'] === 0 ? ' disabled' : '' ) . '">
+		<label for="cn-consent-log-' . esc_attr( $item['slug'] ) . '" class="cn-consent-log-item' . ( $disabled ? ' disabled' : '' ) . '">
 			<input id="cn-consent-log-' . esc_attr( $item['slug'] ) . '" type="checkbox">
 			<span class="cn-consent-log-head"></span>
 		</label>';

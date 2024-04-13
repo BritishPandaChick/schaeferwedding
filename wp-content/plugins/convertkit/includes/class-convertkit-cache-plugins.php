@@ -54,12 +54,20 @@ class ConvertKit_Cache_Plugins {
 		add_filter( 'convertkit_output_script_footer', array( $this, 'litespeed_cache_exclude_js_defer' ) );
 		add_filter( 'convertkit_resource_forms_output_script', array( $this, 'litespeed_cache_exclude_js_defer' ) );
 
+		// Perfmatters: Exclude Forms from Delay JavaScript.
+		add_filter( 'convertkit_output_script_footer', array( $this, 'perfmatters_exclude_delay_js' ) );
+		add_filter( 'convertkit_resource_forms_output_script', array( $this, 'perfmatters_exclude_delay_js' ) );
+
 		// Siteground Speed Optimizer: Exclude Forms from JS combine.
 		add_filter( 'convertkit_output_script_footer', array( $this, 'siteground_speed_optimizer_exclude_js_combine' ) );
 		add_filter( 'convertkit_resource_forms_output_script', array( $this, 'siteground_speed_optimizer_exclude_js_combine' ) );
 
 		// WP Rocket: Disable Caching and Minification on Landing Pages.
 		add_action( 'convertkit_output_landing_page_before', array( $this, 'wp_rocket_disable_caching_and_minification_on_landing_pages' ) );
+
+		// WP Rocket: Exclude Forms from Delay JavaScript execution.
+		add_filter( 'convertkit_output_script_footer', array( $this, 'wp_rocket_exclude_delay_js_execution' ) );
+		add_filter( 'convertkit_resource_forms_output_script', array( $this, 'wp_rocket_exclude_delay_js_execution' ) );
 
 	}
 
@@ -104,6 +112,31 @@ class ConvertKit_Cache_Plugins {
 	}
 
 	/**
+	 * Exclude ConvertKit scripts from Perfmatters' "Delay JS" setting.
+	 *
+	 * @since   2.4.7
+	 *
+	 * @param   array $script     Script key/value pairs to output as <script> tag.
+	 * @return  array
+	 */
+	public function perfmatters_exclude_delay_js( $script ) {
+
+		add_filter(
+			'perfmatters_delay_js_exclusions',
+			function ( $exclusions ) use ( $script ) {
+
+				$exclusions[] = $script['src'];
+				return $exclusions;
+
+			}
+		);
+
+		// Return original script.
+		return $script;
+
+	}
+
+	/**
 	 * Disable JS combining on ConvertKit scripts when the Siteground Speed Optimizer Plugin is installed, active
 	 * and its "Combine JavaScript Files" setting is enabled.
 	 *
@@ -141,6 +174,27 @@ class ConvertKit_Cache_Plugins {
 		add_filter( 'rocket_exclude_css', array( $this, 'exclude_hosts_from_minification' ) );
 		add_filter( 'rocket_exclude_js', array( $this, 'exclude_local_js_from_minification' ) );
 		add_filter( 'do_rocket_lazyload', '__return_false' );
+
+	}
+
+	/**
+	 * Disable WP Rocket's "Delay JavaScript execution" on ConvertKit scripts.
+	 *
+	 * @since   2.4.7
+	 *
+	 * @see     https://docs.wp-rocket.me/article/1349-delay-javascript-execution
+	 *
+	 * @param   array $script     Script key/value pairs to output as <script> tag.
+	 * @return  array
+	 */
+	public function wp_rocket_exclude_delay_js_execution( $script ) {
+
+		return array_merge(
+			$script,
+			array(
+				'nowprocket' => '',
+			)
+		);
 
 	}
 

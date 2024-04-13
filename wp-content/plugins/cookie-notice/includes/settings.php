@@ -91,6 +91,10 @@ class Cookie_Notice_Settings {
 			// wp-optimize
 			if ( cn_is_plugin_active( 'wpoptimize' ) )
 				include_once( COOKIE_NOTICE_PATH . 'includes/modules/wp-optimize/wp-optimize.php' );
+
+			// hummingbird
+			if ( cn_is_plugin_active( 'hummingbird' ) )
+				include_once( COOKIE_NOTICE_PATH . 'includes/modules/hummingbird/hummingbird.php' );
 		}
 	}
 
@@ -622,7 +626,7 @@ class Cookie_Notice_Settings {
 		if ( $status === 'active' ) {
 			// compliance section
 			add_settings_section( 'cookie_notice_compliance', esc_html__( 'Compliance Integration', 'cookie-notice' ), '', 'cookie_notice_options', [ 'before_section' => '<div class="%s">', 'after_section' => '</div>', 'section_class' => 'cn-section-container compliance-section' ] );
-			add_settings_field( 'cn_app_status', esc_html__( 'Compliance status', 'cookie-notice' ), [ $this, 'cn_app_status' ], 'cookie_notice_options', 'cookie_notice_compliance' );
+			add_settings_field( 'cn_app_status', esc_html__( 'Compliance Status', 'cookie-notice' ), [ $this, 'cn_app_status' ], 'cookie_notice_options', 'cookie_notice_compliance' );
 			add_settings_field( 'cn_app_id', esc_html__( 'App ID', 'cookie-notice' ), [ $this, 'cn_app_id' ], 'cookie_notice_options', 'cookie_notice_compliance' );
 			add_settings_field( 'cn_app_key', esc_html__( 'App Key', 'cookie-notice' ), [ $this, 'cn_app_key' ], 'cookie_notice_options', 'cookie_notice_compliance' );
 
@@ -630,11 +634,12 @@ class Cookie_Notice_Settings {
 			add_settings_section( 'cookie_notice_configuration', esc_html__( 'Compliance Settings', 'cookie-notice' ), '', 'cookie_notice_options', [ 'before_section' => '<div class="%s">', 'after_section' => '</div>', 'section_class' => 'cn-section-container misc-section' ] );
 			add_settings_field( 'cn_app_blocking', esc_html__( 'Autoblocking', 'cookie-notice' ), [ $this, 'cn_app_blocking' ], 'cookie_notice_options', 'cookie_notice_configuration' );
 			add_settings_field( 'cn_refuse_code', esc_html__( 'Scripts', 'cookie-notice' ), [ $this, 'cn_refuse_code' ], 'cookie_notice_options', 'cookie_notice_configuration' );
-			add_settings_field( 'cn_debug_mode', esc_html__( 'Debug mode', 'cookie-notice' ), [ $this, 'cn_debug_mode' ], 'cookie_notice_options', 'cookie_notice_configuration' );
-			add_settings_field( 'cn_caching_compatibility', esc_html__( 'Caching compatibility', 'cookie-notice' ), [ $this, 'cn_caching_compatibility' ], 'cookie_notice_options', 'cookie_notice_configuration' );
-			add_settings_field( 'cn_app_purge_cache', esc_html__( 'Cache', 'cookie-notice' ), [ $this, 'cn_app_purge_cache' ], 'cookie_notice_options', 'cookie_notice_configuration' );
+			add_settings_field( 'cn_caching_compatibility', esc_html__( 'Caching Compatibility', 'cookie-notice' ), [ $this, 'cn_caching_compatibility' ], 'cookie_notice_options', 'cookie_notice_configuration' );
+			add_settings_field( 'cn_app_purge_cache', esc_html__( 'Purge Cache', 'cookie-notice' ), [ $this, 'cn_app_purge_cache' ], 'cookie_notice_options', 'cookie_notice_configuration' );
+			add_settings_field( 'cn_conditional_display', esc_html__( 'Conditional Display', 'cookie-notice' ), [ $this, 'cn_conditional_display' ], 'cookie_notice_options', 'cookie_notice_configuration' );
+			add_settings_field( 'cn_bot_detection', esc_html__( 'Bot Detection', 'cookie-notice' ), [ $this, 'cn_bot_detection' ], 'cookie_notice_options', 'cookie_notice_configuration' );
 			add_settings_field( 'cn_amp_support', esc_html__( 'AMP Support', 'cookie-notice' ), [ $this, 'cn_amp_support' ], 'cookie_notice_options', 'cookie_notice_configuration' );
-			add_settings_field( 'cn_conditional_display', esc_html__( 'Conditional display', 'cookie-notice' ), [ $this, 'cn_conditional_display' ], 'cookie_notice_options', 'cookie_notice_configuration' );
+			add_settings_field( 'cn_debug_mode', esc_html__( 'Debug Mode', 'cookie-notice' ), [ $this, 'cn_debug_mode' ], 'cookie_notice_options', 'cookie_notice_configuration' );
 			add_settings_field( 'cn_deactivation_delete', esc_html__( 'Deactivation', 'cookie-notice' ), [ $this, 'cn_deactivation_delete' ], 'cookie_notice_options', 'cookie_notice_configuration' );
 		// compliance disabled
 		} else {
@@ -850,7 +855,6 @@ class Cookie_Notice_Settings {
 		echo '
 		<fieldset id="cn_conditional_display">
 			<label><input id="cn_conditional_display_opt" type="checkbox" name="cookie_notice_options[conditional_active]" value="1" ' . checked( true, $cn->options['general']['conditional_active'], false ) . ' />' . esc_html__( 'Enable conditional display of the banner.', 'cookie-notice' ) . '</label>
-			
 			<div id="cn_conditional_display_opt_container"' . ( $cn->options['general']['conditional_active'] === false ? ' style="display: none"' : '' ) . ' class="cn_fieldset_content">
 				<div>
 					<select name="cookie_notice_options[conditional_display]">';
@@ -911,6 +915,18 @@ class Cookie_Notice_Settings {
 		<div id="cn_amp_support">
 			<label><input type="checkbox" name="cookie_notice_options[amp_support]" value="1" ' . checked( true, Cookie_Notice()->options['general']['amp_support'] && $amp_enabled, false ) . ' ' . disabled( ! $amp_enabled, true, false ) . ' />' . esc_html__( 'Enable to support AMP.', 'cookie-notice' ) . '</label>
 			<p class="description">' . ( ! $amp_enabled ? esc_html__( 'No compatible Google AMP plugins found.', 'cookie-notice' ) : esc_html__( 'Allows you to activate consent banner support for Google AMP.', 'cookie-notice' ) ) . '</p>
+		</div>';
+	}
+
+	/**
+	 * Bot detection option.
+	 *
+	 * @return void
+	 */
+	public function cn_bot_detection() {
+		echo '
+		<div id="cn_bot_detection">
+			<label><input type="checkbox" name="cookie_notice_options[bot_detection]" value="1" ' . checked( true, Cookie_Notice()->options['general']['bot_detection'], false ) . ' />' . esc_html__( 'Enable to activate bot detection and reduce the number of calculated website visits.', 'cookie-notice' ) . '</label>
 		</div>';
 	}
 
@@ -1431,6 +1447,8 @@ class Cookie_Notice_Settings {
 			} else
 				$input['conditional_rules'] = [];
 
+			// bot detection
+			$input['bot_detection'] = isset( $input['bot_detection'] );
 
 			// debug mode
 			$input['debug_mode'] = isset( $input['debug_mode'] );
@@ -2100,7 +2118,7 @@ class Cookie_Notice_Settings {
 
 			case 'post_type_archive':
 				$post_type_archives = $this->get_post_type_archives();
-			
+
 				if ( ! empty( $post_type_archives ) ) {
 					foreach ( $post_type_archives as $post_type => $archive_name ) {
 						$html .= '<option value="' . esc_attr( $post_type ) . '" ' . selected( $post_type, $selected, false ) . '>' . esc_html( $archive_name ) . '</option>';
@@ -2240,7 +2258,7 @@ class Cookie_Notice_Settings {
 	 */
 	public function get_post_types() {
 		// get public post types
-		$post_types = get_post_types( 
+		$post_types = get_post_types(
 			[
 				'public' => true
 			],
