@@ -9,6 +9,7 @@ use Elementor\Core\Breakpoints\Manager as Breakpoints_Manager;
 use Elementor\Core\Files\Base as Base_File;
 use Elementor\Core\DynamicTags\Manager;
 use Elementor\Core\DynamicTags\Tag;
+use Elementor\Core\Frontend\Performance;
 use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use Elementor\Plugin;
 use Elementor\Stylesheet;
@@ -63,6 +64,8 @@ abstract class Base extends Base_File {
 	private $icons_fonts = [];
 
 	private $dynamic_elements_ids = [];
+
+	private $preserved_dynamic_style_values = [];
 
 	/**
 	 * Stylesheet object.
@@ -570,6 +573,11 @@ abstract class Base extends Base_File {
 				// Dynamic CSS should not be added to the CSS files.
 				// Instead it's handled by \Elementor\Core\DynamicTags\Dynamic_CSS
 				// and printed in a style tag.
+				$should_preserve_value = isset( $control['control_type'] ) && 'content' === $control['control_type'];
+				if ( $should_preserve_value ) {
+					$this->preserved_dynamic_style_values[ $control['name'] ] = $parsed_dynamic_settings[ $control['name'] ];
+				}
+
 				unset( $parsed_dynamic_settings[ $control['name'] ] );
 
 				$this->dynamic_elements_ids[] = $controls_stack->get_id();
@@ -670,6 +678,8 @@ abstract class Base extends Base_File {
 	 * @access protected
 	 */
 	protected function parse_content() {
+		Performance::set_use_style_controls( true );
+
 		$initial_responsive_controls_duplication_mode = Plugin::$instance->breakpoints->get_responsive_control_duplication_mode();
 
 		Plugin::$instance->breakpoints->set_responsive_control_duplication_mode( $this->get_responsive_control_duplication_mode() );
@@ -692,6 +702,8 @@ abstract class Base extends Base_File {
 		do_action( "elementor/css-file/{$name}/parse", $this );
 
 		Plugin::$instance->breakpoints->set_responsive_control_duplication_mode( $initial_responsive_controls_duplication_mode );
+
+		Performance::set_use_style_controls( false );
 
 		return $this->get_stylesheet()->__toString();
 	}
@@ -775,7 +787,9 @@ abstract class Base extends Base_File {
 			return $this->get_selector_global_value( $control, $values['__globals__'][ $control['name'] ] );
 		}
 
-		$value = $values[ $control['name'] ];
+		$value = isset( $values[ $control['name'] ] )
+			? $values[ $control['name'] ]
+			: $this->preserved_dynamic_style_values[ $control['name'] ] ?? null;
 
 		if ( isset( $control['selectors_dictionary'][ $value ] ) ) {
 			$value = $control['selectors_dictionary'][ $value ];

@@ -2,12 +2,12 @@
 * Form Groups
 */
 
-.factory-bootstrap-467 .factory-form-group .factory-legend {
+.factory-bootstrap-477 .factory-form-group .factory-legend {
     padding: 9px 12px;
     background-color: #f9f9f9;
 }
 
-.factory-bootstrap-467 .factory-form-group .factory-title {
+.factory-bootstrap-477 .factory-form-group .factory-title {
     font-weight: bold;
     font-size: 14px;
     line-height: 14px;
@@ -15,7 +15,7 @@
     margin: 0px;
 }
 
-.factory-bootstrap-467 .factory-form-group .factory-hint-icon {
+.factory-bootstrap-477 .factory-form-group .factory-hint-icon {
     display: block;
     width: 16px;
     height: 16px;
@@ -31,29 +31,29 @@
     border-radius: 3px;
 }
 
-.factory-bootstrap-467 .factory-form-group .factory-hint-icon.factory-hint-icon-green {
+.factory-bootstrap-477 .factory-form-group .factory-hint-icon.factory-hint-icon-green {
     background: #8bc34a;
 }
 
-.factory-bootstrap-467 .factory-form-group .factory-hint-icon.factory-hint-icon-grey {
+.factory-bootstrap-477 .factory-form-group .factory-hint-icon.factory-hint-icon-grey {
     background: #9e9e9e;
 }
 
-.factory-bootstrap-467 .factory-form-group .factory-hint-icon.factory-hint-icon-red {
+.factory-bootstrap-477 .factory-form-group .factory-hint-icon.factory-hint-icon-red {
     background: #E91E63;
 }
 
-.factory-bootstrap-467 .factory-form-group .factory-hint {
+.factory-bootstrap-477 .factory-form-group .factory-hint {
     margin: 0px;
     font-size: 12px;
     line-height: 16px;
     margin-top: 6px;
 }
 
-.factory-bootstrap-467 .factory-form-group + .factory-form-group {
+.factory-bootstrap-477 .factory-form-group + .factory-form-group {
     margin-top: 30px;
 }
 
-.factory-bootstrap-467 .factory-form-group legend + .control-group {
+.factory-bootstrap-477 .factory-form-group legend + .control-group {
     margin-top: 0px;
 }

@@ -256,10 +256,22 @@ class Cookie_Notice_Welcome_API {
 					$status_data = get_site_option( 'cookie_notice_status', $status_data );
 					$status_data['subscription'] = 'pro';
 
+					// get activation timestamp
+					$timestamp = $cn->get_cc_activation_datetime();
+
+					// update activation timestamp only for new cookie compliance activations
+					$status_data['activation_datetime'] = $timestamp === 0 ? time() : $timestamp;
+
 					update_site_option( 'cookie_notice_status', $status_data );
 				} else {
 					$status_data = get_option( 'cookie_notice_status', $status_data );
 					$status_data['subscription'] = 'pro';
+
+					// get activation timestamp
+					$timestamp = $cn->get_cc_activation_datetime();
+
+					// update activation timestamp only for new cookie compliance activations
+					$status_data['activation_datetime'] = $timestamp === 0 ? time() : $timestamp;
 
 					update_option( 'cookie_notice_status', $status_data );
 				}
@@ -460,6 +472,7 @@ class Cookie_Notice_Welcome_API {
 					if ( $response->status === 200 ) {
 						$response = true;
 						$status_data['status'] = 'active';
+						$status_data['activation_datetime'] = time();
 
 						// update app status
 						if ( $network )
@@ -686,6 +699,12 @@ class Cookie_Notice_Welcome_API {
 					if ( $response->status === 200 ) {
 						$response = true;
 						$status_data['status'] = 'active';
+
+						// get activation timestamp
+						$timestamp = $cn->get_cc_activation_datetime();
+
+						// update activation timestamp only for new cookie compliance activations
+						$status_data['activation_datetime'] = $timestamp === 0 ? time() : $timestamp;
 
 						// update app status
 						if ( $network )
@@ -929,6 +948,7 @@ class Cookie_Notice_Welcome_API {
 		// get main instance
 		$cn = Cookie_Notice();
 
+		// request arguments
 		$api_args = [
 			'timeout'	=> 60,
 			'sslverify'	=> false,
@@ -936,10 +956,17 @@ class Cookie_Notice_Welcome_API {
 				'x-api-key'	=> $cn->get_api_key()
 			]
 		];
+
+		// request parameters
 		$api_params = [];
+
+		// whether data should be send in json
 		$json = false;
 
-		// check network
+		// whether application id is required
+		$require_app_id = false;
+
+		// is it network admin area
 		$network = $cn->is_network_admin();
 
 		// get app token data
@@ -948,6 +975,7 @@ class Cookie_Notice_Welcome_API {
 		else
 			$data_token = get_transient( 'cookie_notice_app_token' );
 
+		// check api token
 		$api_token = ! empty( $data_token->token ) ? $data_token->token : '';
 
 		switch ( $request ) {
@@ -984,6 +1012,7 @@ class Cookie_Notice_Welcome_API {
 				break;
 
 			case 'get_analytics':
+				$require_app_id = true;
 				$api_url = $cn->get_url( 'transactional_api', '/api/transactional/analytics/analytics-data' );
 				$api_args['method'] = 'GET';
 
@@ -1005,16 +1034,19 @@ class Cookie_Notice_Welcome_API {
 				break;
 
 			case 'get_consent_logs_by_date':
+				$require_app_id = true;
 				$api_url = $cn->get_url( 'transactional_api', '/api/transactional/analytics/consent-logs' );
 				$api_args['method'] = 'POST';
 				break;
 
 			case 'get_config':
+				$require_app_id = true;
 				$api_url = $cn->get_url( 'designer_api', '/api/designer/user-design-live' );
 				$api_args['method'] = 'GET';
 				break;
 
 			case 'quick_config':
+				$require_app_id = true;
 				$json = true;
 				$api_url = $cn->get_url( 'designer_api', '/api/designer/user-design/quick' );
 				$api_args['method'] = 'POST';
@@ -1028,6 +1060,7 @@ class Cookie_Notice_Welcome_API {
 				break;
 
 			case 'notify_app':
+				$require_app_id = true;
 				$json = true;
 				$api_url = $cn->get_url( 'account_api', '/api/account/app/notifyAppPublished' );
 				$api_args['method'] = 'POST';
@@ -1054,6 +1087,7 @@ class Cookie_Notice_Welcome_API {
 
 			// braintree get customer
 			case 'get_customer':
+				$require_app_id = true;
 				$json = true;
 				$api_url = $cn->get_url( 'account_api', '/api/account/braintree/findcustomer' );
 				$api_args['method'] = 'POST';
@@ -1069,6 +1103,7 @@ class Cookie_Notice_Welcome_API {
 
 			// braintree create customer in vault
 			case 'create_customer':
+				$require_app_id = true;
 				$json = true;
 				$api_url = $cn->get_url( 'account_api', '/api/account/braintree/createcustomer' );
 				$api_args['method'] = 'POST';
@@ -1083,6 +1118,7 @@ class Cookie_Notice_Welcome_API {
 
 			// braintree get subscriptions
 			case 'get_subscriptions':
+				$require_app_id = true;
 				$json = true;
 				$api_url = $cn->get_url( 'account_api', '/api/account/braintree/subscriptionlists' );
 				$api_args['method'] = 'POST';
@@ -1097,6 +1133,7 @@ class Cookie_Notice_Welcome_API {
 
 			// braintree create subscription
 			case 'create_subscription':
+				$require_app_id = true;
 				$json = true;
 				$api_url = $cn->get_url( 'account_api', '/api/account/braintree/createsubscription' );
 				$api_args['method'] = 'POST';
@@ -1111,6 +1148,7 @@ class Cookie_Notice_Welcome_API {
 
 			// braintree assign subscription
 			case 'assign_subscription':
+				$require_app_id = true;
 				$json = true;
 				$api_url = $cn->get_url( 'account_api', '/api/account/braintree/assignsubscription' );
 				$api_args['method'] = 'POST';
@@ -1125,6 +1163,7 @@ class Cookie_Notice_Welcome_API {
 
 			// braintree create payment method
 			case 'create_payment_method':
+				$require_app_id = true;
 				$json = true;
 				$api_url = $cn->get_url( 'account_api', '/api/account/braintree/createpaymentmethod' );
 				$api_args['method'] = 'POST';
@@ -1136,6 +1175,24 @@ class Cookie_Notice_Welcome_API {
 					]
 				);
 				break;
+		}
+
+		// check if app id is required to avoid unneeded requests
+		if ( $require_app_id ) {
+			$empty_app_id = false;
+
+			// check app id
+			if ( array_key_exists( 'AppID', $params ) && is_string( $params['AppID'] ) ) {
+				$app_id = trim( $params['AppID'] );
+
+				// empty app id?
+				if ( $app_id === '' )
+					$empty_app_id = true;
+			} else
+				$empty_app_id = true;
+
+			if ( $empty_app_id )
+				return [ 'error' => esc_html__( '"AppID" is not allowed to be empty.', 'cookie-notice' ) ];
 		}
 
 		if ( ! empty( $params ) && is_array( $params ) ) {
@@ -1318,6 +1375,9 @@ class Cookie_Notice_Welcome_API {
 			// update subscription
 			$status_data['subscription'] = $cn->get_subscription();
 
+			// update activation timestamp
+			$status_data['activation_datetime'] = $cn->get_cc_activation_datetime();
+
 			if ( $status_data['status'] === 'active' && $status_data['subscription'] === 'basic' ) {
 				$threshold = ! empty( $result['cycleUsage']->threshold ) ? (int) $result['cycleUsage']->threshold : 0;
 				$visits = ! empty( $result['cycleUsage']->visits ) ? (int) $result['cycleUsage']->visits : 0;
@@ -1401,6 +1461,12 @@ class Cookie_Notice_Welcome_API {
 
 			// set status
 			$status_data['status'] = 'active';
+
+			// get activation timestamp
+			$timestamp = $cn->get_cc_activation_datetime();
+
+			// update activation timestamp only for new cookie compliance activations
+			$status_data['activation_datetime'] = $timestamp === 0 ? time() : $timestamp;
 
 			// check subscription
 			if ( ! empty( $result_raw['SubscriptionType'] ) )

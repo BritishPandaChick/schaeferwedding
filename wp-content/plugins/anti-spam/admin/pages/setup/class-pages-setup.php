@@ -13,21 +13,21 @@ if( !defined('ABSPATH') ) {
 	exit;
 }
 
-class Setup extends \WBCR\Factory_Templates_116\Pages\Setup {
+class Setup extends \WBCR\Factory_Templates_128\Pages\Setup {
 
 	/**
-	 * @param \Wbcr_Factory466_Plugin $plugin
+	 * @param \Wbcr_Factory475_Plugin $plugin
 	 */
-	public function __construct(\Wbcr_Factory466_Plugin $plugin)
+	public function __construct(\Wbcr_Factory475_Plugin $plugin)
 	{
 		parent::__construct($plugin);
 
 		$path = WTITAN_PLUGIN_DIR . '/admin/pages/setup/steps';
 
-		#Step 1 is default \WBCR\Factory_Templates_116\Pages\Step_Plugins
+		#Step 1 is default \WBCR\Factory_Templates_128\Pages\Step_Plugins
 		$this->register_step($path . '/class-step-default.php', '\WBCR\Titan\Page\Step_Default');
 
-		#Step 2 \WBCR\Factory_Templates_116\Pages\Step_Plugins
+		#Step 2 \WBCR\Factory_Templates_128\Pages\Step_Plugins
 		$this->register_step($path . '/class-step-plugins.php', '\WBCR\Titan\Page\Step_Plugins');
 		#Step 3
 		$this->register_step($path . '/class-step-security-audit.php', '\WBCR\Titan\Page\Step_Security_Audit');
@@ -53,7 +53,7 @@ class Setup extends \WBCR\Factory_Templates_116\Pages\Setup {
 	 *
 	 * @return void
 	 * @since 1.0.0
-	 * @see   FactoryPages466_AdminPage
+	 * @see   FactoryPages475_AdminPage
 	 *
 	 */
 	public function assets($scripts, $styles)

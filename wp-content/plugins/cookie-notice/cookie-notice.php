@@ -2,7 +2,7 @@
 /*
 Plugin Name: Cookie Notice & Compliance for GDPR / CCPA
 Description: Cookie Notice allows you to you elegantly inform users that your site uses cookies and helps you comply with GDPR, CCPA and other data privacy laws.
-Version: 2.4.16
+Version: 2.4.18
 Author: Hu-manity.co
 Author URI: https://hu-manity.co/
 Plugin URI: https://cookie-compliance.co/
@@ -29,19 +29,20 @@ if ( ! defined( 'ABSPATH' ) )
  * Cookie Notice class.
  *
  * @class Cookie_Notice
- * @version	2.4.16
+ * @version	2.4.18
  */
 class Cookie_Notice {
 
 	private $status_data = [
 		'status'				=> '',
 		'subscription'			=> 'basic',
-		'threshold_exceeded'	=> false
+		'threshold_exceeded'	=> false,
+		'activation_datetime'	=> 0
 	];
 	private $x_api_key = 'hudft60djisdusdjwek';
 	private $app_host_url = 'https://app.hu-manity.co';
-	private $app_login_url = 'https://app.hu-manity.co/#/en/login';
-	private $app_dashboard_url = 'https://app.hu-manity.co/#/en/';
+	private $app_login_url = 'https://app.hu-manity.co/#/login';
+	private $app_dashboard_url = 'https://app.hu-manity.co/#/';
 	private $account_api_url = 'https://account-api.hu-manity.co';
 	private $designer_api_url = 'https://designer-api.hu-manity.co';
 	private $transactional_api_url = 'https://transactional-api.hu-manity.co';
@@ -118,6 +119,8 @@ class Cookie_Notice {
 			'script_placement'		=> 'header',
 			'translate'				=> true,
 			'deactivation_delete'	=> false,
+			'review_notice'			=> true,
+			'review_notice_delay'	=> 0,
 			'update_version'		=> 8,
 			'update_notice'			=> true,
 			'update_notice_diss'	=> false,
@@ -127,9 +130,10 @@ class Cookie_Notice {
 		'data'	=> [
 			'status'				=> '',
 			'subscription'			=> 'basic',
-			'threshold_exceeded'	=> false
+			'threshold_exceeded'	=> false,
+			'activation_datetime'	=> 0
 		],
-		'version'	=> '2.4.16'
+		'version'	=> '2.4.18'
 	];
 
 	/**
@@ -226,8 +230,8 @@ class Cookie_Notice {
 			$this->options['general']['see_more_opt']['sync'] = $this->defaults['general']['see_more_opt']['sync'];
 
 		// actions
-		add_action( 'plugins_loaded', [ $this, 'set_status_data' ] );
 		add_action( 'plugins_loaded', [ $this, 'set_database_version' ], 0 );
+		add_action( 'plugins_loaded', [ $this, 'set_status_data' ], 0 );
 		add_action( 'init', [ $this, 'register_shortcodes' ] );
 		add_action( 'init', [ $this, 'wpsc_add_cookie' ] );
 		add_action( 'init', [ $this, 'set_plugin_links' ] );
@@ -235,6 +239,7 @@ class Cookie_Notice {
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
 		add_action( 'admin_footer', [ $this, 'deactivate_plugin_template' ] );
 		add_action( 'wp_ajax_cn_dismiss_notice', [ $this, 'ajax_dismiss_admin_notice' ] );
+		add_action( 'wp_ajax_cn_review_notice', [ $this, 'ajax_review_notice' ] );
 		add_action( 'wp_ajax_cn-deactivate-plugin', [ $this, 'deactivate_plugin' ] );
 	}
 
@@ -384,11 +389,24 @@ class Cookie_Notice {
 		if ( $status_data['threshold_exceeded'] )
 			$this->options['general']['app_blocking'] = false;
 
+		// check status
+		$status = $this->check_status( $status_data['status'] );
+
+		// no activation timestamp?
+		if ( empty( $status_data['activation_datetime'] ) ) {
+			if ( $status === 'active' )
+				$activation = time();
+			else
+				$activation = 0;
+		} else
+			$activation = (int) $status_data['activation_datetime'];
+
 		// set status data
 		$this->status_data = [
-			'status'				=> $this->check_status( $status_data['status'] ),
+			'status'				=> $status,
 			'subscription'			=> $this->check_subscription( $status_data['subscription'] ),
-			'threshold_exceeded'	=> (bool) $status_data['threshold_exceeded']
+			'threshold_exceeded'	=> (bool) $status_data['threshold_exceeded'],
+			'activation_datetime'	=> $activation
 		];
 	}
 
@@ -441,6 +459,15 @@ class Cookie_Notice {
 	 */
 	public function threshold_exceeded() {
 		return $this->status_data['threshold_exceeded'];
+	}
+
+	/**
+	 * Get cookie compliance activation timestamp.
+	 *
+	 * @return int
+	 */
+	public function get_cc_activation_datetime() {
+		return (int) $this->status_data['activation_datetime'];
 	}
 
 	/**
@@ -668,8 +695,16 @@ class Cookie_Notice {
 
 		$network = $this->is_network_admin();
 
-		$current_update = 10;
+		// get cookie compliance status
+		$status = $this->get_status();
 
+		// get subscription
+		$subscription = $this->get_subscription();
+
+		// update number
+		$current_update = 11;
+
+		// new version?
 		if ( version_compare( $this->db_version, $this->defaults['version'], '<' ) ) {
 			if ( $this->options['general']['update_version'] < $current_update ) {
 				// check version, if update version is lower than plugin version, set update notice to true
@@ -683,6 +718,32 @@ class Cookie_Notice {
 					update_site_option( 'cookie_notice_options', $this->options['general'] );
 				} else
 					update_option( 'cookie_notice_options', $this->options['general'] );
+			}
+
+			// update 2.4.17+
+			if ( version_compare( $this->db_version, '2.4.17', '<' ) ) {
+				// get cookie compliance activation timestamp
+				$activation_date = $this->get_cc_activation_datetime();
+
+				// get status data
+				$data = $this->status_data;
+
+				// no activation timestamp?
+				if ( empty( $activation_date ) ) {
+					if ( $status === 'active' )
+						$activation = time();
+					else
+						$activation = 0;
+				} else
+					$activation = (int) $data['activation_datetime'];
+
+				// update activation timestamp
+				$data['activation_datetime'] = $activation;
+
+				if ( $network )
+					update_site_option( 'cookie_notice_status', $data );
+				else
+					update_option( 'cookie_notice_status', $data, false );
 			}
 
 			// update plugin version
@@ -710,22 +771,16 @@ class Cookie_Notice {
 		if ( is_multisite() && ( ( $this->is_plugin_network_active() && ! $network && $this->network_options['global_override'] ) || ( $network && ! $this->is_plugin_network_active() ) ) )
 			$this->options['general']['update_notice'] = false;
 
-		// get cookie compliance status
-		$status = $this->get_status();
-
-		// get subscription
-		$subscription = $this->get_subscription();
-
 		// show notice, if no compliance only
 		if ( $this->options['general']['update_notice'] === true ) {
 			if ( empty( $status ) ) {
-				$this->add_notice( '<div class="cn-notice-text"><h2>' . esc_html__( 'Google Consent Mode required by March 2024', 'cookie-notice' ) . '</h2><p>' . sprintf( __( '<a href="%s" target="_blank">Google Consent Mode</a> is a tool that allows websites to more effectively communicate users\' cookie consent choices to Google tags. With the introduction of Google Consent Mode V2, its implementation is mandatory by March 2024 for all sites using Google services. Make sure your site is compatible with Google Consent Mode V2 and integrate it with Cookie Compliance. Click "Run Compliance Check" to proceed and test other compliance features.', 'cookie-notice' ), 'https://cookie-compliance.co/documentation/google-consent-mode/' ) . '</p><p class="cn-notice-actions"><a href="' . esc_url( $network ? network_admin_url( 'admin.php?page=cookie-notice&welcome=1' ) : admin_url( 'admin.php?page=cookie-notice&welcome=1' ) ) . '" class="button button-primary cn-button">' . esc_html__( 'Run Compliance Check', 'cookie-notice' ) . '</a> <a href="#" class="button-link cn-notice-dismiss">' . esc_html__( 'Dismiss Notice', 'cookie-notice' ) . '</a></p></div>', 'error', 'div' );
+				$this->add_notice( '<div class="cn-notice-text cn-no-compliance"><h2>' . esc_html__( 'Automatic Google Consent Mode support in Cookie Compliance', 'cookie-notice' ) . '</h2><p>' . __( 'Cookie Compliance integration with Google Consent Mode ensures that your Google Analytics and other services you use through Google Tag Manager tags respond dynamically to user consent status. <b>It requires no technical expertise to set up.</b> When users choose their preferences, Cookie Compliance automatically signals this information to Google services so that cookies are set only if consent is given for each type of data processing.', 'cookie-notice' ) . '<br>' . esc_html__( 'Click "Run Compliance Check" to proceed and test other compliance features.', 'cookie-notice' ) . '</p><p class="cn-notice-actions"><a href="' . esc_url( $network ? network_admin_url( 'admin.php?page=cookie-notice&welcome=1' ) : admin_url( 'admin.php?page=cookie-notice&welcome=1' ) ) . '" class="button button-primary cn-button">' . esc_html__( 'Run Compliance Check', 'cookie-notice' ) . '</a> <a href="#" class="button-link cn-notice-dismiss">' . esc_html__( 'Dismiss Notice', 'cookie-notice' ) . '</a></p></div>', 'error', 'div' );
 			} else if ( $subscription !== 'pro' ) {
-				$this->add_notice( '<div class="cn-notice-text"><h2>' . esc_html__( 'Google Consent Mode required by March 2024', 'cookie-notice' ) . '</h2><p>' . sprintf( __( '<a href="%s" target="_blank">Google Consent Mode</a> is a tool that allows websites to more effectively communicate users\' cookie consent choices to Google tags. With the introduction of Google Consent Mode V2, its implementation is mandatory by March 2024 for all sites using Google services. Cookie Compliance Professional plans include seamless integration with Google Consent Mode. Upgrade to Pro and make sure your site is compatible with it with.', 'cookie-notice' ), 'https://cookie-compliance.co/documentation/google-consent-mode/' ) . '</p><p class="cn-notice-actions"><a href="' . esc_url( $this->get_url( 'host', '?utm_campaign=upgrade+to+pro&utm_source=wordpress&utm_medium=link#/en/cc/dashboard?app-id=' . $this->options['general']['app_id'] . '&open-modal=payment' ) ) . '" class="button button-primary cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'cookie-notice' ) . '</a> <a href="#" class="button-link cn-notice-dismiss">' . esc_html__( 'Dismiss Notice', 'cookie-notice' ) . '</a></p></div>', 'error', 'div' );
+				$this->add_notice( '<div class="cn-notice-text cn-no-compliance"><h2>' . esc_html__( 'Automatic Google Consent Mode support in Cookie Compliance', 'cookie-notice' ) . '</h2><p>' . __( 'Cookie Compliance integration with Google Consent Mode ensures that your Google Analytics and other services you use through Google Tag Manager tags respond dynamically to user consent status. <b>It requires no technical expertise to set up.</b> When users choose their preferences, Cookie Compliance automatically signals this information to Google services so that cookies are set only if consent is given for each type of data processing.', 'cookie-notice' ) . '<br>' . esc_html__( 'Upgrade to Pro and make sure your site is compatible with it with.', 'cookie-notice' ) . '</p><p class="cn-notice-actions"><a href="' . esc_url( $this->get_url( 'host', '?utm_campaign=upgrade+to+pro&utm_source=wordpress&utm_medium=link#/dashboard?app-id=' . $this->options['general']['app_id'] . '&open-modal=payment' ) ) . '" class="button button-primary cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'cookie-notice' ) . '</a> <a href="#" class="button-link cn-notice-dismiss">' . esc_html__( 'Dismiss Notice', 'cookie-notice' ) . '</a></p></div>', 'error', 'div' );
 			}
 		}
 
-		// show threshold limit warning, compliance only
+		// compliance only
 		if ( $status === 'active' ) {
 			// get analytics data options
 			if ( $network )
@@ -738,6 +793,7 @@ class Cookie_Notice {
 			else
 				$allow_notice = true;
 
+			// show threshold limit warning
 			if ( ! empty( $analytics ) && $allow_notice ) {
 				// cycle usage data
 				$cycle_usage = [
@@ -760,6 +816,28 @@ class Cookie_Notice {
 						$this->add_notice( '<div class="cn-notice-text" data-delay="' . esc_attr( $cycle_usage['end_date']->getTimestamp() ) . '"><h2>' . esc_html__( 'Cookie Compliance Warning', 'cookie-notice') . '</h2><p>' . sprintf( __( 'Your website has reached the <b>%1$s visits usage limit for the Cookie Compliance Basic Plan</b>. Compliance services such as Consent Record Storage, Autoblocking, and Consent Analytics have been deactivated until current usage cycle ends on %2$s.', 'cookie-notice' ), $threshold, $cycle_date ) . '<br>' . sprintf( __( 'To reactivate compliance services now, <a href="%s" target="_blank">upgrade your domain to a Pro plan.</a>', 'cookie-notice' ) . '</p></div>', $upgrade_link ), 'cn-threshold error is-dismissible', 'div' );
 					}
 				}
+			}
+
+			// display review notice, for multisite only for network admin area
+			if ( $this->options['general']['review_notice'] === true && ( ! is_multisite() || ( $network && $this->is_plugin_network_active() ) ) ) {
+				// get current time
+				$current_time = time();
+
+				// get cookie compliance activation timestamp
+				$activation_date = $this->get_cc_activation_datetime();
+
+				// get delay timestamp
+				$delay_timestamp = (int) $this->options['general']['review_notice_delay'];
+
+				// no delay?
+				if ( $delay_timestamp === 0 )
+					$compare_timestamp = $activation_date + 2 * WEEK_IN_SECONDS;
+				else
+					$compare_timestamp = $delay_timestamp;
+
+				// display notice?
+				if ( $compare_timestamp < $current_time )
+					$this->add_notice( '<div class="cn-notice-text cn-review"><h2>' . esc_html__( 'We Value Your Feedback', 'cookie-notice' ) . '</h2><p>' . sprintf( __( "Hi, you've been using <strong>Cookie Notice & Compliance for GDPR / CCPA</strong> for more than %s. We hope it has been a valuable addition to your WordPress site. We would be grateful if you could take a few minutes to share your thoughts by leaving a review.", 'cookie-notice' ), human_time_diff( $activation_date, $current_time ) ) . '<br>' . esc_html__( 'Thank you for helping us improve and grow!', 'cookie-notice' ) . '</p><p class="cn-notice-actions"><a href="https://wordpress.org/support/plugin/cookie-notice/reviews/?filter=5#new-post" class="button-link cn-notice-review" target="_blank" rel="noopener">' . esc_html__( 'Review', 'cookie-notice' ) . '</a><a href="#" class="button-link cn-notice-delay">' . esc_html__( 'Delay', 'cookie-notice' ) . '</a><a href="#" class="button-link cn-notice-dismiss">' . esc_html__( 'Dismiss', 'cookie-notice' ) . '</a></p></div>', 'error', 'div' );
 			}
 		}
 	}
@@ -806,7 +884,10 @@ class Cookie_Notice {
 	 */
 	public function ajax_dismiss_admin_notice() {
 		if ( ! current_user_can( 'install_plugins' ) )
-			return;
+			exit;
+
+		if ( ! isset( $_POST['nonce'], $_POST['notice_action'] ) )
+			exit;
 
 		if ( wp_verify_nonce( $_POST['nonce'], 'cn_dismiss_notice' ) ) {
 			// get notice action
@@ -834,8 +915,8 @@ class Cookie_Notice {
 
 				// delay notice
 				case 'delay':
-					// set delay period to 1 week from now
-					$this->options['general']['update_delay_date'] = time() + 1209600;
+					// set delay period to 2 weeks from now
+					$this->options['general']['update_delay_date'] = time() + 2 * WEEK_IN_SECONDS;
 
 					// update options
 					if ( $network )
@@ -849,6 +930,60 @@ class Cookie_Notice {
 				default:
 					$this->options['general']['update_notice'] = false;
 					$this->options['general']['update_delay_date'] = 0;
+
+					// update options
+					if ( $network ) {
+						$this->options['general']['update_notice_diss'] = true;
+
+						update_site_option( 'cookie_notice_options', $this->options['general'] );
+					} else
+						update_option( 'cookie_notice_options', $this->options['general'] );
+			}
+		}
+
+		exit;
+	}
+
+	/**
+	 * Dismiss review admin notice.
+	 *
+	 * @return void
+	 */
+	public function ajax_review_notice() {
+		if ( ! current_user_can( 'install_plugins' ) )
+			exit;
+
+		if ( ! isset( $_POST['nonce'], $_POST['notice_action'] ) )
+			exit;
+
+		if ( wp_verify_nonce( $_POST['nonce'], 'cn_review_notice' ) ) {
+			// get notice action
+			$notice_action = ! empty( $_POST['notice_action'] ) ? sanitize_key( $_POST['notice_action'] ) : 'dismiss';
+
+			$cn_network = isset( $_POST['cn_network'] ) ? (int) $_POST['cn_network'] : false;
+
+			// network?
+			$network = is_multisite() && $cn_network === 1;
+
+			switch ( $notice_action ) {
+				// delay notice
+				case 'delay':
+					$this->options['general']['review_notice'] = true;
+					$this->options['general']['review_notice_delay'] = time() + 2 * WEEK_IN_SECONDS;
+
+					// update options
+					if ( $network )
+						update_site_option( 'cookie_notice_options', $this->options['general'] );
+					else
+						update_option( 'cookie_notice_options', $this->options['general'] );
+					break;
+
+				// hide notice
+				case 'dismiss':
+				case 'review':
+				default:
+					$this->options['general']['review_notice'] = false;
+					$this->options['general']['review_notice_delay'] = 0;
 
 					// update options
 					if ( $network ) {
@@ -1083,9 +1218,10 @@ class Cookie_Notice {
 
 		// prepare script data
 		$script_data = [
-			'ajaxURL'	=> admin_url( 'admin-ajax.php' ),
-			'nonce'		=> wp_create_nonce( 'cn_dismiss_notice' ),
-			'network'	=> $this->is_network_admin()
+			'ajaxURL'		=> admin_url( 'admin-ajax.php' ),
+			'nonce'			=> wp_create_nonce( 'cn_dismiss_notice' ),
+			'reviewNonce'	=> wp_create_nonce( 'cn_review_notice' ),
+			'network'		=> $this->is_network_admin()
 		];
 
 		wp_add_inline_script( 'cookie-notice-admin-notice', 'var cnArgsNotice = ' . wp_json_encode( $script_data ) . ";\n", 'before' );

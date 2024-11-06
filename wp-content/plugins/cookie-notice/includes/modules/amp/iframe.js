@@ -1,6 +1,19 @@
 function cnDisableRevoke() {
+ 	var huObject = null;
+
+	// get valid hu object
+	for ( const object of [ '__hu', 'hu' ] ) {
+		// check global variable
+		if ( typeof window[object] !== 'undefined' && window[object].hasOwnProperty( 'earlyInit' ) && typeof window[object].earlyInit === 'function' ) {
+			huObject = window[object];
+
+			// no need to check again
+			break;
+		}
+	}
+
 	// force revoke button to be disabled
-	hu.options.config.revokeConsent = false;
+	huObject.options.config.revokeConsent = false;
 }
 
 function cnConsentResponse( event ) {

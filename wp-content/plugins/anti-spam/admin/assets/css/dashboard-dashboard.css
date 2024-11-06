@@ -106,13 +106,13 @@
     border-radius: 5px !important;
 }
 
-.factory-bootstrap-467 .factory-buttons-way .factory-on.active {
+.factory-bootstrap-477 .factory-buttons-way .factory-on.active {
     background-color: #5d05b7 !important;
     box-shadow: none !important;
     border: none !important;
 }
 
-.factory-bootstrap-467 .factory-buttons-way .factory-off.active {
+.factory-bootstrap-477 .factory-buttons-way .factory-off.active {
     background-color: #5d05b7 !important;
     box-shadow: none !important;
     border: none !important;
@@ -122,7 +122,7 @@
     background: #fff !important;
 }
 
-.factory-bootstrap-467 .nav-tabs > li.active > a, .factory-bootstrap-467 .nav-tabs > li.active > a:focus, .factory-bootstrap-467 .nav-tabs > li.active > a:hover {
+.factory-bootstrap-477 .nav-tabs > li.active > a, .factory-bootstrap-477 .nav-tabs > li.active > a:focus, .factory-bootstrap-477 .nav-tabs > li.active > a:hover {
     background-color: #efefef !important;
 }
 

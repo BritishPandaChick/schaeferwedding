@@ -1,13 +1,13 @@
-.factory-bootstrap-467 .factory-mtextbox-item {
+.factory-bootstrap-477 .factory-mtextbox-item {
     position: relative;
     margin-bottom: 5px;
 }
 
-.factory-bootstrap-467 .factory-mtextbox-item input, .factory-mtextbox-remove-item {
+.factory-bootstrap-477 .factory-mtextbox-item input, .factory-mtextbox-remove-item {
     display: inline-block;
 }
 
-.factory-bootstrap-467 .factory-mtextbox-item .factory-mtextbox-remove-item {
+.factory-bootstrap-477 .factory-mtextbox-item .factory-mtextbox-remove-item {
     position: absolute;
     top: 0;
     right: 0;
@@ -20,18 +20,18 @@
     box-shadow: none;*/
 }
 
-.factory-bootstrap-467 .factory-mtextbox-item .factory-mtextbox-remove-item:hover,
-.factory-bootstrap-467 .factory-mtextbox-item .factory-mtextbox-remove-item:focus {
+.factory-bootstrap-477 .factory-mtextbox-item .factory-mtextbox-remove-item:hover,
+.factory-bootstrap-477 .factory-mtextbox-item .factory-mtextbox-remove-item:focus {
     box-shadow: none;
     outline: none;
 }
 
-/*.factory-bootstrap-467 .factory-mtextbox-item .factory-mtextbox-remove-item:hover {
+/*.factory-bootstrap-477 .factory-mtextbox-item .factory-mtextbox-remove-item:hover {
     background: #fbe3e3;
     color: #9c7070;
 }*/
 
-.factory-bootstrap-467 .factory-mtextbox-add-item {
+.factory-bootstrap-477 .factory-mtextbox-add-item {
     display: block;
     margin-top: 10px;
 }

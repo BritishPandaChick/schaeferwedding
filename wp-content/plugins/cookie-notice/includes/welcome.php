@@ -382,7 +382,7 @@ class Cookie_Notice_Welcome {
 								<p>' . esc_html__( 'Log in to your Cookie Compliance account and continue configuring your Privacy Experience.', 'cookie-notice' ) . '</p>
 							</div>
 							<div class="cn-buttons">
-								<a href="' . esc_url( $cn->get_url( 'host', '?utm_campaign=configure&utm_source=wordpress&utm_medium=button#/en/cc/login' ) ) . '" class="cn-btn cn-btn-lg" target="_blank">' . esc_html__( 'Go to Application', 'cookie-notice' ) . '</a>
+								<a href="' . esc_url( $cn->get_url( 'host', '?utm_campaign=configure&utm_source=wordpress&utm_medium=button#/login' ) ) . '" class="cn-btn cn-btn-lg" target="_blank">' . esc_html__( 'Go to Application', 'cookie-notice' ) . '</a>
 							</div>
 						</div>
 					</div>

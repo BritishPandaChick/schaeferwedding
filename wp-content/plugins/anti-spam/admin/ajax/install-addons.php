@@ -23,11 +23,11 @@ function wtitan_update_component() {
 	$storage = WBCR\Titan\Plugin::app()->request->post( 'storage', null, true );
 
 	if ( ! WBCR\Titan\Plugin::app()->currentUserCan() ) {
-		wp_die( __( 'You don\'t have enough capability to edit this information.', 'clearfy' ), __( 'Something went wrong.' ), 403 );
+		wp_die( __( 'You don\'t have enough capability to edit this information.', 'titan-security' ), __( 'Something went wrong.' ), 403 );
 	}
 
 	if ( empty( $slug ) || empty( $action ) ) {
-		wp_send_json_error( [ 'error_message' => __( 'Required attributes are not passed or empty.', 'clearfy' ) ] );
+		wp_send_json_error( [ 'error_message' => __( 'Required attributes are not passed or empty.', 'titan-security' ) ] );
 	}
 	$success   = false;
 	$send_data = [];
@@ -43,7 +43,7 @@ function wtitan_update_component() {
 				$success = true;
 			}
 		} else {
-			wp_send_json_error( [ 'error_message' => __( 'You are trying to perform an invalid action.', 'clearfy' ) ] );
+			wp_send_json_error( [ 'error_message' => __( 'You are trying to perform an invalid action.', 'titan-security' ) ] );
 		}
 	} else if ( $storage == 'wordpress' ) {
 		if ( ! empty( $slug ) ) {
@@ -79,7 +79,7 @@ function wtitan_update_component() {
 	/*if ( $action == 'deactivate' ) {
 		$is_need_rewrite_rules = WBCR\Titan\Plugin::app()->getPopulateOption( 'need_rewrite_rules' );
 		if ( $is_need_rewrite_rules ) {
-			$send_data['need_rewrite_rules'] = sprintf( '<span class="wbcr-clr-need-rewrite-rules-message">' . __( 'When you deactivate some components, permanent links may work incorrectly. If this happens, please, <a href="%s">update the permalinks</a>, so you could complete the deactivation.', 'clearfy' ), admin_url( 'options-permalink.php' ) . '</span>' );
+			$send_data['need_rewrite_rules'] = sprintf( '<span class="wbcr-clr-need-rewrite-rules-message">' . __( 'When you deactivate some components, permanent links may work incorrectly. If this happens, please, <a href="%s">update the permalinks</a>, so you could complete the deactivation.', 'titan-security' ), admin_url( 'options-permalink.php' ) . '</span>' );
 		}
 	}*/
 
@@ -89,13 +89,13 @@ function wtitan_update_component() {
 		wp_send_json_success( $send_data );
 	}
 
-	wp_send_json_error( [ 'error_message' => __( 'An unknown error occurred during the activation of the component.', 'clearfy' ) ] );
+	wp_send_json_error( [ 'error_message' => __( 'An unknown error occurred during the activation of the component.', 'titan-security' ) ] );
 }
 
 add_action( 'wp_ajax_wtitan-update-component', 'wtitan_update_component' );
 
 /**
- * Ajax event that calls the wbcr/clearfy/activated_component action,
+ * Ajax event that calls the wbcr/titan/activated_component action,
  * to get the component to work. Usually this is a call to the installation functions,
  * but in some cases, overwriting permanent references or compatibility checks.
  */
@@ -105,14 +105,14 @@ function wtitan_prepare_component() {
 	$component_name = WBCR\Titan\Plugin::app()->request->post( 'plugin', null, true );
 
 	if ( ! WBCR\Titan\Plugin::app()->currentUserCan() ) {
-		wp_send_json_error( [ 'error_message' => __( 'You don\'t have enough capability to edit this information.', 'clearfy' ) ], 403 );
+		wp_send_json_error( [ 'error_message' => __( 'You don\'t have enough capability to edit this information.', 'titan-security' ) ], 403 );
 	}
 
 	if ( empty( $component_name ) ) {
-		wp_send_json_error( [ 'error_message' => __( 'Required attribute [component_name] is empty.', 'clearfy' ) ] );
+		wp_send_json_error( [ 'error_message' => __( 'Required attribute [component_name] is empty.', 'titan-security' ) ] );
 	}
 
-	do_action( 'wbcr/clearfy/activated_component', $component_name );
+	do_action( 'wbcr/titan/activated_component', $component_name );
 
 	wp_send_json_success();
 }

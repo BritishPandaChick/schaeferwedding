@@ -58,13 +58,13 @@ class Components_License extends Base {
 
 	/**
 	 * WCL_LicensePage constructor.
-	 * @param \Wbcr_Factory466_Plugin $plugin
+	 * @param \Wbcr_Factory475_Plugin $plugin
 	 *
 	 * @since  7.0.2
 	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
 	 *
 	 */
-	public function __construct(\Wbcr_Factory466_Plugin $plugin)
+	public function __construct(\Wbcr_Factory475_Plugin $plugin)
 	{
 		$this->menu_title = __('License', 'titan-security');
 		$this->page_menu_short_description = __('Product activation', 'titan-security');
@@ -78,7 +78,7 @@ class Components_License extends Base {
 	 *
 	 * @return void
 	 * @since 7.0.2
-	 * @see   FactoryPages466_AdminPage
+	 * @see   FactoryPages475_AdminPage
 	 *
 	 */
 	public function assets($scripts, $styles)
@@ -88,8 +88,8 @@ class Components_License extends Base {
 		$this->styles->add(WTITAN_PLUGIN_URL . '/admin/assets/css/components.css');
 
 		/**
-		 * @param \Wbcr_Factory466_StyleList $styles
-		 * @param \Wbcr_Factory466_ScriptList $scripts
+		 * @param \Wbcr_Factory475_StyleList $styles
+		 * @param \Wbcr_Factory475_ScriptList $scripts
 		 *
 		 * @since 7.0.2
 		 *

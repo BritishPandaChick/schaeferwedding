@@ -4,7 +4,7 @@ namespace WBCR\Titan\Page;
 
 use WBCR\Titan\Plugin;
 use WBCR\Titan\Plugin\Helper;
-use Wbcr_Factory466_Plugin;
+use Wbcr_Factory475_Plugin;
 
 /**
  * The plugin Settings.
@@ -46,9 +46,9 @@ class PluginSettings extends Base {
 	public $page_menu_position = 2;
 
 	/**
-	 * @param Wbcr_Factory466_Plugin $plugin
+	 * @param Wbcr_Factory475_Plugin $plugin
 	 */
-	public function __construct(Wbcr_Factory466_Plugin $plugin)
+	public function __construct(Wbcr_Factory475_Plugin $plugin)
 	{
 		$this->menu_title = __('Settings', 'titan-security');
 		$this->page_menu_short_description = __('Global plugin settings', 'titan-security');

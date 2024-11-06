@@ -148,7 +148,7 @@
             _createColorPicker: function() {
                 var self = this;
                 
-                this.$colorPicker.factoryBootstrap467_iris({
+                this.$colorPicker.factoryBootstrap477_iris({
                     width: 217,
                     palettes: ['#16a086', '#27ae61', '#2a80b9', '#8f44ad', '#2d3e50', '#f49c14', '#c1392b', '#bec3c7'],
                     hide: true,                                        
@@ -160,7 +160,7 @@
                 
                 self.$colorHex.on('change paste keyup', function(){
                     self._colorLock = true;
-                    self.$colorPicker.factoryBootstrap467_iris('color', self.$colorHex.val());
+                    self.$colorPicker.factoryBootstrap477_iris('color', self.$colorHex.val());
                     self._cancelColorLock();
                 });
                
@@ -257,8 +257,8 @@
                 point.$el.addClass('factory-current-point');
                 
                 this.$colorPickerContainer.show();
-                this.$colorPicker.factoryBootstrap467_iris( 'show' );
-                this.$colorPicker.factoryBootstrap467_iris( 'option', 'color', point.color );
+                this.$colorPicker.factoryBootstrap477_iris( 'show' );
+                this.$colorPicker.factoryBootstrap477_iris( 'option', 'color', point.color );
                 
                 this.$opacitySlider.val( point.opacity * 100 );
                 this.$opacitySlider.trigger('slide');

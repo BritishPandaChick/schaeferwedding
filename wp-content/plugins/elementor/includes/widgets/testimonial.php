@@ -73,6 +73,24 @@ class Widget_Testimonial extends Widget_Base {
 		return [ 'testimonial', 'blockquote' ];
 	}
 
+	protected function is_dynamic_content(): bool {
+		return false;
+	}
+
+	/**
+	 * Get style dependencies.
+	 *
+	 * Retrieve the list of style dependencies the widget requires.
+	 *
+	 * @since 3.24.0
+	 * @access public
+	 *
+	 * @return array Widget style dependencies.
+	 */
+	public function get_style_depends(): array {
+		return [ 'widget-testimonial' ];
+	}
+
 	/**
 	 * Get widget upsale data.
 	 *
@@ -442,6 +460,15 @@ class Widget_Testimonial extends Widget_Base {
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 
+		$has_content = ! empty( $settings['testimonial_content'] );
+		$has_image = ! empty( $settings['testimonial_image']['url'] );
+		$has_name = ! empty( $settings['testimonial_name'] );
+		$has_job = ! empty( $settings['testimonial_job'] );
+
+		if ( ! $has_content && ! $has_image && ! $has_name && ! $has_job ) {
+			return;
+		}
+
 		$this->add_render_attribute( 'wrapper', 'class', 'elementor-testimonial-wrapper' );
 
 		$this->add_render_attribute( 'meta', 'class', 'elementor-testimonial-meta' );
@@ -452,15 +479,6 @@ class Widget_Testimonial extends Widget_Base {
 
 		if ( $settings['testimonial_image_position'] ) {
 			$this->add_render_attribute( 'meta', 'class', 'elementor-testimonial-image-position-' . $settings['testimonial_image_position'] );
-		}
-
-		$has_content = ! ! $settings['testimonial_content'];
-		$has_image = ! ! $settings['testimonial_image']['url'];
-		$has_name = ! ! $settings['testimonial_name'];
-		$has_job = ! ! $settings['testimonial_job'];
-
-		if ( ! $has_content && ! $has_image && ! $has_name && ! $has_job ) {
-			return;
 		}
 
 		if ( ! empty( $settings['link']['url'] ) ) {
@@ -544,6 +562,10 @@ class Widget_Testimonial extends Widget_Base {
 	protected function content_template() {
 		?>
 		<#
+		if ( '' === settings.testimonial_content && '' === settings.testimonial_image.url && '' === settings.testimonial_name && '' === settings.testimonial_job ) {
+			return;
+		}
+
 		var image = {
 				id: settings.testimonial_image.id,
 				url: settings.testimonial_image.url,
@@ -559,7 +581,7 @@ class Widget_Testimonial extends Widget_Base {
 
 			var imageHtml = '<img src="' + _.escape( imageUrl ) + '" alt="testimonial" />';
 			if ( settings.link.url ) {
-				imageHtml = '<a href="' + _.escape( settings.link.url ) + '">' + imageHtml + '</a>';
+				imageHtml = '<a href="' + elementor.helpers.sanitizeUrl( settings.link.url ) + '">' + imageHtml + '</a>';
 			}
 		}
 
@@ -601,7 +623,7 @@ class Widget_Testimonial extends Widget_Base {
 
 			if ( settings.link.url ) {
 				#>
-				<a href="{{ settings.link.url }}" {{{ view.getRenderAttributeString( 'testimonial_name' ) }}}>{{{ settings.testimonial_name }}}</a>
+				<a href="{{  elementor.helpers.sanitizeUrl( settings.link.url ) }}" {{{ view.getRenderAttributeString( 'testimonial_name' ) }}}>{{{ settings.testimonial_name }}}</a>
 				<#
 			} else {
 				#>
@@ -617,7 +639,7 @@ class Widget_Testimonial extends Widget_Base {
 
 			if ( settings.link.url ) {
 				#>
-				<a href="{{ settings.link.url }}" {{{ view.getRenderAttributeString( 'testimonial_job' ) }}}>{{{ settings.testimonial_job }}}</a>
+				<a href="{{  elementor.helpers.sanitizeUrl( settings.link.url ) }}" {{{ view.getRenderAttributeString( 'testimonial_job' ) }}}>{{{ settings.testimonial_job }}}</a>
 				<#
 			} else {
 				#>

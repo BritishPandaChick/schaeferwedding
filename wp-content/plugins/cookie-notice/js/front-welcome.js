@@ -2,12 +2,24 @@
 
 	// ready event
 	$( function() {
+		var huObject = null;
 		var cnHiddenElements = {};
 
 		// listen for the load
 		document.addEventListener( 'load.hu', function( e ) {
+			// get valid hu object
+			for ( const object of [ '__hu', 'hu' ] ) {
+				// check global variable
+				if ( typeof window[object] !== 'undefined' && window[object].hasOwnProperty( 'earlyInit' ) && typeof window[object].earlyInit === 'function' ) {
+					huObject = window[object];
+
+					// no need to check again
+					break;
+				}
+			}
+
 			// set widget text strings
-			hu.setTexts( cnFrontWelcome.textStrings );
+			huObject.setTexts( cnFrontWelcome.textStrings );
 		} );
 
 		// listen for the reload
@@ -21,7 +33,7 @@
 			} };
 
 			// set widget options
-			hu.setOptions( customOptions );
+			huObject.setOptions( customOptions );
 		} );
 
 		// listen for the display
@@ -96,7 +108,7 @@
 			}
 
 			// set widget options
-			hu.setOptions( customOptions );
+			huObject.setOptions( customOptions );
 		} );
 
 		// listen for the parent
@@ -268,10 +280,10 @@
 					}
 
 					// set widget options
-					hu.setOptions( customOptions );
+					huObject.setOptions( customOptions );
 
 					// set widget texts
-					hu.setTexts( customTexts );
+					huObject.setTexts( customTexts );
 				}
 
 				// remove spinner

@@ -264,6 +264,9 @@
 				try {
 					var response = $.parseJSON( data );
 
+					// remove potential optgroups
+					select.find( 'optgroup' ).remove();
+
 					// replace old select options with new ones
 					select.fadeIn( 'fast' ).find( 'option' ).remove().end().append( response.select );
 				} catch( e ) {

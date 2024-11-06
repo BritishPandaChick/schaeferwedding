@@ -8,7 +8,7 @@ namespace WBCR\Titan\Page;
  * @copyright (c) 23.07.2020, Webcraftic
  * @version 1.0
  */
-class Step_Congratulation extends \WBCR\Factory_Templates_116\Pages\Step_Custom {
+class Step_Congratulation extends \WBCR\Factory_Templates_128\Pages\Step_Custom {
 
 	protected $prev_id = 'step5';
 	protected $id = 'step6';
@@ -23,7 +23,7 @@ class Step_Congratulation extends \WBCR\Factory_Templates_116\Pages\Step_Custom 
 	 *
 	 * @return void
 	 * @since 1.0.0
-	 * @see   FactoryPages466_AdminPage
+	 * @see   FactoryPages475_AdminPage
 	 *
 	 */
 	public function assets($scripts, $styles)
@@ -37,7 +37,7 @@ class Step_Congratulation extends \WBCR\Factory_Templates_116\Pages\Step_Custom 
 	{
 		$pricing_page_url = $this->plugin->get_support()->get_pricing_url(true, 'setup_wizard');
 		?>
-		<div class="w-factory-templates-116-setup__inner-wrap">
+		<div class="w-factory-templates-128-setup__inner-wrap">
 			<h3><?php _e("Congratulations, the plugin configuration is complete!", "titan-security"); ?></h3>
 			<script>
 				jQuery(document).ready(function($) {

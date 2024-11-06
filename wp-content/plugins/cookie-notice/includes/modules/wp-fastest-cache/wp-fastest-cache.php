@@ -18,7 +18,7 @@ class Cookie_Notice_Modules_WPFastestCache {
 	 * @return void
 	 */
 	public function __construct() {
-		add_action( 'plugins_loaded', [ $this, 'check_wpfc' ], 11 );
+		add_action( 'plugins_loaded', [ $this, 'load_module' ], 11 );
 	}
 
 	/**
@@ -26,10 +26,10 @@ class Cookie_Notice_Modules_WPFastestCache {
 	 *
 	 * @return void
 	 */
-	public function check_wpfc() {
+	public function load_module() {
 		// is caching enabled?
 		if ( isset( $GLOBALS['wp_fastest_cache_options']->wpFastestCacheStatus ) ) {
-			// update 2.4.9+
+			// update 2.4.10
 			if ( version_compare( Cookie_Notice()->db_version, '2.4.9', '<=' ) )
 				$this->delete_cache();
 

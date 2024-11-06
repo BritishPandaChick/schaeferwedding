@@ -17,6 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Security {
 
+	public $plugin;
+
 	public function __construct() {
 		$this->plugin = \WBCR\Titan\Plugin::app();
 

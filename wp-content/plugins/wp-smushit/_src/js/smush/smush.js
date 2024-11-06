@@ -7,7 +7,7 @@ import SmushProgress from "../common/progressbar";
 
 let perf = 0;
 
-import MixPanel from "../mixpanel";
+import tracker from '../utils/tracker';
 
 /**
  * Smush class.
@@ -36,8 +36,6 @@ class Smush {
 		this.log = jQuery( '.smush-final-log' );
 
 		this.setIds();
-
-		this.mixPanel = MixPanel.getInstance();
 
 		this.is_bulk_resmush =
 			0 < wp_smushit_data.resmush.length && ! this.skip_resmush;
@@ -520,18 +518,7 @@ class Smush {
 			jQuery( '.wp-smush-bulk-progress-bar-wrapper' ).addClass( 'sui-hidden' );
 
 			// Reset the progress when we finish so the next smushing starts from zero.
-			this._updateProgress(0, 0);
-		} else {
-			// TODO: REMOVE "re-smush-notice" since no longer used. And maybe for "wp-smush-remaining" too.
-			const notice = jQuery(
-				'.bulk-smush-wrapper .wp-smush-resmush-notice'
-			);
-
-			if ( notice.length > 0 ) {
-				notice.show();
-			} else {
-				jQuery( '.bulk-smush-wrapper .wp-smush-remaining' ).removeClass( 'sui-hidden' );
-			}
+			this._updateProgress( 0, 0 );
 		}
 
 		// Enable re-Smush and scan button.
@@ -1102,7 +1089,33 @@ class Smush {
 	}
 
 	trackBulkSmushCompleted() {
-		this.mixPanel.trackBulkSmushCompleted( GlobalStats.getGlobalStats() );
+		const {
+			savings_bytes,
+			count_images,
+			percent_optimized,
+			savings_percent,
+			count_resize,
+			savings_resize
+		} = GlobalStats.getGlobalStats();
+
+		const failurePercentage = this.total > 0 ? Math.round( this.errors.length * 100 / this.total ) : 0;
+
+		tracker.track( 'Bulk Smush Completed', {
+			'Total Savings': this.convertToMegabytes( savings_bytes ),
+			'Total Images': count_images,
+			'Media Optimization Percentage': parseFloat( percent_optimized ),
+			'Percentage of Savings': parseFloat( savings_percent ),
+			'Images Resized': count_resize,
+			'Resize Savings': this.convertToMegabytes( savings_resize ),
+			'Total Enqueued Images': this.total,
+			'Failure Percentage': failurePercentage,
+		} );
+	}
+
+	convertToMegabytes( sizeInBytes ) {
+		const unitMB = Math.pow( 1024, 2 );
+		const sizeInMegabytes = sizeInBytes / unitMB;
+		return sizeInMegabytes && parseFloat( sizeInMegabytes.toFixed( 2 ) ) || 0;
 	}
 
 	/**
@@ -1159,22 +1172,21 @@ class Smush {
 	 * Update the UI, and enable the bulk Smush button.
 	 */
 	cancelAjax() {
-			// Add a data attribute to the Smush button, to stop sending ajax.
+		// Add a data attribute to the Smush button, to stop sending ajax.
 		// this.button.attr( 'continue_smush', false );
 		this.continueSmush = false;
-			// Sync and update stats.
+		// Sync and update stats.
 		this.syncStats();
 
 		this.request.abort();
 		this.enableButton();
 		this.button.removeClass( 'wp-smush-started' );
 		wp_smushit_data.unsmushed.unshift( this.current_id );
-			jQuery( '.wp-smush-bulk-wrapper' ).removeClass( 'sui-hidden' );
+		jQuery( '.wp-smush-bulk-wrapper' ).removeClass( 'sui-hidden' );
 
-			// Hide the progress bar.
-			jQuery( '.wp-smush-bulk-progress-bar-wrapper' ).addClass( 'sui-hidden' );
+		// Hide the progress bar.
+		jQuery( '.wp-smush-bulk-progress-bar-wrapper' ).addClass( 'sui-hidden' );
 
-		this.mixPanel.trackBulkSmushCancel();
 		this.hideBulkFreeLimitReachedNotice();
 	}
 

@@ -49,12 +49,12 @@ class Brute_Force extends Base {
 	/**
 	 * Logs constructor.
 	 *
-	 * @param \Wbcr_Factory466_Plugin $plugin
+	 * @param \Wbcr_Factory475_Plugin $plugin
 	 *
 	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
 	 *
 	 */
-	public function __construct( \Wbcr_Factory466_Plugin $plugin ) {
+	public function __construct( \Wbcr_Factory475_Plugin $plugin ) {
 		$this->plugin = $plugin;
 
 		$this->menu_title                  = __( 'Limit login Attempts', 'titan-security' );
@@ -71,7 +71,7 @@ class Brute_Force extends Base {
 	 *
 	 * @return void
 	 * @since 6.2
-	 * @see   Wbcr_FactoryPages466_AdminPage
+	 * @see   Wbcr_FactoryPages475_AdminPage
 	 *
 	 */
 	public function assets( $scripts, $styles ) {

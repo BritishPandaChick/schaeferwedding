@@ -1,8 +1,8 @@
-.factory-bootstrap-467 .factory-color {
+.factory-bootstrap-477 .factory-color {
     position: relative;
 }
 
-.factory-bootstrap-467 .factory-color .factory-color-hex {
+.factory-bootstrap-477 .factory-color .factory-color-hex {
     display: inline-block;
     width: 65px;
     text-align: left;
@@ -18,13 +18,13 @@
     border-bottom-left-radius: 0px;
 }
 
-.factory-bootstrap-467 .factory-color .factory-pattern,
-.factory-bootstrap-467 .factory-color .factory-background {
+.factory-bootstrap-477 .factory-color .factory-pattern,
+.factory-bootstrap-477 .factory-color .factory-background {
     cursor: pointer;
 }
 
-.factory-bootstrap-467 .factory-color .factory-pattern,
-.factory-bootstrap-467 .factory-color .factory-background {
+.factory-bootstrap-477 .factory-color .factory-pattern,
+.factory-bootstrap-477 .factory-color .factory-background {
     height: 26px;
     width: 26px;
     position: absolute;
@@ -38,7 +38,7 @@
     border-bottom-right-radius: 0px !important;
 }
 
-.factory-bootstrap-467 .factory-color .factory-background {
+.factory-bootstrap-477 .factory-color .factory-background {
     z-index: 2;
     border-radius: 3px;
 }

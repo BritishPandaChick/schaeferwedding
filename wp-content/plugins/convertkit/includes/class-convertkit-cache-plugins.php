@@ -23,6 +23,8 @@ class ConvertKit_Cache_Plugins {
 	 */
 	public $exclude_hosts = array(
 		'cdnjs.cloudflare.com',
+		'pages.kit.com',
+		'kit.com',
 		'pages.convertkit.com',
 		'convertkit.com',
 	);
@@ -46,6 +48,10 @@ class ConvertKit_Cache_Plugins {
 	 */
 	public function __construct() {
 
+		// Autoptimize: Exclude Forms from JS defer.
+		add_filter( 'convertkit_output_script_footer', array( $this, 'autoptimize_exclude_js_defer' ) );
+		add_filter( 'convertkit_resource_forms_output_script', array( $this, 'autoptimize_exclude_js_defer' ) );
+
 		// Jetpack Boost: Exclude Forms from JS defer.
 		add_filter( 'convertkit_output_script_footer', array( $this, 'jetpack_boost_exclude_js_defer' ) );
 		add_filter( 'convertkit_resource_forms_output_script', array( $this, 'jetpack_boost_exclude_js_defer' ) );
@@ -57,6 +63,7 @@ class ConvertKit_Cache_Plugins {
 		// Perfmatters: Exclude Forms from Delay JavaScript.
 		add_filter( 'convertkit_output_script_footer', array( $this, 'perfmatters_exclude_delay_js' ) );
 		add_filter( 'convertkit_resource_forms_output_script', array( $this, 'perfmatters_exclude_delay_js' ) );
+		add_filter( 'perfmatters_lazyload', array( $this, 'perfmatters_disable_lazy_loading_on_landing_pages' ) );
 
 		// Siteground Speed Optimizer: Exclude Forms from JS combine.
 		add_filter( 'convertkit_output_script_footer', array( $this, 'siteground_speed_optimizer_exclude_js_combine' ) );
@@ -68,6 +75,31 @@ class ConvertKit_Cache_Plugins {
 		// WP Rocket: Exclude Forms from Delay JavaScript execution.
 		add_filter( 'convertkit_output_script_footer', array( $this, 'wp_rocket_exclude_delay_js_execution' ) );
 		add_filter( 'convertkit_resource_forms_output_script', array( $this, 'wp_rocket_exclude_delay_js_execution' ) );
+
+	}
+
+	/**
+	 * Exclude ConvertKit scripts from Autoptimize's "Defer JS" setting.
+	 *
+	 * @since   2.4.9
+	 *
+	 * @param   array $script     Script key/value pairs to output as <script> tag.
+	 * @return  array
+	 */
+	public function autoptimize_exclude_js_defer( $script ) {
+
+		add_filter(
+			'autoptimize_filter_js_exclude',
+			function ( $exclusions ) use ( $script ) {
+
+				$exclusions .= ', ' . $script['src'];
+				return $exclusions;
+
+			}
+		);
+
+		// Return original script.
+		return $script;
 
 	}
 
@@ -133,6 +165,34 @@ class ConvertKit_Cache_Plugins {
 
 		// Return original script.
 		return $script;
+
+	}
+
+	/**
+	 * Disable lazy loading in Perfmatters when a WordPress Page configured to display a
+	 * ConvertKit Landing Page is viewed.
+	 *
+	 * @since   2.5.1
+	 *
+	 * @param   bool $enabled    Lazy loading enabled.
+	 * @return  bool
+	 */
+	public function perfmatters_disable_lazy_loading_on_landing_pages( $enabled ) {
+
+		// If the request isn't for a Page, don't change lazy loading settings.
+		if ( ! is_page( get_the_ID() ) ) {
+			return $enabled;
+		}
+
+		// If no landing page is specified for the Post, don't change lazy loading settings.
+		$post_settings = new ConvertKit_Post( get_the_ID() );
+		if ( ! $post_settings->has_landing_page() ) {
+			return $enabled;
+		}
+
+		// ConvertKit Landing Page is going to be displayed.
+		// Disable Perfmatters Lazy Loading so that the Landing Page images display.
+		return false;
 
 	}
 

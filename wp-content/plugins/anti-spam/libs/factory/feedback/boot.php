@@ -17,31 +17,31 @@ if( !defined('ABSPATH') ) {
 	exit;
 }
 
-if( defined('FACTORY_FEEDBACK_122_LOADED') || (defined('FACTORY_FEEDBACK_BLOCK') && FACTORY_FEEDBACK_BLOCK) ) {
+if( defined('FACTORY_FEEDBACK_128_LOADED') || (defined('FACTORY_FEEDBACK_BLOCK') && FACTORY_FEEDBACK_BLOCK) ) {
 	return;
 }
 
 # Устанавливаем константу, что модуль уже загружен
-define('FACTORY_FEEDBACK_122_LOADED', true);
+define('FACTORY_FEEDBACK_128_LOADED', true);
 
 # Устанавливаем версию модуля
-define( 'FACTORY_FEEDBACK_122_VERSION', '1.2.2' );
+define( 'FACTORY_FEEDBACK_128_VERSION', '1.2.8' );
 
 # Регистрируем текстовый домен, для интернализации интерфейса модуля
-load_plugin_textdomain('wbcr_factory_feedback_122', false, dirname(plugin_basename(__FILE__)) . '/langs');
+load_plugin_textdomain('wbcr_factory_feedback_128', false, dirname(plugin_basename(__FILE__)) . '/langs');
 
 # Устанавливаем директорию модуля
-define('FACTORY_FEEDBACK_122_DIR', dirname(__FILE__));
+define('FACTORY_FEEDBACK_128_DIR', dirname(__FILE__));
 
 # Устанавливаем url модуля
-define('FACTORY_FEEDBACK_122_URL', plugins_url(null, __FILE__));
+define('FACTORY_FEEDBACK_128_URL', plugins_url('', __FILE__));
 
-require_once(FACTORY_FEEDBACK_122_DIR . '/includes/class-base.php');
-require_once(FACTORY_FEEDBACK_122_DIR . '/includes/class-rest-request.php');
+require_once(FACTORY_FEEDBACK_128_DIR . '/includes/class-base.php');
+require_once(FACTORY_FEEDBACK_128_DIR . '/includes/class-rest-request.php');
 
 /**
- * @param Wbcr_Factory466_Plugin $plugin
+ * @param Wbcr_Factory475_Plugin $plugin
  */
-add_action('wbcr_factory_feedback_122_plugin_created', function ($plugin) {
-	new WBCR\Factory_Feedback_122\Base($plugin);
+add_action('wbcr_factory_feedback_128_plugin_created', function ($plugin) {
+	new WBCR\Factory_Feedback_128\Base($plugin);
 });

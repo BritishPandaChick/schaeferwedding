@@ -19,7 +19,7 @@ class Cookie_Notice_Modules_WPOptimize {
 	 */
 	public function __construct() {
 		// has to be executed on plugins_loaded with priority 0
-		$this->check_wpo();
+		$this->load_module();
 	}
 
 	/**
@@ -27,7 +27,7 @@ class Cookie_Notice_Modules_WPOptimize {
 	 *
 	 * @return void
 	 */
-	public function check_wpo() {
+	public function load_module() {
 		// get wp-optimize configuration
 		if ( class_exists( 'WPO_Cache_Config' ) ) {
 			$options = WPO_Cache_Config::instance()->get();

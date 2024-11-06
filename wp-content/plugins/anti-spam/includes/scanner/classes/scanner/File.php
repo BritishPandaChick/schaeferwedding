@@ -116,7 +116,7 @@ class File implements \JsonSerializable {
 		return $this->loadData();
 	}
 
-	public function jsonSerialize() {
+	public function jsonSerialize(): mixed {
 		return $this->toArray();
 	}
 }

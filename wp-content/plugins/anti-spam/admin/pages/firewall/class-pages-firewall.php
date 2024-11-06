@@ -51,7 +51,7 @@ class Firewall extends Base {
 	/**
 	 * Logs constructor.
 	 *
-	 * @param \Wbcr_Factory466_Plugin $plugin
+	 * @param \Wbcr_Factory475_Plugin $plugin
 	 *
 	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
 	 *

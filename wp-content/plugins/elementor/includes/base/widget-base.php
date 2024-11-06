@@ -3,7 +3,7 @@ namespace Elementor;
 
 use Elementor\Core\Page_Assets\Data_Managers\Responsive_Widgets as Responsive_Widgets_Data_Manager;
 use Elementor\Core\Page_Assets\Data_Managers\Widgets_Css as Widgets_Css_Data_Manager;
-use Elementor\Core\Utils\Promotions\Validate_Promotion;
+use Elementor\Core\Utils\Promotions\Filtered_Promotions_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -380,9 +380,13 @@ abstract class Widget_Base extends Element_Base {
 			'show_in_panel' => $this->show_in_panel(),
 			'hide_on_search' => $this->hide_on_search(),
 			'upsale_data' => $this->get_upsale_data(),
+			'is_dynamic_content' => $this->is_dynamic_content(),
 		];
 
-		$config['upsale_data'] = apply_filters( 'elementor/widgets/' . $this->get_name() . '/custom_promotion', $config['upsale_data'] ) ?? $this->get_upsale_data();
+		if ( isset( $config['upsale_data'] ) && is_array( $config['upsale_data'] ) ) {
+			$filter_name = 'elementor/widgets/' . $this->get_name() . '/custom_promotion';
+			$config['upsale_data'] = Filtered_Promotions_Manager::get_filtered_promotion_data( $config['upsale_data'], $filter_name, 'upgrade_url' );
+		}
 
 		if ( isset( $config['upsale_data']['image'] ) ) {
 			$config['upsale_data']['image'] = esc_url( $config['upsale_data']['image'] );
@@ -393,9 +397,6 @@ abstract class Widget_Base extends Element_Base {
 		if ( $stack ) {
 			$config['controls'] = $this->get_stack( false )['controls'];
 			$config['tabs_controls'] = $this->get_tabs_controls();
-		}
-		if ( isset( $config['upsale_data']['upgrade_url'] ) && false === Validate_Promotion::domain_is_on_elementor_dot_com( $config['upsale_data']['upgrade_url'] ) ) {
-			$config['upsale_data']['upgrade_url'] = esc_url( $this->get_upsale_data()['upgrade_url'] );
 		}
 
 		return array_replace_recursive( parent::get_initial_config(), $config );
@@ -540,7 +541,7 @@ abstract class Widget_Base extends Element_Base {
 	 *
 	 * @param array|string $element         The link HTML element.
 	 * @param int $id                       The ID of the image
-	 * @param string $lightbox_setting_key  The setting key that dictates weather to open the image in a lightbox
+	 * @param string $lightbox_setting_key  The setting key that dictates whether to open the image in a lightbox
 	 * @param string $group_id              Unique ID for a group of lightbox images
 	 * @param bool $overwrite               Optional. Whether to overwrite existing
 	 *                                      attribute. Default is false, not to overwrite.
@@ -646,7 +647,7 @@ abstract class Widget_Base extends Element_Base {
 				$this->register_runtime_widget( $this->get_group_name() );
 			}
 
-			$this->print_widget_css();
+			// $this->print_widget_css();
 
 			// get_name
 
@@ -1081,12 +1082,14 @@ abstract class Widget_Base extends Element_Base {
 		// The local path of the widget's CSS file that is being read and saved in the DB when the CSS content should be printed inline.
 		$file_path = Plugin::$instance->frontend->get_frontend_file_path( $file_name, $has_custom_breakpoints );
 
+		$file_timestamp = file_exists( $file_path ) ? filemtime( $file_path ) : ELEMENTOR_VERSION;
+
 		return [
 			'key' => $widget_name,
 			'version' => ELEMENTOR_VERSION,
 			'file_path' => $file_path,
 			'data' => [
-				'file_url' => $file_url,
+				'file_url' => $file_url . '?ver=' . $file_timestamp,
 			],
 		];
 	}

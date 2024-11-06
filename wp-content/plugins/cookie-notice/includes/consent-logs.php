@@ -86,10 +86,11 @@ class Cookie_Notice_Consent_Logs {
 			<thead>
 				<tr>
 					<th id="cn_consent_id">' . esc_html__( 'Consent ID', 'cookie-notice' ) . '</th>
-					<th id="cn_consent_id">' . esc_html__( 'Consent Level', 'cookie-notice' ) . '</th>
-					<th id="cn_consent_id">' . esc_html__( 'Categories', 'cookie-notice' ) . '</th>
-					<th id="cn_consent_id">' . esc_html__( 'Duration', 'cookie-notice' ) . '</th>
-					<th id="cn_consent_id">' . esc_html__( 'Time', 'cookie-notice' ) . '</th>
+					<th id="cn_consent_level">' . esc_html__( 'Consent Level', 'cookie-notice' ) . '</th>
+					<th id="cn_consent_categories">' . esc_html__( 'Categories', 'cookie-notice' ) . '</th>
+					<th id="cn_consent_duration">' . esc_html__( 'Duration', 'cookie-notice' ) . '</th>
+					<th id="cn_consent_time">' . esc_html__( 'Time', 'cookie-notice' ) . '</th>
+					<th id="cn_consent_ip_address">' . esc_html__( 'IP address', 'cookie-notice' ) . '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -137,6 +138,15 @@ class Cookie_Notice_Consent_Logs {
 				elseif ( $duration === 730 )
 					$duration = __( '2 years', 'cookie-notice' );
 
+				// explode ip address
+				$ip_chunks = explode( '.', $consent_log->rj_ip );
+
+				// replace 3rd octet
+				$ip_chunks[2] = preg_replace( '/\d/', 'x', $ip_chunks[2] );
+
+				// replace 4th octet
+				$ip_chunks[3] = preg_replace( '/\d/', 'x', $ip_chunks[3] );
+
 				$html .= '
 				<tr' . ( $no > 9 ? ' style="display: none"' : '' ) . '>
 					<td>' . esc_html( $consent_log->ev_eventdetails_consentid ) . '</td>
@@ -144,6 +154,7 @@ class Cookie_Notice_Consent_Logs {
 					<td>' . implode( ', ', $categories ) . '</td>
 					<td>' . esc_html( $duration ) . '</td>
 					<td>' . esc_html( $timestamp->format( get_option( 'time_format' ) ) ) . '</td>
+					<td>' . esc_html( implode( '.', $ip_chunks ) ) . '</td>
 				</tr>';
 			}
 		}

@@ -27,6 +27,8 @@
 							}
 						},
 						line: {
+							maintainAspectRatio: false,
+							responsive: true,
 							scales: {
 								x: {
 									display: true,

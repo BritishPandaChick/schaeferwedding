@@ -74,7 +74,7 @@ class AuditResult implements \JsonSerializable {
 		$this->hided       = $hided;
 	}
 
-    public function jsonSerialize() {
+    public function jsonSerialize(): mixed {
         return [
             'title'       => $this->title,
             'description' => $this->description,

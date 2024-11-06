@@ -2,23 +2,23 @@
 * Dropdown As Buttons
 */
 
-.factory-bootstrap-467 .factory-dropdown.factory-buttons-way .fa {
+.factory-bootstrap-477 .factory-dropdown.factory-buttons-way .fa {
     margin-right: 6px;
     position: relative;
 }
-.factory-bootstrap-467 .factory-dropdown.factory-buttons-way {
+.factory-bootstrap-477 .factory-dropdown.factory-buttons-way {
     border: 0px;
     border-radius: 0px;
 }
 
-.factory-bootstrap-467 .factory-hints .factory-hint {
+.factory-bootstrap-477 .factory-hints .factory-hint {
     margin-top: 5px;
     display: inline-block;
     background-color: #ffffdd;
     padding: 1px 5px;
 }
 
-.admin-color-light .factory-bootstrap-467 .factory-dropdown.factory-buttons-way .active {
+.admin-color-light .factory-bootstrap-477 .factory-dropdown.factory-buttons-way .active {
     background-color: #04a4cc;
     -webkit-box-shadow: inset 0 1px 2px #037c9a;
     box-shadow: inset 0 1px 2px #037c9a;
@@ -26,7 +26,7 @@
     border-bottom: 1px solid #037c9a;
     border-left: 1px solid #037c9a;
 }
-.admin-color-blue .factory-bootstrap-467 .factory-dropdown.factory-buttons-way .active {
+.admin-color-blue .factory-bootstrap-477 .factory-dropdown.factory-buttons-way .active {
     background-color: #e1a948;
     -webkit-box-shadow: inset 0 1px 2px #d39323;
     box-shadow: inset 0 1px 2px #d39323;
@@ -34,7 +34,7 @@
     border-bottom: 1px solid #d39323;
     border-left: 1px solid #d39323;
 }
-.admin-color-coffee .factory-bootstrap-467 .factory-dropdown.factory-buttons-way .active {
+.admin-color-coffee .factory-bootstrap-477 .factory-dropdown.factory-buttons-way .active {
     background-color: #c7a589;
     -webkit-box-shadow: inset 0 1px 2px #b78a66;
     box-shadow: inset 0 1px 2px #b78a66;
@@ -42,7 +42,7 @@
     border-bottom: 1px solid #b78a66;
     border-left: 1px solid #b78a66;
 }
-.admin-color-ectoplasm .factory-bootstrap-467 .factory-dropdown.factory-buttons-way .active {
+.admin-color-ectoplasm .factory-bootstrap-477 .factory-dropdown.factory-buttons-way .active {
     background-color: #a3b745;
     -webkit-box-shadow: inset 0 1px 2px #839237;
     box-shadow: inset 0 1px 2px #839237;
@@ -50,7 +50,7 @@
     border-bottom: 1px solid #839237;
     border-left: 1px solid #839237;
 }
-.admin-color-midnight .factory-bootstrap-467 .factory-dropdown.factory-buttons-way .active {
+.admin-color-midnight .factory-bootstrap-477 .factory-dropdown.factory-buttons-way .active {
     background-color: #e14d43;
     -webkit-box-shadow: inset 0 1px 2px #d02a21;
     box-shadow: inset 0 1px 2px #d02a21;
@@ -58,7 +58,7 @@
     border-bottom: 1px solid #d02a21;
     border-left: 1px solid #d02a21;
 }
-.admin-color-ocean .factory-bootstrap-467 .factory-dropdown.factory-buttons-way .active {
+.admin-color-ocean .factory-bootstrap-477 .factory-dropdown.factory-buttons-way .active {
     background-color: #9ebaa0;
     -webkit-box-shadow: inset 0 1px 2px #80a583;
     box-shadow: inset 0 1px 2px #80a583;
@@ -66,7 +66,7 @@
     border-bottom: 1px solid #80a583;
     border-left: 1px solid #80a583;
 }
-.admin-color-sunrise .factory-bootstrap-467 .factory-dropdown.factory-buttons-way .active {
+.admin-color-sunrise .factory-bootstrap-477 .factory-dropdown.factory-buttons-way .active {
     background-color: #dd823b;
     -webkit-box-shadow: inset 0 1px 2px #c36822;
     box-shadow: inset 0 1px 2px #c36822;
@@ -80,13 +80,13 @@
 * http://designwithpc.com/plugins/ddslick
 */
 
-.factory-bootstrap-467 .factory-dropdown.factory-ddslick-way .dd-select {
+.factory-bootstrap-477 .factory-dropdown.factory-ddslick-way .dd-select {
     background-color: #fff !important;
 }
-.factory-bootstrap-467 .factory-dropdown.factory-ddslick-way label {
+.factory-bootstrap-477 .factory-dropdown.factory-ddslick-way label {
     margin-bottom: 1px;
 }
-.factory-bootstrap-467 .factory-dropdown.factory-ddslick-way .dd-option,
-.factory-bootstrap-467 .factory-dropdown.factory-ddslick-way .dd-selected {
+.factory-bootstrap-477 .factory-dropdown.factory-ddslick-way .dd-option,
+.factory-bootstrap-477 .factory-dropdown.factory-ddslick-way .dd-selected {
     padding: 8px 12px 8px 11px !important;
 }

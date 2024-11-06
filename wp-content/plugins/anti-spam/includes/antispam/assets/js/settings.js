@@ -12,8 +12,8 @@
 
     $.wantispam = {};
 
-    if ($.wbcr_factory_templates_116) {
-        $.wantispam = $.wbcr_factory_templates_116;
+    if ($.wbcr_factory_templates_128) {
+        $.wantispam = $.wbcr_factory_templates_128;
     }
 
     $('.factory-checkbox--disabled.wantispam-checkbox-premium-label').click(function (e) {

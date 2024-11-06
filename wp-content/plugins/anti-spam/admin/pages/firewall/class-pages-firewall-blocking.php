@@ -65,7 +65,7 @@ class Firewall_Blocking extends Base {
 	/**
 	 * WBCR\Page\Settings constructor.
 	 *
-	 * @param \Wbcr_Factory466_Plugin $plugin
+	 * @param \Wbcr_Factory475_Plugin $plugin
 	 *
 	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
 	 *
@@ -85,7 +85,7 @@ class Firewall_Blocking extends Base {
 	 *
 	 * @return void
 	 * @since 6.2
-	 * @see   Wbcr_FactoryPages466_AdminPage
+	 * @see   Wbcr_FactoryPages475_AdminPage
 	 *
 	 */
 	public function assets( $scripts, $styles ) {

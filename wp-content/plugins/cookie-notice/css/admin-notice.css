@@ -18,7 +18,7 @@
     margin-top: 0;
     margin-bottom: 0.5em;
 }
-.cn-notice .cn-notice-dismiss {
+.cn-notice .cn-notice-dismiss, .cn-notice .cn-notice-delay {
     margin-left: 1em;
 }
 .cn-notice .cn-notice-text strong {

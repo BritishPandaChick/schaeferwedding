@@ -100,7 +100,7 @@ class Cookie_Notice_Welcome_Frontend {
 		echo '
 		<!-- Cookie Compliance -->
 		<script type="text/javascript">var huOptions = ' . wp_json_encode( $options ) . ';</script>
-		<script type="text/javascript" src="' . esc_url( Cookie_Notice()->get_url( 'widget' ) ) . '"></script>
+		<script type="text/javascript" src="' . esc_url( ( is_ssl() ? 'https:' : 'http:' ) . Cookie_Notice()->get_url( 'widget' ) ) . '"></script>
 		<style>.hu-preview-mode #hu::after {content: "";position: fixed;width: 100%;height: 100%;display: block;top: 0;left: 0}</style>';
 	}
 

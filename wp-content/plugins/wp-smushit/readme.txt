@@ -1,17 +1,17 @@
-=== Smush - Optimize, Compress and Lazy Load Images ===
-Plugin Name: Smush - Lazy Load Images, Optimize & Compress Images
-Version: 3.15.5
+=== Smush Image Optimization – Optimize Images | Compress & Lazy Load Images | Convert WebP | Image CDN ===
+Plugin Name: Smush Image Optimization – Optimize Images | Compress & Lazy Load Images | Convert WebP | Image CDN
+Version: 3.16.6
 Author: WPMU DEV
 Author URI: https://wpmudev.com/
 Contributors: WPMUDEV, alexdunae
 Tags: optimize images, convert webp, webp, image optimization, compress images, lazy load, resize images, image optimizer, image compressor, performance, reduce image size
-Requires at least: 5.3
-Tested up to: 6.4
-Stable tag: 3.15.5
+Requires at least: 6.4
+Tested up to: 6.6
+Stable tag: 3.16.6
 Requires PHP: 7.4
 License: GPL v2 - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
-Compress images & optimize images with built-in lossless compression, lazy load, WebP conversion, and resize detection to make your site load amazingly fast.
+Optimize images & bulk compress images with lossless compression, lazy load, convert WebP, and properly size images via CDN for incredibly fast sites.
 
 == Description ==
 
@@ -21,7 +21,11 @@ Compress images & optimize images with built-in lossless compression, lazy load,
 
 Brought to you by the WPMU DEV team - founded in 2007 and trusted by web professionals from freelancer to agency worldwide ever since. 
 
-Whether you spell it 'optimise' or 'optimize' - with Smush’s image optimizer you can compress images and serve images in next-gen formats (convert to WebP), all without introducing a visible drop in quality. 
+Whether you spell it 'optimise' or 'optimize' - with Smush’s image optimizer you can compress images and serve images in next-gen formats (convert to WebP), all without introducing a visible drop in quality.
+
+**Enjoy uninterrupted bulk image optimization with [Smush Pro](https://wpmudev.com/project/wp-smush-pro/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=smush-readme-above-the-fold&utm_content=wp_smush_pro).**
+
+Level up immediately with exclusive Pro benefits like uninterrupted image optimization, 5x more image compression, and 123-point global image CDN. [Learn more about Pro](https://wpmudev.com/project/wp-smush-pro/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=smush-readme&utm_content=wp_smush_pro). 
 
 [youtube https://www.youtube.com/watch?v=Z1kTcyLFE2g&feature=youtu.be]
 
@@ -236,6 +240,53 @@ We take plugin security incredibly seriously; if you have a bug or vulnerability
 4. Automatically resize images on upload.
 
 == Changelog ==
+
+= 3.16.6 ( 2024-07-30 ) =
+- Fix: PHP warnings
+- Improvement: Compatibility with WP 6.6
+
+= 3.16.5 ( 2024-06-20 ) =
+- Improvement: Security improvements
+- Fix: Compatibility issue with Divi
+
+= 3.16.4 ( 2024-05-23 ) =
+- Fix: Loopback error shown unnecessarily for some sites
+- Improvement: Better UI for the loopback error
+
+= 3.16.3 ( 2024-05-15 ) =
+- Improvement: Better handling of rotated images
+- Improvement: Better pre-flight checks before bulk Smush is started
+- Fix: Performance issues in CDN and webp link replacement functionality
+- Fix: Bulk Smush performance issues
+- Fix: Compatibility issue with wp.com
+
+= 3.16.2 ( 2024-04-17 ) =
+- Fix: LazyLoad module not working correctly for picture elements in certain situations
+- Fix: LazyLoad module not working correctly for some CSS variables
+- Fix: Better handling of !important CSS rules by the LazyLoad module
+- Fix: Performance issues on some WooCommerce pages
+
+= 3.16.1 ( 2024-03-27 ) =
+- Improvement: Better compatibility with page builders
+- Improvement: General code improvements
+- Fix: WP Offload integration preventing some formats from getting offloaded
+
+= 3.16.0 ( 2024-03-06 ) =
+- New: Directly serve Local Webp images, no rewrite rules required!
+- New: Support for inline style tags in CDN and Local WebP modules
+- New: Support for multiple background images in CDN and Local WebP modules
+- New: Better support for relative links in CDN and Local WebP modules
+- New: Better REST API support in CDN and Local WebP modules
+- New: CDN and Local WebP images served in WooCommerce REST API responses
+- New: Local WebP compatibility with Windows IIS servers
+- New: Local WebP compatibility with bedrock
+- New: Local WebP compatibility with Litespeed
+- New: Local WebP compatibility with Cloudways
+- New: Lazy loading of background images
+- Fix: Local WebP redirection doesn't work for images with special characters
+- Fix: Free version of Smush creating smush-webp folder when activated
+- Fix: Extra slash added to image URLs during optimization
+- Fix: WP 6.3 compatibility - Skip lazyload for high priority images
 
 = 3.15.5 ( 2024-02-06 ) =
 - Improvement: Update the number of CDN locations
@@ -452,7 +503,7 @@ WPMU DEV is a premium supplier of quality WordPress plugins, services and suppor
 Don't forget to stay up to date on everything WordPress from the Internet's number one resource:
 [WPMU DEV Blog](https://wpmudev.com/blog/?utm_source=wordpress.org&utm_medium=readme&utm_campaign=smush-readme&utm_content=wpmu_dev_blog_link)
 
-Hey, one more thing... we hope you [enjoy our free offerings](http://profiles.wordpress.org/WPMUDEV/) as much as we've loved making them for you!
+Hey, one more thing... we hope you [enjoy our free offerings](https://profiles.wordpress.org/wpmudev/#content-plugins) as much as we've loved making them for you!
 
 == Contact and Credits ==
 

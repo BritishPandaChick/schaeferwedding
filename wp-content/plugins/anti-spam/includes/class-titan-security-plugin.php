@@ -13,7 +13,7 @@ if( !defined('ABSPATH') ) {
  * @author        Alexander Kovalev <alex.kovalevv@gmail.com>, Github: https://github.com/alexkovalevv
  * @copyright (c) 20.10.2019, Webcraftic
  */
-class Plugin extends \Wbcr_Factory466_Plugin {
+class Plugin extends \Wbcr_Factory475_Plugin {
 
 	/**
 	 * Number of comments that will be sent for verification
@@ -24,7 +24,7 @@ class Plugin extends \Wbcr_Factory466_Plugin {
 
 	/**
 	 * @see self::app()
-	 * @var \Wbcr_Factory466_Plugin
+	 * @var \Wbcr_Factory475_Plugin
 	 */
 	private static $app;
 
@@ -83,7 +83,7 @@ class Plugin extends \Wbcr_Factory466_Plugin {
 	 * Используется для получения настроек плагина, информации о плагине, для доступа к вспомогательным
 	 * классам.
 	 *
-	 * @return \Wbcr_Factory466_Plugin|\WBCR\Titan\Plugin
+	 * @return \Wbcr_Factory475_Plugin|\WBCR\Titan\Plugin
 	 * @since  6.0
 	 */
 	public static function app()

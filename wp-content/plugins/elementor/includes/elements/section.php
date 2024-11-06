@@ -92,6 +92,10 @@ class Element_Section extends Element_Base {
 		return 'eicon-columns';
 	}
 
+	protected function is_dynamic_content(): bool {
+		return false;
+	}
+
 	/**
 	 * Get presets.
 	 *
@@ -549,10 +553,27 @@ class Element_Section extends Element_Base {
 					'background' => [
 						'frontend_available' => true,
 					],
-					'image' => [
-						'background_lazyload' => [
-							'active' => true,
-							'keys' => [ 'background_image', 'url' ],
+				],
+			]
+		);
+
+		$this->add_control(
+			'handle_slideshow_asset_loading',
+			[
+				'type' => Controls_Manager::HIDDEN,
+				'assets' => [
+					'styles' => [
+						[
+							'name' => 'e-swiper',
+							'conditions' => [
+								'terms' => [
+									[
+										'name' => 'background_background',
+										'operator' => '===',
+										'value' => 'slideshow',
+									],
+								],
+							],
 						],
 					],
 				],
@@ -625,15 +646,6 @@ class Element_Section extends Element_Base {
 			[
 				'name' => 'background_overlay',
 				'selector' => '{{WRAPPER}} > .elementor-background-overlay',
-				'fields_options' => [
-					'image' => [
-						'background_lazyload' => [
-							'active' => true,
-							'keys' => [ 'background_overlay_image', 'url' ],
-							'selector' => '.elementor-background-overlay',
-						],
-					],
-				],
 			]
 		);
 
@@ -963,6 +975,22 @@ class Element_Section extends Element_Base {
 					'options' => $shapes_options,
 					'render_type' => 'none',
 					'frontend_available' => true,
+					'assets' => [
+						'styles' => [
+							[
+								'name' => 'e-shapes',
+								'conditions' => [
+									'terms' => [
+										[
+											'name' => $base_control_key,
+											'operator' => '!==',
+											'value' => '',
+										],
+									],
+								],
+							],
+						],
+					],
 				]
 			);
 
@@ -983,8 +1011,9 @@ class Element_Section extends Element_Base {
 			$this->add_responsive_control(
 				$base_control_key . '_width',
 				[
-					'label' => esc_html__( 'Width', 'elementor' ) . ' (%)',
+					'label' => esc_html__( 'Width', 'elementor' ),
 					'type' => Controls_Manager::SLIDER,
+					'size_units' => [ '%', 'vw', 'custom' ],
 					'default' => [
 						'unit' => '%',
 					],
@@ -996,6 +1025,10 @@ class Element_Section extends Element_Base {
 					],
 					'range' => [
 						'%' => [
+							'min' => 100,
+							'max' => 300,
+						],
+						'vw' => [
 							'min' => 100,
 							'max' => 300,
 						],
@@ -1014,9 +1047,16 @@ class Element_Section extends Element_Base {
 				[
 					'label' => esc_html__( 'Height', 'elementor' ),
 					'type' => Controls_Manager::SLIDER,
+					'size_units' => [ 'px', 'em', 'rem', 'custom' ],
 					'range' => [
 						'px' => [
 							'max' => 500,
+						],
+						'em' => [
+							'max' => 50,
+						],
+						'rem' => [
+							'max' => 50,
 						],
 					],
 					'condition' => [
@@ -1427,7 +1467,7 @@ class Element_Section extends Element_Base {
 					$this->add_render_attribute( 'background-video-container', 'class', 'elementor-background-video-container' );
 
 					if ( ! $settings['background_play_on_mobile'] ) {
-						$this->add_render_attribute( 'background-video-container', 'class', 'elementor-hidden-phone' );
+						$this->add_render_attribute( 'background-video-container', 'class', 'elementor-hidden-mobile' );
 					}
 					?>
 					<div <?php $this->print_render_attribute_string( 'background-video-container' ); ?>>
@@ -1450,8 +1490,11 @@ class Element_Section extends Element_Base {
 				endif;
 			endif;
 
-			$has_background_overlay = in_array( $settings['background_overlay_background'], [ 'classic', 'gradient' ], true ) ||
-									in_array( $settings['background_overlay_hover_background'], [ 'classic', 'gradient' ], true );
+			$overlay_background = $settings['background_overlay_background'] ?? '';
+			$overlay_hover_background = $settings['background_overlay_hover_background'] ?? '';
+
+			$has_background_overlay = in_array( $overlay_background, [ 'classic', 'gradient' ], true ) ||
+									in_array( $overlay_hover_background, [ 'classic', 'gradient' ], true );
 
 			if ( $has_background_overlay ) :
 				?>

@@ -27,7 +27,7 @@ class Components extends Base {
 	 * Mainly used to navigate between pages.
 	 *
 	 * @since 7.0.3
-	 * @see   FactoryPages466_AdminPage
+	 * @see   FactoryPages475_AdminPage
 	 *
 	 * @var string
 	 */
@@ -73,7 +73,7 @@ class Components extends Base {
 	 *
 	 * @return void
 	 * @since 7.0.2
-	 * @see   FactoryPages466_AdminPage
+	 * @see   FactoryPages475_AdminPage
 	 *
 	 */
 	public function assets($scripts, $styles)
@@ -83,8 +83,8 @@ class Components extends Base {
 		$this->styles->add(WTITAN_PLUGIN_URL . '/admin/assets/css/components.css');
 
 		/**
-		 * @param \Wbcr_Factory466_StyleList $styles
-		 * @param \Wbcr_Factory466_ScriptList $scripts
+		 * @param \Wbcr_Factory475_StyleList $styles
+		 * @param \Wbcr_Factory475_ScriptList $scripts
 		 *
 		 * @since 7.0.3
 		 *
@@ -99,7 +99,7 @@ class Components extends Base {
 	 * @param Plugin $plugin
 	 *
 	 * @return array
-	 * @see 'libs\factory\pages\templates\FactoryPages466_ImpressiveThemplate'
+	 * @see 'libs\factory\pages\templates\FactoryPages475_ImpressiveThemplate'
 	 */
 	public function getActionNotices($notices)
 	{

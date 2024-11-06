@@ -1,4 +1,4 @@
-/*! elementor - v3.20.0 - 10-04-2024 */
+/*! elementor - v3.25.0 - 03-11-2024 */
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -16,7 +16,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _emotion_memoize__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @emotion/memoize */ "../node_modules/@emotion/memoize/dist/emotion-memoize.esm.js");
 
 
-var reactPropsRegex = /^((children|dangerouslySetInnerHTML|key|ref|autoFocus|defaultValue|defaultChecked|innerHTML|suppressContentEditableWarning|suppressHydrationWarning|valueLink|abbr|accept|acceptCharset|accessKey|action|allow|allowUserMedia|allowPaymentRequest|allowFullScreen|allowTransparency|alt|async|autoComplete|autoPlay|capture|cellPadding|cellSpacing|challenge|charSet|checked|cite|classID|className|cols|colSpan|content|contentEditable|contextMenu|controls|controlsList|coords|crossOrigin|data|dateTime|decoding|default|defer|dir|disabled|disablePictureInPicture|download|draggable|encType|enterKeyHint|form|formAction|formEncType|formMethod|formNoValidate|formTarget|frameBorder|headers|height|hidden|high|href|hrefLang|htmlFor|httpEquiv|id|inputMode|integrity|is|keyParams|keyType|kind|label|lang|list|loading|loop|low|marginHeight|marginWidth|max|maxLength|media|mediaGroup|method|min|minLength|multiple|muted|name|nonce|noValidate|open|optimum|pattern|placeholder|playsInline|poster|preload|profile|radioGroup|readOnly|referrerPolicy|rel|required|reversed|role|rows|rowSpan|sandbox|scope|scoped|scrolling|seamless|selected|shape|size|sizes|slot|span|spellCheck|src|srcDoc|srcLang|srcSet|start|step|style|summary|tabIndex|target|title|translate|type|useMap|value|width|wmode|wrap|about|datatype|inlist|prefix|property|resource|typeof|vocab|autoCapitalize|autoCorrect|autoSave|color|incremental|fallback|inert|itemProp|itemScope|itemType|itemID|itemRef|on|option|results|security|unselectable|accentHeight|accumulate|additive|alignmentBaseline|allowReorder|alphabetic|amplitude|arabicForm|ascent|attributeName|attributeType|autoReverse|azimuth|baseFrequency|baselineShift|baseProfile|bbox|begin|bias|by|calcMode|capHeight|clip|clipPathUnits|clipPath|clipRule|colorInterpolation|colorInterpolationFilters|colorProfile|colorRendering|contentScriptType|contentStyleType|cursor|cx|cy|d|decelerate|descent|diffuseConstant|direction|display|divisor|dominantBaseline|dur|dx|dy|edgeMode|elevation|enableBackground|end|exponent|externalResourcesRequired|fill|fillOpacity|fillRule|filter|filterRes|filterUnits|floodColor|floodOpacity|focusable|fontFamily|fontSize|fontSizeAdjust|fontStretch|fontStyle|fontVariant|fontWeight|format|from|fr|fx|fy|g1|g2|glyphName|glyphOrientationHorizontal|glyphOrientationVertical|glyphRef|gradientTransform|gradientUnits|hanging|horizAdvX|horizOriginX|ideographic|imageRendering|in|in2|intercept|k|k1|k2|k3|k4|kernelMatrix|kernelUnitLength|kerning|keyPoints|keySplines|keyTimes|lengthAdjust|letterSpacing|lightingColor|limitingConeAngle|local|markerEnd|markerMid|markerStart|markerHeight|markerUnits|markerWidth|mask|maskContentUnits|maskUnits|mathematical|mode|numOctaves|offset|opacity|operator|order|orient|orientation|origin|overflow|overlinePosition|overlineThickness|panose1|paintOrder|pathLength|patternContentUnits|patternTransform|patternUnits|pointerEvents|points|pointsAtX|pointsAtY|pointsAtZ|preserveAlpha|preserveAspectRatio|primitiveUnits|r|radius|refX|refY|renderingIntent|repeatCount|repeatDur|requiredExtensions|requiredFeatures|restart|result|rotate|rx|ry|scale|seed|shapeRendering|slope|spacing|specularConstant|specularExponent|speed|spreadMethod|startOffset|stdDeviation|stemh|stemv|stitchTiles|stopColor|stopOpacity|strikethroughPosition|strikethroughThickness|string|stroke|strokeDasharray|strokeDashoffset|strokeLinecap|strokeLinejoin|strokeMiterlimit|strokeOpacity|strokeWidth|surfaceScale|systemLanguage|tableValues|targetX|targetY|textAnchor|textDecoration|textRendering|textLength|to|transform|u1|u2|underlinePosition|underlineThickness|unicode|unicodeBidi|unicodeRange|unitsPerEm|vAlphabetic|vHanging|vIdeographic|vMathematical|values|vectorEffect|version|vertAdvY|vertOriginX|vertOriginY|viewBox|viewTarget|visibility|widths|wordSpacing|writingMode|x|xHeight|x1|x2|xChannelSelector|xlinkActuate|xlinkArcrole|xlinkHref|xlinkRole|xlinkShow|xlinkTitle|xlinkType|xmlBase|xmlns|xmlnsXlink|xmlLang|xmlSpace|y|y1|y2|yChannelSelector|z|zoomAndPan|for|class|autofocus)|(([Dd][Aa][Tt][Aa]|[Aa][Rr][Ii][Aa]|x)-.*))$/; // https://esbench.com/bench/5bfee68a4cd7e6009ef61d23
+// eslint-disable-next-line no-undef
+var reactPropsRegex = /^((children|dangerouslySetInnerHTML|key|ref|autoFocus|defaultValue|defaultChecked|innerHTML|suppressContentEditableWarning|suppressHydrationWarning|valueLink|abbr|accept|acceptCharset|accessKey|action|allow|allowUserMedia|allowPaymentRequest|allowFullScreen|allowTransparency|alt|async|autoComplete|autoPlay|capture|cellPadding|cellSpacing|challenge|charSet|checked|cite|classID|className|cols|colSpan|content|contentEditable|contextMenu|controls|controlsList|coords|crossOrigin|data|dateTime|decoding|default|defer|dir|disabled|disablePictureInPicture|disableRemotePlayback|download|draggable|encType|enterKeyHint|form|formAction|formEncType|formMethod|formNoValidate|formTarget|frameBorder|headers|height|hidden|high|href|hrefLang|htmlFor|httpEquiv|id|inputMode|integrity|is|keyParams|keyType|kind|label|lang|list|loading|loop|low|marginHeight|marginWidth|max|maxLength|media|mediaGroup|method|min|minLength|multiple|muted|name|nonce|noValidate|open|optimum|pattern|placeholder|playsInline|poster|preload|profile|radioGroup|readOnly|referrerPolicy|rel|required|reversed|role|rows|rowSpan|sandbox|scope|scoped|scrolling|seamless|selected|shape|size|sizes|slot|span|spellCheck|src|srcDoc|srcLang|srcSet|start|step|style|summary|tabIndex|target|title|translate|type|useMap|value|width|wmode|wrap|about|datatype|inlist|prefix|property|resource|typeof|vocab|autoCapitalize|autoCorrect|autoSave|color|incremental|fallback|inert|itemProp|itemScope|itemType|itemID|itemRef|on|option|results|security|unselectable|accentHeight|accumulate|additive|alignmentBaseline|allowReorder|alphabetic|amplitude|arabicForm|ascent|attributeName|attributeType|autoReverse|azimuth|baseFrequency|baselineShift|baseProfile|bbox|begin|bias|by|calcMode|capHeight|clip|clipPathUnits|clipPath|clipRule|colorInterpolation|colorInterpolationFilters|colorProfile|colorRendering|contentScriptType|contentStyleType|cursor|cx|cy|d|decelerate|descent|diffuseConstant|direction|display|divisor|dominantBaseline|dur|dx|dy|edgeMode|elevation|enableBackground|end|exponent|externalResourcesRequired|fill|fillOpacity|fillRule|filter|filterRes|filterUnits|floodColor|floodOpacity|focusable|fontFamily|fontSize|fontSizeAdjust|fontStretch|fontStyle|fontVariant|fontWeight|format|from|fr|fx|fy|g1|g2|glyphName|glyphOrientationHorizontal|glyphOrientationVertical|glyphRef|gradientTransform|gradientUnits|hanging|horizAdvX|horizOriginX|ideographic|imageRendering|in|in2|intercept|k|k1|k2|k3|k4|kernelMatrix|kernelUnitLength|kerning|keyPoints|keySplines|keyTimes|lengthAdjust|letterSpacing|lightingColor|limitingConeAngle|local|markerEnd|markerMid|markerStart|markerHeight|markerUnits|markerWidth|mask|maskContentUnits|maskUnits|mathematical|mode|numOctaves|offset|opacity|operator|order|orient|orientation|origin|overflow|overlinePosition|overlineThickness|panose1|paintOrder|pathLength|patternContentUnits|patternTransform|patternUnits|pointerEvents|points|pointsAtX|pointsAtY|pointsAtZ|preserveAlpha|preserveAspectRatio|primitiveUnits|r|radius|refX|refY|renderingIntent|repeatCount|repeatDur|requiredExtensions|requiredFeatures|restart|result|rotate|rx|ry|scale|seed|shapeRendering|slope|spacing|specularConstant|specularExponent|speed|spreadMethod|startOffset|stdDeviation|stemh|stemv|stitchTiles|stopColor|stopOpacity|strikethroughPosition|strikethroughThickness|string|stroke|strokeDasharray|strokeDashoffset|strokeLinecap|strokeLinejoin|strokeMiterlimit|strokeOpacity|strokeWidth|surfaceScale|systemLanguage|tableValues|targetX|targetY|textAnchor|textDecoration|textRendering|textLength|to|transform|u1|u2|underlinePosition|underlineThickness|unicode|unicodeBidi|unicodeRange|unitsPerEm|vAlphabetic|vHanging|vIdeographic|vMathematical|values|vectorEffect|version|vertAdvY|vertOriginX|vertOriginY|viewBox|viewTarget|visibility|widths|wordSpacing|writingMode|x|xHeight|x1|x2|xChannelSelector|xlinkActuate|xlinkArcrole|xlinkHref|xlinkRole|xlinkShow|xlinkTitle|xlinkType|xmlBase|xmlns|xmlnsXlink|xmlLang|xmlSpace|y|y1|y2|yChannelSelector|z|zoomAndPan|for|class|autofocus)|(([Dd][Aa][Tt][Aa]|[Aa][Rr][Ii][Aa]|x)-.*))$/; // https://esbench.com/bench/5bfee68a4cd7e6009ef61d23
 
 var isPropValid = /* #__PURE__ */(0,_emotion_memoize__WEBPACK_IMPORTED_MODULE_0__["default"])(function (prop) {
   return reactPropsRegex.test(prop) || prop.charCodeAt(0) === 111
@@ -687,6 +688,61 @@ function stylis_min (W) {
 
 /***/ }),
 
+/***/ "../assets/dev/js/utils/react.js":
+/*!***************************************!*\
+  !*** ../assets/dev/js/utils/react.js ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+var _typeof = __webpack_require__(/*! @babel/runtime/helpers/typeof */ "../node_modules/@babel/runtime/helpers/typeof.js");
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports["default"] = void 0;
+var React = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
+var ReactDOM = _interopRequireWildcard(__webpack_require__(/*! react-dom */ "react-dom"));
+var _client = __webpack_require__(/*! react-dom/client */ "../node_modules/react-dom/client.js");
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+/**
+ * Support conditional rendering of a React App to the DOM, based on the React version.
+ * We use `createRoot` when available, but fallback to `ReactDOM.render` for older versions.
+ *
+ * @param { React.ReactElement } app        The app to render.
+ * @param { HTMLElement }        domElement The DOM element to render the app into.
+ *
+ * @return {{ unmount: () => void }} The unmount function.
+ */
+function render(app, domElement) {
+  var unmountFunction;
+  try {
+    var root = (0, _client.createRoot)(domElement);
+    root.render(app);
+    unmountFunction = function unmountFunction() {
+      root.unmount();
+    };
+  } catch (e) {
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.render(app, domElement);
+    unmountFunction = function unmountFunction() {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.unmountComponentAtNode(domElement);
+    };
+  }
+  return {
+    unmount: unmountFunction
+  };
+}
+var _default = {
+  render: render
+};
+exports["default"] = _default;
+
+/***/ }),
+
 /***/ "../modules/ai/assets/js/editor/ai-layout-behavior.js":
 /*!************************************************************!*\
   !*** ../modules/ai/assets/js/editor/ai-layout-behavior.js ***!
@@ -745,6 +801,7 @@ var AiLayoutBehavior = /*#__PURE__*/function (_Marionette$Behavior) {
     key: "onAiButtonClick",
     value: function onAiButtonClick(e) {
       e.stopPropagation();
+      window.elementorAiCurrentContext = this.getOption('context');
       (0, _editorIntegration.renderLayoutApp)({
         parentContainer: elementor.getPreviewContainer(),
         mode: _config.MODE_LAYOUT,
@@ -805,7 +862,7 @@ var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/inte
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.uploadImage = exports.toggleFavoriteHistoryItem = exports.setStatusFeedback = exports.setGetStarted = exports.getUserInformation = exports.getTextToImageGeneration = exports.getRemoteConfig = exports.getLayoutPromptEnhanced = exports.getImageToImageUpscale = exports.getImageToImageReplaceBackground = exports.getImageToImageRemoveText = exports.getImageToImageRemoveBackground = exports.getImageToImageOutPainting = exports.getImageToImageMaskGeneration = exports.getImageToImageGeneration = exports.getImagePromptEnhanced = exports.getHistory = exports.getEditText = exports.getCustomCode = exports.getCustomCSS = exports.getCompletionText = exports.generateLayout = exports.deleteHistoryItem = void 0;
+exports.uploadImage = exports.toggleFavoriteHistoryItem = exports.setStatusFeedback = exports.setGetStarted = exports.getUserInformation = exports.getTextToImageGeneration = exports.getRemoteFrontendConfig = exports.getRemoteConfig = exports.getLayoutPromptEnhanced = exports.getImageToImageUpscale = exports.getImageToImageReplaceBackground = exports.getImageToImageRemoveText = exports.getImageToImageRemoveBackground = exports.getImageToImageOutPainting = exports.getImageToImageMaskGeneration = exports.getImageToImageMaskCleanup = exports.getImageToImageGeneration = exports.getImagePromptEnhanced = exports.getHistory = exports.getFeaturedImage = exports.getExcerpt = exports.getEditText = exports.getCustomCode = exports.getCustomCSS = exports.getCompletionText = exports.generateLayout = exports.deleteHistoryItem = void 0;
 var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "../node_modules/@babel/runtime/helpers/defineProperty.js"));
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
@@ -814,7 +871,11 @@ var request = function request(endpoint) {
   var immediately = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
   var signal = arguments.length > 3 ? arguments[3] : undefined;
   if (Object.keys(data).length) {
-    data.context = window.elementorAiCurrentContext;
+    if (window.elementorAiCurrentContext) {
+      data.context = window.elementorAiCurrentContext;
+    } else {
+      data.context = window.elementorWpAiCurrentContext;
+    }
   }
   return new Promise(function (resolve, reject) {
     var ajaxData = elementorCommon.ajax.addRequest(endpoint, {
@@ -827,20 +888,38 @@ var request = function request(endpoint) {
     }
   });
 };
-var getUserInformation = function getUserInformation() {
-  return request('ai_get_user_information');
+var getUserInformation = function getUserInformation(immediately) {
+  return request('ai_get_user_information', undefined, immediately);
 };
 exports.getUserInformation = getUserInformation;
 var getRemoteConfig = function getRemoteConfig() {
   return request('ai_get_remote_config');
 };
 exports.getRemoteConfig = getRemoteConfig;
+var getRemoteFrontendConfig = function getRemoteFrontendConfig(payload, immediately) {
+  return request('ai_get_remote_frontend_config', {
+    payload: payload
+  }, immediately);
+};
+exports.getRemoteFrontendConfig = getRemoteFrontendConfig;
 var getCompletionText = function getCompletionText(payload) {
   return request('ai_get_completion_text', {
     payload: payload
   });
 };
 exports.getCompletionText = getCompletionText;
+var getExcerpt = function getExcerpt(payload) {
+  return request('ai_get_excerpt', {
+    payload: payload
+  });
+};
+exports.getExcerpt = getExcerpt;
+var getFeaturedImage = function getFeaturedImage(payload) {
+  return request('ai_get_featured_image', {
+    payload: payload
+  });
+};
+exports.getFeaturedImage = getFeaturedImage;
 var getEditText = function getEditText(payload) {
   return request('ai_get_edit_text', {
     payload: payload
@@ -881,6 +960,12 @@ var getImageToImageGeneration = function getImageToImageGeneration(payload) {
   });
 };
 exports.getImageToImageGeneration = getImageToImageGeneration;
+var getImageToImageMaskCleanup = function getImageToImageMaskCleanup(payload) {
+  return request('ai_get_image_to_image_mask_cleanup', {
+    payload: payload
+  });
+};
+exports.getImageToImageMaskCleanup = getImageToImageMaskCleanup;
 var getImageToImageMaskGeneration = function getImageToImageMaskGeneration(payload) {
   return request('ai_get_image_to_image_mask', {
     payload: payload
@@ -1358,20 +1443,20 @@ var PromptErrorMessage = function PromptErrorMessage(_ref) {
     var featureName = (_error$extra_data = error.extra_data) === null || _error$extra_data === void 0 ? void 0 : _error$extra_data.featureName;
     var messages = {
       default: {
-        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('Unknown error. Please try again later.', 'elementor')),
-        description: (0, _i18n.__)('Error code:', 'elementor') + ' ' + error,
-        buttonText: (0, _i18n.__)('Try Again', 'elementor'),
+        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('There was a glitch.', 'elementor')),
+        description: (0, _i18n.__)('Wait a moment and give it another go, or try tweaking the prompt.', 'elementor'),
+        buttonText: (0, _i18n.__)('Try again', 'elementor'),
         buttonAction: onRetry
       },
       service_outage_internal: {
-        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('Elementor AI is temporarily unavailable', 'elementor')),
-        description: (0, _i18n.__)('Seems like we are experiencing technical difficulty. We should be up and running shortly.', 'elementor'),
-        buttonText: (0, _i18n.__)('Try Again', 'elementor'),
+        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('There was a glitch.', 'elementor')),
+        description: (0, _i18n.__)('Wait a moment and give it another go.', 'elementor'),
+        buttonText: (0, _i18n.__)('Try again', 'elementor'),
         buttonAction: onRetry
       },
       invalid_connect_data: {
-        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('Reconnect your account', 'elementor')),
-        description: /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, (0, _i18n.__)('We couldn\'t connect to your account due to technical difficulties on our end. Reconnect your account to continue.', 'elementor'), ' ', /*#__PURE__*/_react.default.createElement("a", {
+        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('There was a glitch.', 'elementor')),
+        description: /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, (0, _i18n.__)('Try exiting Elementor and sign in again.', 'elementor'), ' ', /*#__PURE__*/_react.default.createElement("a", {
           href: "https://elementor.com/help/disconnecting-reconnecting-your-elementor-account/",
           target: "_blank",
           rel: "noreferrer"
@@ -1391,9 +1476,9 @@ var PromptErrorMessage = function PromptErrorMessage(_ref) {
       },
       quota_reached_trail: getQuotaReachedTrailMessage(featureName),
       quota_reached_subscription: {
-        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('It\'s time to upgrade.', 'elementor')),
-        description: (0, _i18n.__)('Love Elementor AI? Upgrade to continue creating with built-in image, text and custom code generators.', 'elementor'),
-        buttonText: (0, _i18n.__)('Upgrade', 'elementor'),
+        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('Looks like you\'re out of credits.', 'elementor')),
+        description: (0, _i18n.__)('Ready to take it to the next level?', 'elementor'),
+        buttonText: (0, _i18n.__)('Upgrade now', 'elementor'),
         buttonAction: function buttonAction() {
           return window.open('https://go.elementor.com/ai-popup-purchase-limit-reached/', '_blank');
         }
@@ -1405,6 +1490,28 @@ var PromptErrorMessage = function PromptErrorMessage(_ref) {
       invalid_prompts: {
         text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('We were unable to generate that prompt.', 'elementor')),
         description: (0, _i18n.__)('Seems like the prompt contains words that could generate harmful content. Write a different prompt to continue.', 'elementor')
+      },
+      service_unavailable: {
+        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('There was a glitch.', 'elementor')),
+        description: (0, _i18n.__)('Wait a moment and give it another go, or try tweaking the prompt.', 'elementor'),
+        buttonText: (0, _i18n.__)('Try again', 'elementor'),
+        buttonAction: onRetry
+      },
+      request_timeout_error: {
+        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('There was a glitch.', 'elementor')),
+        description: (0, _i18n.__)('Wait a moment and give it another go, or try tweaking the prompt.', 'elementor'),
+        buttonText: (0, _i18n.__)('Try again', 'elementor'),
+        buttonAction: onRetry
+      },
+      invalid_token: {
+        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('Try again', 'elementor')),
+        description: (0, _i18n.__)('Try exiting Elementor and sign in again.', 'elementor'),
+        buttonText: (0, _i18n.__)('Reconnect', 'elementor'),
+        buttonAction: onRetry
+      },
+      file_too_large: {
+        text: /*#__PURE__*/_react.default.createElement(_ui.AlertTitle, null, (0, _i18n.__)('The file is too large.', 'elementor')),
+        description: (0, _i18n.__)('Please upload a file that is less than 4MB.', 'elementor')
       }
     };
     return messages[errMsg] || messages.default;
@@ -1426,7 +1533,7 @@ var PromptErrorMessage = function PromptErrorMessage(_ref) {
   }, action));
 };
 PromptErrorMessage.propTypes = {
-  error: _propTypes.default.string,
+  error: _propTypes.default.oneOfType([_propTypes.default.object, _propTypes.default.string]),
   onRetry: _propTypes.default.func,
   actionPosition: _propTypes.default.oneOf(['default', 'bottom'])
 };
@@ -1542,7 +1649,7 @@ var StyledArrow = (0, _ui.styled)(_ui.Box)(function (_ref2) {
     }
   };
 });
-var upgradeBullets = [(0, _i18n.__)('Let AI build your container layouts and content with ease and radically transform the way you create websites.', 'elementor'), (0, _i18n.__)('Generate your website\'s text or create custom code without having to write a single line yourself.', 'elementor'), (0, _i18n.__)('Effortlessly create or enhance stunning images and bring your ideas to life.', 'elementor'), (0, _i18n.__)('Access 30-days of AI History with the AI Starter plan and 90-days with the Power plan.', 'elementor')];
+var upgradeBullets = [(0, _i18n.__)('Get spot-on suggestions from AI Copilot and AI Context with appropriate designs, layouts, and content for your business.', 'elementor'), (0, _i18n.__)('Generate professional texts about any topic, in any tone.', 'elementor'), (0, _i18n.__)('Effortlessly create or enhance stunning images and bring your ideas to life.', 'elementor'), (0, _i18n.__)('Unleash infinite possibilities with the custom code generator.', 'elementor'), (0, _i18n.__)('Access 30-days of AI History with the AI Starter plan and 90-days with the Power plan.', 'elementor')];
 var Chip = (0, _ui.styled)(_ui.Chip)(function () {
   return {
     '& .MuiChip-label': {
@@ -1593,7 +1700,7 @@ var UpgradeChip = function UpgradeChip(_ref3) {
     open: isPopoverOpen,
     anchorEl: anchorEl.current,
     sx: {
-      zIndex: '9999',
+      zIndex: '170001',
       maxWidth: 300
     },
     modifiers: [{
@@ -1608,7 +1715,7 @@ var UpgradeChip = function UpgradeChip(_ref3) {
   }), /*#__PURE__*/_react.default.createElement(_ui.Typography, {
     variant: "h5",
     color: "text.primary"
-  }, (0, _i18n.__)('Maximize Your Access to Elementor AI', 'elementor')), /*#__PURE__*/_react.default.createElement(_ui.List, {
+  }, (0, _i18n.__)('Unlimited access to Elementor AI', 'elementor')), /*#__PURE__*/_react.default.createElement(_ui.List, {
     sx: {
       mb: 1
     }
@@ -1656,8 +1763,6 @@ UpgradeChip.propTypes = {
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-/* provided dependency */ var __ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n")["__"];
-/* provided dependency */ var PropTypes = __webpack_require__(/*! prop-types */ "../node_modules/prop-types/index.js");
 
 
 var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
@@ -1670,6 +1775,8 @@ var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
 var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
 var _bulbIcon = _interopRequireDefault(__webpack_require__(/*! ../icons/bulb-icon */ "../modules/ai/assets/js/editor/icons/bulb-icon.js"));
 var _useIntroduction2 = _interopRequireDefault(__webpack_require__(/*! ../hooks/use-introduction */ "../modules/ai/assets/js/editor/hooks/use-introduction.js"));
+var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "../node_modules/prop-types/index.js"));
+var _i18n = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var VoicePromotionAlert = function VoicePromotionAlert(props) {
@@ -1693,12 +1800,22 @@ var VoicePromotionAlert = function VoicePromotionAlert(props) {
       }
     }),
     onClose: markAsViewed
-  }, __('Get improved results from AI by adding some personal context. Go to Site Settings > AI Context to get started.')));
+  }, (0, _i18n.__)('Get improved results from AI by adding personal context.', 'elementor'), /*#__PURE__*/_react.default.createElement(_ui.Link, {
+    onClick: function onClick() {
+      return $e.route('panel/global/menu');
+    },
+    className: "elementor-clickable",
+    style: {
+      textDecoration: 'none'
+    },
+    color: "info.main",
+    href: "#"
+  }, (0, _i18n.__)('Let’s do it', 'elementor'))));
 };
 exports.VoicePromotionAlert = VoicePromotionAlert;
 VoicePromotionAlert.propTypes = {
-  sx: PropTypes.object,
-  introductionKey: PropTypes.string
+  sx: _propTypes.default.object,
+  introductionKey: _propTypes.default.string
 };
 var _default = VoicePromotionAlert;
 exports["default"] = _default;
@@ -1790,6 +1907,7 @@ exports["default"] = exports.RequestIdsProvider = void 0;
 exports.generateIds = generateIds;
 exports.useRequestIds = exports.getUniqueId = void 0;
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "../node_modules/@babel/runtime/helpers/slicedToArray.js"));
 var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "../node_modules/prop-types/index.js"));
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -1836,6 +1954,13 @@ var RequestIdsProvider = function RequestIdsProvider(props) {
     requestId.current = getUniqueId('request');
     return requestId;
   };
+  var _useState = (0, _react.useState)(0),
+    _useState2 = (0, _slicedToArray2.default)(_useState, 2),
+    usagePercentage = _useState2[0],
+    setUsagePercentage = _useState2[1];
+  var updateUsagePercentage = function updateUsagePercentage(newPercentage) {
+    setUsagePercentage(newPercentage);
+  };
   return /*#__PURE__*/_react.default.createElement(Context.Provider, {
     value: {
       editorSessionId: editorSessionId,
@@ -1845,7 +1970,9 @@ var RequestIdsProvider = function RequestIdsProvider(props) {
       requestId: requestId,
       setGenerate: setGenerate,
       setBatch: setBatch,
-      setRequest: setRequest
+      setRequest: setRequest,
+      usagePercentage: usagePercentage,
+      updateUsagePercentage: updateUsagePercentage
     }
   }, props.children);
 };
@@ -2005,7 +2132,8 @@ var normalizeResponse = function normalizeResponse(_ref) {
   var normalized = {
     result: result,
     responseId: responseId,
-    credits: credits
+    credits: credits,
+    usagePercentage: usage === null || usage === void 0 ? void 0 : usage.usagePercentage
   };
   if (optional.base_template_id) {
     normalized.baseTemplateId = optional.base_template_id;
@@ -2027,11 +2155,20 @@ var usePrompt = function usePrompt(fetchData, initialState) {
     data = _useState6[0],
     setData = _useState6[1];
   var _useRequestIds = (0, _requestsIds.useRequestIds)(),
-    setRequest = _useRequestIds.setRequest,
-    editorSessionId = _useRequestIds.editorSessionId,
-    sessionId = _useRequestIds.sessionId,
-    generateId = _useRequestIds.generateId,
-    batchId = _useRequestIds.batchId;
+    updateUsagePercentage = _useRequestIds.updateUsagePercentage,
+    usagePercentage = _useRequestIds.usagePercentage;
+  (0, _react.useEffect)(function () {
+    var newUsageValue = data === null || data === void 0 ? void 0 : data.usagePercentage;
+    if (newUsageValue && newUsageValue !== usagePercentage) {
+      updateUsagePercentage(newUsageValue);
+    }
+  }, [data, usagePercentage, updateUsagePercentage]);
+  var _useRequestIds2 = (0, _requestsIds.useRequestIds)(),
+    setRequest = _useRequestIds2.setRequest,
+    editorSessionId = _useRequestIds2.editorSessionId,
+    sessionId = _useRequestIds2.sessionId,
+    generateId = _useRequestIds2.generateId,
+    batchId = _useRequestIds2.batchId;
   var send = /*#__PURE__*/function () {
     var _ref2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(payload) {
       return _regenerator.default.wrap(function _callee$(_context) {
@@ -2173,9 +2310,11 @@ var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/r
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "../node_modules/@babel/runtime/helpers/slicedToArray.js"));
 var _react = __webpack_require__(/*! react */ "react");
 var _api = __webpack_require__(/*! ../api */ "../modules/ai/assets/js/editor/api/index.js");
+var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "../node_modules/prop-types/index.js"));
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var useUserInfo = function useUserInfo() {
+  var immediately = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
   var _useState = (0, _react.useState)(false),
     _useState2 = (0, _slicedToArray2.default)(_useState, 2),
     isLoaded = _useState2[0],
@@ -2198,7 +2337,7 @@ var useUserInfo = function useUserInfo() {
     userInfo = _useState6[0],
     setUserInfo = _useState6[1];
   var credits = userInfo.usage.quota - userInfo.usage.usedQuota;
-  var usagePercentage = userInfo.usage.usedQuota / userInfo.usage.quota * 100;
+  var usagePercentage = userInfo.usage.quota ? userInfo.usage.usedQuota / userInfo.usage.quota * 100 : 0;
   var fetchData = /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
       var userInfoResult;
@@ -2207,7 +2346,7 @@ var useUserInfo = function useUserInfo() {
           case 0:
             setIsLoading(true);
             _context.next = 3;
-            return (0, _api.getUserInformation)();
+            return (0, _api.getUserInformation)(immediately);
           case 3:
             userInfoResult = _context.sent;
             setUserInfo(function (prevState) {
@@ -2240,6 +2379,9 @@ var useUserInfo = function useUserInfo() {
     usagePercentage: Math.round(usagePercentage),
     fetchData: fetchData
   };
+};
+useUserInfo.propTypes = {
+  immediately: _propTypes.default.bool
 };
 var _default = useUserInfo;
 exports["default"] = _default;
@@ -2865,11 +3007,13 @@ exports["default"] = _default;
 
 
 var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+var _typeof = __webpack_require__(/*! @babel/runtime/helpers/typeof */ "../node_modules/@babel/runtime/helpers/typeof.js");
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports["default"] = void 0;
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "../node_modules/@babel/runtime/helpers/slicedToArray.js"));
 var _connect = _interopRequireDefault(__webpack_require__(/*! ./pages/connect */ "../modules/ai/assets/js/editor/pages/connect/index.js"));
 var _formLayout = _interopRequireDefault(__webpack_require__(/*! ./pages/form-layout */ "../modules/ai/assets/js/editor/pages/form-layout/index.js"));
 var _getStarted = _interopRequireDefault(__webpack_require__(/*! ./pages/get-started */ "../modules/ai/assets/js/editor/pages/get-started/index.js"));
@@ -2881,6 +3025,9 @@ var _layoutDialog = _interopRequireDefault(__webpack_require__(/*! ./pages/form-
 var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "../node_modules/prop-types/index.js"));
 var _attachment = __webpack_require__(/*! ./types/attachment */ "../modules/ai/assets/js/editor/types/attachment.js");
 var _config = __webpack_require__(/*! ./pages/form-layout/context/config */ "../modules/ai/assets/js/editor/pages/form-layout/context/config.js");
+var _requestsIds = __webpack_require__(/*! ./context/requests-ids */ "../modules/ai/assets/js/editor/context/requests-ids.js");
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 var LayoutContent = function LayoutContent(props) {
   var _useUserInfo = (0, _useUserInfo2.default)(),
     isLoading = _useUserInfo.isLoading,
@@ -2889,11 +3036,24 @@ var LayoutContent = function LayoutContent(props) {
     connectUrl = _useUserInfo.connectUrl,
     fetchData = _useUserInfo.fetchData,
     hasSubscription = _useUserInfo.hasSubscription,
-    usagePercentage = _useUserInfo.usagePercentage;
+    initialUsagePercentage = _useUserInfo.usagePercentage;
   var _useConfig = (0, _config.useConfig)(),
     onClose = _useConfig.onClose,
     onConnect = _useConfig.onConnect;
-  if (isLoading) {
+  var _useRequestIds = (0, _requestsIds.useRequestIds)(),
+    updateUsagePercentage = _useRequestIds.updateUsagePercentage,
+    usagePercentage = _useRequestIds.usagePercentage;
+  var _useState = (0, _react.useState)(false),
+    _useState2 = (0, _slicedToArray2.default)(_useState, 2),
+    isInitUsageDone = _useState2[0],
+    setIsInitUsageDone = _useState2[1];
+  (0, _react.useEffect)(function () {
+    if (!isInitUsageDone && !isLoading && (initialUsagePercentage || 0 === initialUsagePercentage)) {
+      updateUsagePercentage(initialUsagePercentage);
+      setIsInitUsageDone(true);
+    }
+  }, [isLoading, initialUsagePercentage, isInitUsageDone, updateUsagePercentage]);
+  if (isLoading || !isInitUsageDone) {
     return /*#__PURE__*/_react.default.createElement(_layoutDialog.default, {
       onClose: onClose
     }, /*#__PURE__*/_react.default.createElement(_layoutDialog.default.Header, {
@@ -3297,7 +3457,9 @@ var Menu = function Menu(props) {
     disabled: props.disabled,
     onClick: function onClick() {
       setIsOpen(true);
-      markAsViewed();
+      if (!isViewed) {
+        markAsViewed();
+      }
     },
     color: "secondary"
   }, function () {
@@ -3647,34 +3809,53 @@ var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runt
 var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
 var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "../node_modules/prop-types/index.js"));
 var _i18n = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-var _useAttachUrlService2 = __webpack_require__(/*! ../../hooks/use-attach-url-service */ "../modules/ai/assets/js/editor/pages/form-layout/hooks/use-attach-url-service.js");
 var _alertDialog = __webpack_require__(/*! ../../../../components/alert-dialog */ "../modules/ai/assets/js/editor/components/alert-dialog.js");
 var _useTimeout3 = __webpack_require__(/*! ../../../../hooks/use-timeout */ "../modules/ai/assets/js/editor/hooks/use-timeout.js");
 var _attachments = __webpack_require__(/*! ../attachments */ "../modules/ai/assets/js/editor/pages/form-layout/components/attachments.js");
 var _remoteConfig = __webpack_require__(/*! ../../context/remote-config */ "../modules/ai/assets/js/editor/pages/form-layout/context/remote-config.js");
 var _useUserInfo2 = _interopRequireDefault(__webpack_require__(/*! ../../../../hooks/use-user-info */ "../modules/ai/assets/js/editor/hooks/use-user-info.js"));
+var _requestsIds = __webpack_require__(/*! ../../../../context/requests-ids */ "../modules/ai/assets/js/editor/context/requests-ids.js");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 var UrlDialog = function UrlDialog(props) {
-  var iframeRef = (0, _react.useRef)(null);
-  var _useAttachUrlService = (0, _useAttachUrlService2.useAttachUrlService)({
-      targetUrl: props.url
-    }),
-    iframeSource = _useAttachUrlService.iframeSource;
-  var iframeOrigin = iframeSource ? new URL(iframeSource).origin : '';
   var _useTimeout = (0, _useTimeout3.useTimeout)(10000),
     _useTimeout2 = (0, _slicedToArray2.default)(_useTimeout, 2),
     isTimeout = _useTimeout2[0],
     turnOffTimeout = _useTimeout2[1];
   var _useUserInfo = (0, _useUserInfo2.default)(),
-    isConnected = _useUserInfo.isConnected,
-    hasSubscription = _useUserInfo.hasSubscription,
-    credits = _useUserInfo.credits,
-    usagePercentage = _useUserInfo.usagePercentage;
+    isLoading = _useUserInfo.isLoading,
+    initialUsagePercentage = _useUserInfo.usagePercentage;
+  var _useRequestIds = (0, _requestsIds.useRequestIds)(),
+    updateUsagePercentage = _useRequestIds.updateUsagePercentage;
+  var _useState = (0, _react.useState)(false),
+    _useState2 = (0, _slicedToArray2.default)(_useState, 2),
+    isInitUsageDone = _useState2[0],
+    setIsInitUsageDone = _useState2[1];
   var _useRemoteConfig = (0, _remoteConfig.useRemoteConfig)(),
-    isLoaded = _useRemoteConfig.isLoaded,
-    isError = _useRemoteConfig.isError,
     remoteConfig = _useRemoteConfig.remoteConfig;
+  var builderUrl = remoteConfig[_remoteConfig.CONFIG_KEYS.WEB_BASED_BUILDER_URL];
+  var urlObject = builderUrl ? new URL(builderUrl) : {};
+  var iframeOrigin = urlObject.origin;
+  var isOpen = (0, _react.useRef)(false);
+  (0, _react.useEffect)(function () {
+    if (!isInitUsageDone && !isLoading && (initialUsagePercentage || 0 === initialUsagePercentage)) {
+      updateUsagePercentage(initialUsagePercentage);
+      setIsInitUsageDone(true);
+    }
+  }, [isLoading, initialUsagePercentage, isInitUsageDone, updateUsagePercentage]);
+  (0, _react.useEffect)(function () {
+    if (!isOpen.current) {
+      try {
+        window.$e.run('ai-integration/open-choose-element', {
+          url: props.url
+        });
+        isOpen.current = true;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      }
+    }
+  }, [isOpen.current]);
   (0, _react.useEffect)(function () {
     var onMessage = function onMessage(event) {
       if (event.origin !== iframeOrigin) {
@@ -3686,17 +3867,19 @@ var UrlDialog = function UrlDialog(props) {
         url = _event$data.url;
       switch (type) {
         case 'element-selector/close':
+          isOpen.current = false;
           props.onClose();
           break;
         case 'element-selector/loaded':
           turnOffTimeout();
+          isOpen.current = true;
           break;
         case 'element-selector/attach':
           props.onAttach([{
             type: 'url',
             previewHTML: html,
             content: html,
-            label: url ? new URL(url).host : '',
+            label: url ? new URL(url).href : '',
             source: _attachments.USER_URL_SOURCE
           }]);
           break;
@@ -3706,79 +3889,19 @@ var UrlDialog = function UrlDialog(props) {
     return function () {
       window.removeEventListener('message', onMessage);
     };
-  }, [iframeOrigin, iframeSource, props, turnOffTimeout]);
-  if (!iframeSource) {
-    return /*#__PURE__*/_react.default.createElement(_alertDialog.AlertDialog, {
-      message: (0, _i18n.__)('The app is not available. Please try again later.', 'elementor'),
-      onClose: props.onClose
-    });
-  }
-  if (!isLoaded || isError) {
-    return null;
-  }
-  return /*#__PURE__*/_react.default.createElement(_ui.Dialog, {
+  }, [iframeOrigin, props, turnOffTimeout]);
+  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, !isOpen.current && !isTimeout && /*#__PURE__*/_react.default.createElement(_ui.Dialog, {
     open: true,
-    fullScreen: true,
-    hideBackdrop: true,
-    maxWidth: "md",
+    maxWidth: "lg"
+  }, /*#__PURE__*/_react.default.createElement(_ui.Typography, {
     sx: {
-      '& .MuiPaper-root': {
-        backgroundColor: 'transparent'
-      }
+      textAlign: 'center',
+      padding: 3
     }
-  }, /*#__PURE__*/_react.default.createElement(_ui.DialogContent, {
-    sx: {
-      padding: 0
-    }
-  }, isTimeout && /*#__PURE__*/_react.default.createElement(_alertDialog.AlertDialog, {
-    message: (0, _i18n.__)('The app is not responding. Please try again later.', 'elementor'),
+  }, (0, _i18n.__)('Loading...', 'elementor'))), isTimeout && /*#__PURE__*/_react.default.createElement(_alertDialog.AlertDialog, {
+    message: (0, _i18n.__)('The app is not responding. Please try again later. (#408)', 'elementor'),
     onClose: props.onClose
-  }), !isTimeout && /*#__PURE__*/_react.default.createElement("iframe", {
-    ref: iframeRef,
-    title: (0, _i18n.__)('URL as a reference', 'elementor'),
-    src: iframeSource,
-    onLoad: function onLoad() {
-      var _window$elementorAppC = window.elementorAppConfig['kit-library'],
-        accessLevel = _window$elementorAppC.access_level,
-        accessTier = _window$elementorAppC.access_tier,
-        isPro = _window$elementorAppC.is_pro;
-      iframeRef.current.contentWindow.postMessage({
-        type: 'referrer/info',
-        info: {
-          page: {
-            url: window.location.href
-          },
-          authToken: remoteConfig[_remoteConfig.CONFIG_KEYS.AUTH_TOKEN] || '',
-          products: {
-            core: {
-              version: window.elementor.config.version
-            },
-            pro: {
-              isPro: isPro,
-              accessLevel: accessLevel,
-              accessTier: accessTier
-            },
-            ai: {
-              isConnected: isConnected,
-              hasSubscription: hasSubscription,
-              credits: credits,
-              usagePercentage: usagePercentage
-            }
-          },
-          user: {
-            isAdmin: window.elementor.config.user.is_administrator
-          }
-        }
-      }, iframeOrigin);
-    },
-    style: {
-      border: 'none',
-      overflow: 'scroll',
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(255,255,255,0.6)'
-    }
-  })));
+  }));
 };
 exports.UrlDialog = UrlDialog;
 UrlDialog.propTypes = {
@@ -3828,7 +3951,7 @@ var StyledDialog = (0, _ui.styled)(_promptDialog.default)(function () {
     },
     '& .MuiPaper-root': {
       margin: 0,
-      maxHeight: '55vh'
+      maxHeight: '80vh'
     }
   };
 });
@@ -4092,80 +4215,6 @@ exports.ProTemplateIndicator = ProTemplateIndicator;
 
 /***/ }),
 
-/***/ "../modules/ai/assets/js/editor/pages/form-layout/components/pro-widgets-notice.js":
-/*!*****************************************************************************************!*\
-  !*** ../modules/ai/assets/js/editor/pages/form-layout/components/pro-widgets-notice.js ***!
-  \*****************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports.ProWidgetsNotice = void 0;
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
-var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
-var _i18n = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-var _lockIcon = _interopRequireDefault(__webpack_require__(/*! ../../../icons/lock-icon */ "../modules/ai/assets/js/editor/icons/lock-icon.js"));
-var _useIntroduction2 = _interopRequireDefault(__webpack_require__(/*! ../../../hooks/use-introduction */ "../modules/ai/assets/js/editor/hooks/use-introduction.js"));
-var ProWidgetsNotice = function ProWidgetsNotice() {
-  var _useIntroduction = (0, _useIntroduction2.default)('e-ai-builder-pro-widget'),
-    isViewed = _useIntroduction.isViewed,
-    markAsViewed = _useIntroduction.markAsViewed;
-  if (isViewed) {
-    return null;
-  }
-  return /*#__PURE__*/_react.default.createElement(_ui.Box, {
-    sx: {
-      pt: 2,
-      px: 2,
-      pb: 0
-    }
-  }, /*#__PURE__*/_react.default.createElement(_ui.Alert, {
-    severity: "info",
-    variant: "filled",
-    color: "promotion",
-    onClose: function onClose() {
-      return markAsViewed();
-    },
-    icon: /*#__PURE__*/_react.default.createElement(_lockIcon.default, null),
-    sx: {
-      '& .MuiAlert-message': {
-        width: '100%'
-      }
-    }
-  }, /*#__PURE__*/_react.default.createElement(_ui.Stack, {
-    flexDirection: "row",
-    alignItems: "baseline",
-    justifyContent: "space-between"
-  }, /*#__PURE__*/_react.default.createElement(_ui.Typography, {
-    variant: "body2",
-    component: "span",
-    sx: {
-      paddingInlineEnd: 0.5
-    }
-  }, /*#__PURE__*/_react.default.createElement(_ui.Typography, {
-    variant: "subtitle2",
-    component: "span",
-    sx: {
-      paddingInlineEnd: 1
-    }
-  }, (0, _i18n.__)('Upgrade your plan for best results.', 'elementor')), (0, _i18n.__)('You won’t be able to use layouts with Elementor Pro widgets until you do.', 'elementor')), /*#__PURE__*/_react.default.createElement(_ui.Button, {
-    variant: "outlined",
-    size: "small",
-    onClick: function onClick() {
-      return window.open('https://go.elementor.com/upgrade-pro/', '_blank');
-    },
-    color: "inherit"
-  }, (0, _i18n.__)('Go Pro', 'elementor')))));
-};
-exports.ProWidgetsNotice = ProWidgetsNotice;
-
-/***/ }),
-
 /***/ "../modules/ai/assets/js/editor/pages/form-layout/components/prompt-autocomplete.js":
 /*!******************************************************************************************!*\
   !*** ../modules/ai/assets/js/editor/pages/form-layout/components/prompt-autocomplete.js ***!
@@ -4340,27 +4389,31 @@ var _excluded = ["tooltip"];
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 var PROMPT_SUGGESTIONS = Object.freeze([{
-  text: (0, _i18n.__)('Services section with list layout, icons, and service descriptions for [topic]', 'elementor')
+  text: (0, _i18n.__)('Hero section on [topic] with heading, text, buttons on the right, and an image on the left', 'elementor.com')
 }, {
-  text: (0, _i18n.__)('Accordion-style FAQ block with clickable questions about [topic]', 'elementor')
+  text: (0, _i18n.__)('About Us section on [topic] with heading, text, and big image below', 'elementor.com')
 }, {
-  text: (0, _i18n.__)('Hero section with image, heading, subheading, and CTA button about [topic]', 'elementor')
+  text: (0, _i18n.__)('Team section with four image boxes showcasing team members', 'elementor.com')
 }, {
-  text: (0, _i18n.__)('Full-width call-to-action with background image and overlay text about [topic]', 'elementor')
+  text: (0, _i18n.__)('FAQ section with a toggle widget showcasing FAQs about [topic]', 'elementor.com')
 }, {
-  text: (0, _i18n.__)('Carousel testimonial block with user images, names, and feedback about [topic]', 'elementor')
+  text: (0, _i18n.__)('Gallery section with a carousel displaying three images at once', 'elementor.com')
 }, {
-  text: (0, _i18n.__)('Features block showcasing feature title and brief description about [topic]', 'elementor')
+  text: (0, _i18n.__)('Contact section with a form for [topic]', 'elementor.com')
 }, {
-  text: (0, _i18n.__)('Multi-column minimalistic About Us section with icons for [topic]', 'elementor')
+  text: (0, _i18n.__)('Client section featuring companies\' logos', 'elementor.com')
 }, {
-  text: (0, _i18n.__)('Section with contact form and social media icons for [topic]', 'elementor')
+  text: (0, _i18n.__)('Testimonial section with testimonials, each featuring a star rating and an image', 'elementor.com')
 }, {
-  text: (0, _i18n.__)('Statistics display in a 3-column layout with numbers and icons for [topic]', 'elementor')
+  text: (0, _i18n.__)('Service section about [topic], showcasing four services with buttons', 'elementor.com')
 }, {
-  text: (0, _i18n.__)('Pricing table section with highlighted option for [topic]', 'elementor')
+  text: (0, _i18n.__)('Stats section with counters displaying data about [topic]', 'elementor.com')
 }, {
-  text: (0, _i18n.__)('About Us section combining company history and values for [topic]', 'elementor')
+  text: (0, _i18n.__)('Quote section with colored background, featuring a centered quote', 'elementor.com')
+}, {
+  text: (0, _i18n.__)('Pricing section for [topic] with a pricing list', 'elementor.com')
+}, {
+  text: (0, _i18n.__)('Subscribe section featuring a simple email form, inviting users to stay informed on [topic]', 'elementor.com')
 }]);
 var IconButtonWithTooltip = function IconButtonWithTooltip(_ref) {
   var tooltip = _ref.tooltip,
@@ -4913,39 +4966,46 @@ var RemoteConfigProvider = function RemoteConfigProvider(props) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
             setIsLoading(true);
-            _context.prev = 1;
-            _context.next = 4;
+            setIsError(false);
+            _context.prev = 2;
+            _context.next = 5;
             return (0, _api.getRemoteConfig)().finally(function () {
               setIsLoaded(true);
               setIsLoading(false);
             });
-          case 4:
+          case 5:
             result = _context.sent;
             if (result.config) {
-              _context.next = 7;
+              _context.next = 8;
               break;
             }
             throw new Error('Invalid remote config');
-          case 7:
+          case 8:
             setRemoteConfig(result.config);
-            _context.next = 15;
+            _context.next = 16;
             break;
-          case 10:
-            _context.prev = 10;
-            _context.t0 = _context["catch"](1);
+          case 11:
+            _context.prev = 11;
+            _context.t0 = _context["catch"](2);
             setIsError(true);
             setIsLoaded(true);
             setIsLoading(false);
-          case 15:
+          case 16:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[1, 10]]);
+      }, _callee, null, [[2, 11]]);
     }));
     return function fetchData() {
       return _ref.apply(this, arguments);
     };
   }();
+  (0, _react.useEffect)(function () {
+    window.addEventListener('elementor/connect/success', fetchData);
+    return function () {
+      window.removeEventListener('elementor/connect/success', fetchData);
+    };
+  }, []);
   if (!isLoaded && !isLoading) {
     fetchData();
   }
@@ -4963,59 +5023,6 @@ RemoteConfigProvider.propTypes = {
   children: _propTypes.default.node.isRequired,
   onError: _propTypes.default.func.isRequired
 };
-
-/***/ }),
-
-/***/ "../modules/ai/assets/js/editor/pages/form-layout/hooks/use-attach-url-service.js":
-/*!****************************************************************************************!*\
-  !*** ../modules/ai/assets/js/editor/pages/form-layout/hooks/use-attach-url-service.js ***!
-  \****************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports.useAttachUrlService = void 0;
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "../node_modules/@babel/runtime/helpers/slicedToArray.js"));
-var _ui = __webpack_require__(/*! @elementor/ui */ "@elementor/ui");
-var _react = __webpack_require__(/*! react */ "react");
-var _remoteConfig = __webpack_require__(/*! ../context/remote-config */ "../modules/ai/assets/js/editor/pages/form-layout/context/remote-config.js");
-var useAttachUrlService = function useAttachUrlService(args) {
-  var _window$elementorComm, _window$elementorComm2;
-  var _useState = (0, _react.useState)(args.targetUrl),
-    _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-    currentUrl = _useState2[0],
-    setCurrentUrl = _useState2[1];
-  var theme = (0, _ui.useTheme)();
-  var _useRemoteConfig = (0, _remoteConfig.useRemoteConfig)(),
-    isLoaded = _useRemoteConfig.isLoaded,
-    isError = _useRemoteConfig.isError,
-    remoteConfig = _useRemoteConfig.remoteConfig;
-  if (!isLoaded || isError || !remoteConfig[_remoteConfig.CONFIG_KEYS.WEB_BASED_BUILDER_URL]) {
-    return {
-      iframeSource: '',
-      currentUrl: currentUrl,
-      setCurrentUrl: setCurrentUrl
-    };
-  }
-  var urlObject = new URL(remoteConfig[_remoteConfig.CONFIG_KEYS.WEB_BASED_BUILDER_URL]);
-  urlObject.searchParams.append('colorScheme', theme.palette.mode);
-  urlObject.searchParams.append('isRTL', 'rtl' === theme.direction ? 'true' : 'false');
-  urlObject.searchParams.append('version', (_window$elementorComm = window.elementorCommon) === null || _window$elementorComm === void 0 ? void 0 : (_window$elementorComm2 = _window$elementorComm.config) === null || _window$elementorComm2 === void 0 ? void 0 : _window$elementorComm2.version);
-  if (currentUrl) {
-    urlObject.searchParams.append('url', currentUrl);
-  }
-  return {
-    iframeSource: urlObject.toString(),
-    currentUrl: currentUrl,
-    setCurrentUrl: setCurrentUrl
-  };
-};
-exports.useAttachUrlService = useAttachUrlService;
 
 /***/ }),
 
@@ -5389,7 +5396,6 @@ var _expandDiagonalIcon = _interopRequireDefault(__webpack_require__(/*! ../../i
 var _config = __webpack_require__(/*! ./context/config */ "../modules/ai/assets/js/editor/pages/form-layout/context/config.js");
 var _attachment = __webpack_require__(/*! ../../types/attachment */ "../modules/ai/assets/js/editor/types/attachment.js");
 var _promptPowerNotice = __webpack_require__(/*! ./components/attachments/prompt-power-notice */ "../modules/ai/assets/js/editor/pages/form-layout/components/attachments/prompt-power-notice.js");
-var _proWidgetsNotice = __webpack_require__(/*! ./components/pro-widgets-notice */ "../modules/ai/assets/js/editor/pages/form-layout/components/pro-widgets-notice.js");
 var _attachments = __webpack_require__(/*! ./components/attachments */ "../modules/ai/assets/js/editor/pages/form-layout/components/attachments.js");
 var _attachDialog = _interopRequireDefault(__webpack_require__(/*! ./components/attachments/attach-dialog */ "../modules/ai/assets/js/editor/pages/form-layout/components/attachments/attach-dialog.js"));
 var _isURL = _interopRequireDefault(__webpack_require__(/*! validator/lib/isURL */ "../node_modules/validator/lib/isURL.js"));
@@ -5443,8 +5449,7 @@ var FormLayout = function FormLayout(_ref) {
     onInsert = _useConfig.onInsert,
     onSelect = _useConfig.onSelect,
     onClose = _useConfig.onClose,
-    onGenerate = _useConfig.onGenerate,
-    hasPro = _useConfig.hasPro;
+    onGenerate = _useConfig.onGenerate;
   var _useScreenshots = (0, _useScreenshots2.default)({
       onData: onData
     }),
@@ -5498,9 +5503,6 @@ var FormLayout = function FormLayout(_ref) {
   // When there are no screenshots the prompt field should be editable.
   var shouldFallbackToEditPrompt = !!(error && 0 === screenshots.length);
   var isPromptFormActive = isPromptEditable || shouldFallbackToEditPrompt;
-  var mayContainProWidgets = 0 === attachments.length || attachments.some(function (attachment) {
-    return _attachments.ATTACHMENT_TYPE_URL === attachment.type;
-  });
   var abortAndClose = function abortAndClose() {
     abort();
     onClose();
@@ -5618,7 +5620,7 @@ var FormLayout = function FormLayout(_ref) {
       px: 2,
       pb: 0
     }
-  }, dialogContentChildren), mayContainProWidgets && !hasPro && /*#__PURE__*/_react.default.createElement(_proWidgetsNotice.ProWidgetsNotice, null), attachments.length > 0 && /*#__PURE__*/_react.default.createElement(_promptPowerNotice.PromptPowerNotice, null), error && /*#__PURE__*/_react.default.createElement(_ui.Box, {
+  }, dialogContentChildren), attachments.length > 0 && /*#__PURE__*/_react.default.createElement(_promptPowerNotice.PromptPowerNotice, null), error && /*#__PURE__*/_react.default.createElement(_ui.Box, {
     sx: {
       pt: 2,
       px: 2,
@@ -5906,10 +5908,8 @@ var GetStarted = function GetStarted(_ref) {
   }, /*#__PURE__*/_react.default.createElement(_ui.Checkbox, {
     id: "e-ai-terms-approval",
     color: "secondary",
-    sx: {
-      p: 0
-    },
-    onChange: function onChange() {
+    checked: isTermsChecked,
+    onClick: function onClick() {
       return setIsTermsChecked(function (prevState) {
         return !prevState;
       });
@@ -5992,17 +5992,17 @@ exports.AttachmentsTypesPropType = AttachmentsTypesPropType;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-/* provided dependency */ var ReactDOM = __webpack_require__(/*! react-dom */ "react-dom");
 
 
 var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.renderLayoutApp = exports.openPanel = exports.onConnect = exports.importToEditor = exports.getUiConfig = exports.closePanel = void 0;
+exports.renderLayoutApp = exports.openPanel = exports.onConnect = exports.importToEditor = exports.getUiConfig = exports.closePanel = exports.WEB_BASED_PROMPTS = exports.VARIATIONS_PROMPTS = void 0;
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../node_modules/@babel/runtime/regenerator/index.js"));
 var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "../node_modules/@babel/runtime/helpers/asyncToGenerator.js"));
+var _react2 = _interopRequireDefault(__webpack_require__(/*! elementor-utils/react */ "../assets/dev/js/utils/react.js"));
 var _previewContainer = __webpack_require__(/*! ./preview-container */ "../modules/ai/assets/js/editor/utils/preview-container.js");
 var _layoutApp = _interopRequireDefault(__webpack_require__(/*! ../layout-app */ "../modules/ai/assets/js/editor/layout-app.js"));
 var _screenshot = __webpack_require__(/*! ./screenshot */ "../modules/ai/assets/js/editor/utils/screenshot.js");
@@ -6055,6 +6055,21 @@ var VARIATIONS_PROMPTS = [{
 }, {
   text: (0, _i18n.__)('Warm hues with comforting visuals about', 'elementor')
 }];
+exports.VARIATIONS_PROMPTS = VARIATIONS_PROMPTS;
+var WEB_BASED_PROMPTS = [{
+  text: (0, _i18n.__)('Change the content to be about [topic]', 'elementor')
+}, {
+  text: (0, _i18n.__)('Generate lorem ipsum placeholder text for all paragraphs', 'elementor')
+}, {
+  text: (0, _i18n.__)('Revise the content to focus on [topic] and then translate it into Spanish', 'elementor')
+}, {
+  text: (0, _i18n.__)('Shift the focus of the content to [topic] in order to showcase our company\'s mission and values', 'elementor')
+}, {
+  text: (0, _i18n.__)('Alter the content to provide helpful tips related to [topic]', 'elementor')
+}, {
+  text: (0, _i18n.__)('Adjust the content to include FAQs and answers for common inquiries about [topic]', 'elementor')
+}];
+exports.WEB_BASED_PROMPTS = WEB_BASED_PROMPTS;
 var PROMPT_PLACEHOLDER = (0, _i18n.__)("Press '/' for suggestions or describe the changes you want to apply (optional)...", 'elementor');
 var renderLayoutApp = function renderLayoutApp() {
   var _options$onRenderApp;
@@ -6080,97 +6095,98 @@ var renderLayoutApp = function renderLayoutApp() {
   var rootElement = document.createElement('div');
   document.body.append(rootElement);
   var bodyStyle = window.elementorFrontend.elements.$window[0].getComputedStyle(window.elementorFrontend.elements.$body[0]);
-  ReactDOM.render( /*#__PURE__*/_react.default.createElement(_layoutAppWrapper.default, {
-    isRTL: isRTL,
-    colorScheme: colorScheme
-  }, /*#__PURE__*/_react.default.createElement(_layoutApp.default, {
-    mode: options.mode,
-    currentContext: {
-      body: {
-        backgroundColor: bodyStyle.backgroundColor,
-        backgroundImage: bodyStyle.backgroundImage
-      }
-    },
-    attachmentsTypes: {
-      json: {
-        promptSuggestions: VARIATIONS_PROMPTS,
-        promptPlaceholder: PROMPT_PLACEHOLDER,
-        previewGenerator: function () {
-          var _previewGenerator = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(json) {
-            var screenshot;
-            return _regenerator.default.wrap(function _callee$(_context) {
-              while (1) switch (_context.prev = _context.next) {
-                case 0:
-                  _context.next = 2;
-                  return (0, _screenshot.takeScreenshot)(json);
-                case 2:
-                  screenshot = _context.sent;
-                  return _context.abrupt("return", "<img src=\"".concat(screenshot, "\" />"));
-                case 4:
-                case "end":
-                  return _context.stop();
-              }
-            }, _callee);
-          }));
-          function previewGenerator(_x) {
-            return _previewGenerator.apply(this, arguments);
-          }
-          return previewGenerator;
-        }()
+  var _ReactUtils$render = _react2.default.render( /*#__PURE__*/_react.default.createElement(_layoutAppWrapper.default, {
+      isRTL: isRTL,
+      colorScheme: colorScheme
+    }, /*#__PURE__*/_react.default.createElement(_layoutApp.default, {
+      mode: options.mode,
+      currentContext: {
+        body: {
+          backgroundColor: bodyStyle.backgroundColor,
+          backgroundImage: bodyStyle.backgroundImage
+        }
       },
-      url: {
-        promptPlaceholder: PROMPT_PLACEHOLDER,
-        promptSuggestions: VARIATIONS_PROMPTS
-      }
-    },
-    attachments: options.attachments || [],
-    onClose: function onClose() {
-      var _options$onClose;
-      previewContainer.destroy();
-      (_options$onClose = options.onClose) === null || _options$onClose === void 0 ? void 0 : _options$onClose.call(options);
-      ReactDOM.unmountComponentAtNode(rootElement);
-      rootElement.remove();
-      openPanel();
-    },
-    onConnect: onConnect,
-    onGenerate: function onGenerate() {
-      var _options$onGenerate;
-      (_options$onGenerate = options.onGenerate) === null || _options$onGenerate === void 0 ? void 0 : _options$onGenerate.call(options, {
-        previewContainer: previewContainer
-      });
-    },
-    onData: /*#__PURE__*/function () {
-      var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(template) {
-        var screenshot;
-        return _regenerator.default.wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
-            case 0:
-              _context2.next = 2;
-              return (0, _screenshot.takeScreenshot)(template);
-            case 2:
-              screenshot = _context2.sent;
-              return _context2.abrupt("return", {
-                screenshot: screenshot,
-                template: template
-              });
-            case 4:
-            case "end":
-              return _context2.stop();
-          }
-        }, _callee2);
-      }));
-      return function (_x2) {
-        return _ref.apply(this, arguments);
-      };
-    }(),
-    onSelect: function onSelect(template) {
-      var _options$onSelect;
-      (_options$onSelect = options.onSelect) === null || _options$onSelect === void 0 ? void 0 : _options$onSelect.call(options);
-      previewContainer.setContent(template);
-    },
-    onInsert: options.onInsert,
-    hasPro: elementor.helpers.hasPro()
-  })), rootElement);
+      attachmentsTypes: {
+        json: {
+          promptSuggestions: VARIATIONS_PROMPTS,
+          promptPlaceholder: PROMPT_PLACEHOLDER,
+          previewGenerator: function () {
+            var _previewGenerator = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(json) {
+              var screenshot;
+              return _regenerator.default.wrap(function _callee$(_context) {
+                while (1) switch (_context.prev = _context.next) {
+                  case 0:
+                    _context.next = 2;
+                    return (0, _screenshot.takeScreenshot)(json);
+                  case 2:
+                    screenshot = _context.sent;
+                    return _context.abrupt("return", "<img src=\"".concat(screenshot, "\" />"));
+                  case 4:
+                  case "end":
+                    return _context.stop();
+                }
+              }, _callee);
+            }));
+            function previewGenerator(_x) {
+              return _previewGenerator.apply(this, arguments);
+            }
+            return previewGenerator;
+          }()
+        },
+        url: {
+          promptPlaceholder: PROMPT_PLACEHOLDER,
+          promptSuggestions: WEB_BASED_PROMPTS
+        }
+      },
+      attachments: options.attachments || [],
+      onClose: function onClose() {
+        var _options$onClose;
+        previewContainer.destroy();
+        (_options$onClose = options.onClose) === null || _options$onClose === void 0 ? void 0 : _options$onClose.call(options);
+        unmount();
+        rootElement.remove();
+        openPanel();
+      },
+      onConnect: onConnect,
+      onGenerate: function onGenerate() {
+        var _options$onGenerate;
+        (_options$onGenerate = options.onGenerate) === null || _options$onGenerate === void 0 ? void 0 : _options$onGenerate.call(options, {
+          previewContainer: previewContainer
+        });
+      },
+      onData: /*#__PURE__*/function () {
+        var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(template) {
+          var screenshot;
+          return _regenerator.default.wrap(function _callee2$(_context2) {
+            while (1) switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return (0, _screenshot.takeScreenshot)(template);
+              case 2:
+                screenshot = _context2.sent;
+                return _context2.abrupt("return", {
+                  screenshot: screenshot,
+                  template: template
+                });
+              case 4:
+              case "end":
+                return _context2.stop();
+            }
+          }, _callee2);
+        }));
+        return function (_x2) {
+          return _ref.apply(this, arguments);
+        };
+      }(),
+      onSelect: function onSelect(template) {
+        var _options$onSelect;
+        (_options$onSelect = options.onSelect) === null || _options$onSelect === void 0 ? void 0 : _options$onSelect.call(options);
+        previewContainer.setContent(template);
+      },
+      onInsert: options.onInsert,
+      hasPro: elementor.helpers.hasPro()
+    })), rootElement),
+    unmount = _ReactUtils$render.unmount;
   (_options$onRenderApp = options.onRenderApp) === null || _options$onRenderApp === void 0 ? void 0 : _options$onRenderApp.call(options, {
     previewContainer: previewContainer
   });
@@ -9088,6 +9104,39 @@ exports.typeOf = typeOf;
 
 if (false) {} else {
   module.exports = __webpack_require__(/*! ./cjs/react-is.development.js */ "../node_modules/prop-types/node_modules/react-is/cjs/react-is.development.js");
+}
+
+
+/***/ }),
+
+/***/ "../node_modules/react-dom/client.js":
+/*!*******************************************!*\
+  !*** ../node_modules/react-dom/client.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+
+var m = __webpack_require__(/*! react-dom */ "react-dom");
+if (false) {} else {
+  var i = m.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+  exports.createRoot = function(c, o) {
+    i.usingClientEntryPoint = true;
+    try {
+      return m.createRoot(c, o);
+    } finally {
+      i.usingClientEntryPoint = false;
+    }
+  };
+  exports.hydrateRoot = function(c, h, o) {
+    i.usingClientEntryPoint = true;
+    try {
+      return m.hydrateRoot(c, h, o);
+    } finally {
+      i.usingClientEntryPoint = false;
+    }
+  };
 }
 
 
@@ -12974,7 +13023,10 @@ var Module = /*#__PURE__*/function (_elementorModules$edi) {
     key: "registerAiLayoutBehavior",
     value: function registerAiLayoutBehavior(behaviors) {
       behaviors.ai = {
-        behaviorClass: _aiLayoutBehavior.default
+        behaviorClass: _aiLayoutBehavior.default,
+        context: {
+          documentType: window.elementor.documents.getCurrent().config.type
+        }
       };
       return behaviors;
     }

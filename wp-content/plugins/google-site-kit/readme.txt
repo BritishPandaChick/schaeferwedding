@@ -2,9 +2,9 @@
 
 Contributors:      google
 Requires at least: 5.2
-Tested up to:      6.5
-Requires PHP:      5.6
-Stable tag:        1.124.0
+Tested up to:      6.7
+Requires PHP:      7.4
+Stable tag:        1.139.0
 License:           Apache License 2.0
 License URI:       https://www.apache.org/licenses/LICENSE-2.0
 Tags:              google, search-console, analytics, adsense, pagespeed-insights
@@ -74,7 +74,7 @@ The Site Kit plugin is free and open source, and will remain so. Individual Goog
 In order to successfully install and use Site Kit, your site must meet the following requirements:
 
 * WordPress version 5.2+
-* PHP version 5.6+
+* PHP version 7.4+
 * Modern browser – Internet Explorer is not supported
 * Is publicly accessible – it isn’t in maintenance mode, accessible only via password, or otherwise blocked
 * REST API is available – Site Kit must be able to communicate via REST API with Google services. To ensure that the REST API is available for your site, go to Tools > Site Health.
@@ -109,38 +109,32 @@ Please create a new topic on our [WordPress.org support forum](https://wordpress
 
 == Changelog ==
 
-= 1.124.0 =
+= 1.139.0 =
 
 **Added**
 
-* Add setup flow to Ads Module. See [#8346](https://github.com/google/site-kit-wp/issues/8346).
-* Add the web tag for the Ads module. See [#8313](https://github.com/google/site-kit-wp/issues/8313).
-* Add the Conversion Tracking ID field to the Ads module's Setup and Settings screens. See [#8251](https://github.com/google/site-kit-wp/issues/8251).
-* Add Site Health information for the Ads module. See [#8245](https://github.com/google/site-kit-wp/issues/8245).
-* Add a notification for users who have linked AdSense and Analytics accounts when data becomes available to view in their dashboard. See [#8237](https://github.com/google/site-kit-wp/issues/8237).
-* Add Analytics events to AdSense + Analytics notification. See [#8213](https://github.com/google/site-kit-wp/issues/8213).
+* Add the Google sign-in button to the login screen. See [#9337](https://github.com/google/site-kit-wp/issues/9337).
+* Add Top Device Driving Purchases Key Metric Widget. See [#9162](https://github.com/google/site-kit-wp/issues/9162).
 
 **Enhanced**
 
-* Update Consent Mode messaging to mention the UK as well as the EEA. See [#8443](https://github.com/google/site-kit-wp/issues/8443).
-* Update wording for sites with existing Analytics tags. See [#8405](https://github.com/google/site-kit-wp/issues/8405).
-* Add placeholder/prefix to the Conversion Tracking ID field in the Ads module. See [#8398](https://github.com/google/site-kit-wp/issues/8398).
-* Add a linked Ads account as an option to surface Consent Mode features. See [#8382](https://github.com/google/site-kit-wp/issues/8382).
-* Update Analytics to use new gtag infrastructure. See [#8273](https://github.com/google/site-kit-wp/issues/8273).
-* Add decoupled infrastructure for GTag. See [#8269](https://github.com/google/site-kit-wp/issues/8269).
-* Add a settings toggle for Audience Segmentation. See [#8177](https://github.com/google/site-kit-wp/issues/8177).
-* Introduce infrastructure for managing Audience settings. See [#8176](https://github.com/google/site-kit-wp/issues/8176).
-* Add the Audience Tile in its "happy path" state as a component which is viewable in Storybook. See [#8135](https://github.com/google/site-kit-wp/issues/8135).
-* Enhance Web Data Stream creation in Analytics setup and settings screens to allow using custom web data stream name. See [#6727](https://github.com/google/site-kit-wp/issues/6727).
-* Improve "Retry" behavior on All Traffic Widget. See [#6406](https://github.com/google/site-kit-wp/issues/6406).
-
-**Changed**
-
-* Migrate the Ads Conversion ID field from the Analytics module to the Ads module. See [#8248](https://github.com/google/site-kit-wp/issues/8248).
+* Add GA event tracking for user interactions with the No Audiences Banner and Info Notice. See [#9496](https://github.com/google/site-kit-wp/issues/9496).
+* Add opt-in event tracking for an audience tile's "Top content" metric area. See [#9495](https://github.com/google/site-kit-wp/issues/9495).
+* Add Dashboard Sharing support to Analytics Conversion Reporting tiles. See [#9377](https://github.com/google/site-kit-wp/issues/9377).
+* Improved the design of the User Input Questionnaire. See [#9374](https://github.com/google/site-kit-wp/issues/9374).
+* Update requirement checks for notifications to have all selectors resolved correctly and efficiently. See [#9351](https://github.com/google/site-kit-wp/issues/9351).
+* Update conversion reporting events synchronization to save detected and lost events. See [#9342](https://github.com/google/site-kit-wp/issues/9342).
+* Add the setup form for the Sign in With Google module. See [#9336](https://github.com/google/site-kit-wp/issues/9336).
+* Implement the ability to edit Sign in With Google settings. See [#9334](https://github.com/google/site-kit-wp/issues/9334).
 
 **Fixed**
 
-* Fix bug that caused Top Earning Pages widget to show links in shared dashboard. See [#8451](https://github.com/google/site-kit-wp/issues/8451).
-* Fix bug that caused browser console error to appear when changing Tag Manager account in Tag Manager setup/settings. See [#8316](https://github.com/google/site-kit-wp/issues/8316).
+* Fix an issue that caused the visitor groups overlay notification to appear unexpectedly. See [#9481](https://github.com/google/site-kit-wp/issues/9481).
+* Ensure the "Purchasers" default audience can be added to the audience selection when initially setting up the Audience Segmentation feature under the right conditions. See [#9478](https://github.com/google/site-kit-wp/issues/9478).
+* Prevent rendering of the Audience Selection Panel before the feature is set up, ensuring it only renders after setup is complete. See [#9475](https://github.com/google/site-kit-wp/issues/9475).
+* Ensure partial data badges display correctly when the connected Analytics property is in the partial data state. See [#9474](https://github.com/google/site-kit-wp/issues/9474).
+* Fix an issue that caused the visitor groups visibility toggle to appear when the feature wasn't yet set up. See [#9473](https://github.com/google/site-kit-wp/issues/9473).
+* Handle insufficient permission errors correctly when attempting to create audiences via the Audience Segmentation Setup CTA Banner. See [#9471](https://github.com/google/site-kit-wp/issues/9471).
+* Prevent console errors appearing when visiting the dashboard as a secondary admin or view-only user after the Audience Segmentation feature has been set up. See [#9445](https://github.com/google/site-kit-wp/issues/9445).
 
 [See changelog for all versions](https://raw.githubusercontent.com/google/site-kit-wp/main/changelog.txt).

@@ -99,7 +99,7 @@
   // DROPDOWN PLUGIN DEFINITION
   // ==========================
 
-  $.fn.factoryBootstrap467_dropdown = function (option) {
+  $.fn.factoryBootstrap477_dropdown = function (option) {
     return this.each(function () {
       var $this = $(this)
       var data  = $this.data('bs.dropdown')
@@ -109,7 +109,7 @@
     })
   }
 
-  $.fn.factoryBootstrap467_dropdown.Constructor = Dropdown
+  $.fn.factoryBootstrap477_dropdown.Constructor = Dropdown
 
 
   // APPLY TO STANDARD DROPDOWN ELEMENTS

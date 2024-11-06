@@ -1301,16 +1301,16 @@ class Updraft_Restorer {
 
 			if ('wp-config.php' == $file && 'wpcore' == $type) {
 				if (empty($this->restore_options['updraft_restorer_wpcore_includewpconfig'])) {
-					$updraftplus->log_e('wp-config.php from backup: will restore as wp-config-backup.php', 'updraftplus');
-					if (!$wpfs->move($working_dir . "/$file", $working_dir . "/wp-config-backup.php", true)) {
-						$this->restore_log_permission_failure_message($working_dir, 'Move '.$working_dir . "/$file -> ".$working_dir . "/wp-config-backup.php", 'Destination');
+					$updraftplus->log_e('wp-config.php from backup: will restore as wp-config-pre-ud-restore-backup.php', 'updraftplus');
+					if (!$wpfs->move($working_dir . "/$file", $working_dir . "/wp-config-pre-ud-restore-backup.php", true)) {
+						$this->restore_log_permission_failure_message($working_dir, 'Move '.$working_dir . "/$file -> ".$working_dir . "/wp-config-pre-ud-restore-backup.php", 'Destination');
 					}
-					$file = "wp-config-backup.php";
+					$file = "wp-config-pre-ud-restore-backup.php";
 					$wpcore_config_moved = true;
 				} else {
 					$updraftplus->log_e("wp-config.php from backup: restoring (as per user's request)", 'updraftplus');
 				}
-			} elseif ('wpcore' == $type && 'wp-config-backup.php' == $file && $wpcore_config_moved) {
+			} elseif ('wpcore' == $type && 'wp-config-pre-ud-restore-backup.php' == $file && $wpcore_config_moved) {
 				// The file is already gone; nothing to do
 				continue;
 			}
@@ -1656,7 +1656,8 @@ class Updraft_Restorer {
 		$working_dir = $this->unpack_package($backup_file, $this->delete, $type);
 		if (is_wp_error($working_dir)) return $working_dir;
 
-		$working_dir_localpath = WP_CONTENT_DIR.'/upgrade/'.basename($working_dir);
+		$working_dir_localpath = apply_filters('updraftplus_working_dir_localpath', WP_CONTENT_DIR.'/upgrade/'.basename($working_dir));
+
 		if (function_exists('set_time_limit')) @set_time_limit(1800);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged -- Silenced to suppress errors that may arise because of the function.
 
 		// We copy the variable because we may be importing with a different prefix (e.g. on multisite imports of individual blog data)
@@ -4217,7 +4218,7 @@ class Updraft_Restorer {
 					// Bad plugin that hard-codes path references - https://wordpress.org/plugins/custom-content-type-manager/
 					$cctm_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $new_table_name WHERE option_name = %s LIMIT 1", 'cctm_data'));
 					if (!empty($cctm_data->option_value)) {
-						$cctm_data = maybe_unserialize($cctm_data->option_value);
+						$cctm_data = empty($cctm_data->option_value) ? array() : $updraftplus->unserialize($cctm_data->option_value);
 						if (is_array($cctm_data) && !empty($cctm_data['cache']) && is_array($cctm_data['cache'])) {
 							$cctm_data['cache'] = array();
 							$updraftplus->log_e("Custom content type manager plugin data detected: clearing option cache");
@@ -4244,7 +4245,7 @@ class Updraft_Restorer {
 						$wp_rocket_settings = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $new_table_name WHERE option_name = %s LIMIT 1", 'wp_rocket_settings'));
 
 						if (!empty($wp_rocket_settings->option_value)) {
-							$wp_rocket_settings = maybe_unserialize($wp_rocket_settings->option_value);
+							$wp_rocket_settings = empty($wp_rocket_settings->option_value) ? array() : $updraftplus->unserialize($wp_rocket_settings->option_value);
 
 							// if WP Rocket settings is found and cdn is enabled
 							if (isset($wp_rocket_settings['cdn'])) {
@@ -4269,12 +4270,14 @@ class Updraft_Restorer {
 				// if we are importing a single site into a multisite (which means we have the multisite add-on) we need to clear our saved options and crons to prevent unwanted backups
 				if (isset($this->restore_options['updraftplus_migrate_blogname'])) {
 					$wpdb->query("DELETE FROM {$import_table_prefix}{$mprefix}options WHERE option_name LIKE 'updraft_%'");
-					$crons = maybe_unserialize($wpdb->get_var("SELECT option_value FROM {$import_table_prefix}{$mprefix}options WHERE option_name = 'cron'"));
-					foreach ($crons as $timestamp => $cron) {
-						if (!is_array($cron)) continue;
-						foreach (array_keys($cron) as $key) {
-							if (false !== strpos($key, 'updraft_')) unset($crons[$timestamp][$key]);
-							if (empty($crons[$timestamp])) unset($crons[$timestamp]);
+					$crons = $updraftplus->unserialize($wpdb->get_var("SELECT option_value FROM {$import_table_prefix}{$mprefix}options WHERE option_name = 'cron'"));
+					if (is_array($crons)) {
+						foreach ($crons as $timestamp => $cron) {
+							if (!is_array($cron)) continue;
+							foreach (array_keys($cron) as $key) {
+								if (false !== strpos($key, 'updraft_')) unset($crons[$timestamp][$key]);
+								if (empty($crons[$timestamp])) unset($crons[$timestamp]);
+							}
 						}
 					}
 					$crons = serialize($crons);
@@ -4440,6 +4443,14 @@ class Updraft_Restorer {
 			$plugins = $wpdb->get_row("SELECT option_value FROM {$import_table_prefix}options WHERE option_name = 'active_plugins'");
 			if (empty($plugins->option_value)) return;
 			$plugins = $this->deactivate_missing_plugins($plugins->option_value);
+			$plugins = UpdraftPlus::unserialize($plugins);
+			if (!is_array($plugins)) $plugins = array();
+			$old_updraftplus_plugin_slug = $this->old_updraftplus_plugin_slug;
+			if (empty($old_updraftplus_plugin_slug) || !file_exists(WP_PLUGIN_DIR.'/'.$old_updraftplus_plugin_slug)) $old_updraftplus_plugin_slug = UPDRAFTPLUS_PLUGIN_SLUG;
+			if (!in_array($old_updraftplus_plugin_slug, $plugins)) {
+				$plugins[] = $old_updraftplus_plugin_slug;
+			}
+			$plugins = serialize($plugins);
 			$wpdb->query($wpdb->prepare("UPDATE {$import_table_prefix}options SET option_value=%s WHERE option_name='active_plugins'", $plugins));
 		}
 	}
@@ -4456,7 +4467,7 @@ class Updraft_Restorer {
 
 		if (!function_exists('get_plugins')) include_once(ABSPATH.'wp-admin/includes/plugin.php');
 		$installed_plugins = array_keys(get_plugins());
-		$plugins = maybe_unserialize($plugins);
+		$plugins = $updraftplus->unserialize($plugins);
 		
 		foreach ($plugins as $key => $path) {
 			// Single site and multisite have a different array structure, in single site the path is the array value, in multisite the path is the array key.

@@ -3,8 +3,9 @@
 Plugin Name: Titan Anti-spam & Security
 Plugin URI: http://wordpress.org/plugins/anti-spam/
 Description: Titan Security - Anti-spam, Anti-virus, Firewall and Malware Scan
-Version: 7.3.5
+Version: 7.3.8
 Author: CreativeMotion
+Requires PHP: 8.0
 Text Domain: titan-security
 Author URI: https://cm-wp.com/
 License: GPLv3
@@ -107,21 +108,21 @@ $wtitan_plugin_info = [
 
 	// FRAMEWORK MODULES
 	'load_factory_modules' => [
-		['libs/factory/bootstrap', 'factory_bootstrap_467', 'admin'],
-		['libs/factory/forms', 'factory_forms_463', 'admin'],
-		['libs/factory/pages', 'factory_pages_466', 'admin'],
-		['libs/factory/templates', 'factory_templates_116', 'all'],
-		['libs/factory/freemius', 'factory_freemius_154', 'all'],
-		['libs/factory/feedback', 'factory_feedback_122', 'admin']
+		['libs/factory/bootstrap', 'factory_bootstrap_477', 'admin'],
+		['libs/factory/forms', 'factory_forms_475', 'admin'],
+		['libs/factory/pages', 'factory_pages_475', 'admin'],
+		['libs/factory/templates', 'factory_templates_128', 'all'],
+		['libs/factory/freemius', 'factory_freemius_165', 'all'],
+		['libs/factory/feedback', 'factory_feedback_128', 'admin']
 	],
 	'load_plugin_components' => []
 
 ];
 
-$wtitan_compatibility = new Wbcr_Factory466_Requirements(__FILE__, array_merge($wtitan_plugin_info, [
+$wtitan_compatibility = new Wbcr_Factory475_Requirements(__FILE__, array_merge($wtitan_plugin_info, [
 	'plugin_already_activate' => defined('WTITAN_PLUGIN_ACTIVE'),
-	'required_php_version' => '7.0',
-	'required_wp_version' => '5.4.0',
+	'required_php_version' => '8.0',
+	'required_wp_version' => '5.6.0',
 	'required_clearfy_check_component' => false
 ]));
 
@@ -146,7 +147,7 @@ define('WTITAN_PLUGIN_ACTIVE', true);
 define('WTITAN_PLUGIN_VERSION', $wtitan_compatibility->get_plugin_version());
 define('WTITAN_PLUGIN_DIR', dirname(__FILE__));
 define('WTITAN_PLUGIN_BASE', plugin_basename(__FILE__));
-define('WTITAN_PLUGIN_URL', plugins_url(null, __FILE__));
+define('WTITAN_PLUGIN_URL', plugins_url('', __FILE__));
 
 
 

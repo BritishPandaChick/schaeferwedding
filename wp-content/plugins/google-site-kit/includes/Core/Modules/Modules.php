@@ -12,20 +12,21 @@ namespace Google\Site_Kit\Core\Modules;
 
 use Google\Site_Kit\Context;
 use Google\Site_Kit\Core\Assets\Assets;
-use Google\Site_Kit\Core\Authentication\Clients\OAuth_Client;
 use Google\Site_Kit\Core\Permissions\Permissions;
 use Google\Site_Kit\Core\Storage\Options;
 use Google\Site_Kit\Core\Storage\User_Options;
 use Google\Site_Kit\Core\Authentication\Authentication;
+use Google\Site_Kit\Core\Util\Feature_Flags;
 use Google\Site_Kit\Core\Util\Method_Proxy_Trait;
+use Google\Site_Kit\Modules\Ads;
 use Google\Site_Kit\Modules\AdSense;
 use Google\Site_Kit\Modules\Analytics_4;
 use Google\Site_Kit\Modules\PageSpeed_Insights;
+use Google\Site_Kit\Modules\Reader_Revenue_Manager;
 use Google\Site_Kit\Modules\Search_Console;
+use Google\Site_Kit\Modules\Sign_In_With_Google;
 use Google\Site_Kit\Modules\Site_Verification;
 use Google\Site_Kit\Modules\Tag_Manager;
-use Google\Site_Kit\Modules\Ads;
-use Google\Site_Kit\Core\Util\Feature_Flags;
 use Exception;
 
 /**
@@ -146,6 +147,7 @@ final class Modules {
 	private $core_modules = array(
 		Site_Verification::MODULE_SLUG  => Site_Verification::class,
 		Search_Console::MODULE_SLUG     => Search_Console::class,
+		Ads::MODULE_SLUG                => Ads::class,
 		Analytics_4::MODULE_SLUG        => Analytics_4::class,
 		Tag_Manager::MODULE_SLUG        => Tag_Manager::class,
 		AdSense::MODULE_SLUG            => AdSense::class,
@@ -177,8 +179,12 @@ final class Modules {
 		$this->authentication   = $authentication ?: new Authentication( $this->context, $this->options, $this->user_options );
 		$this->assets           = $assets ?: new Assets( $this->context );
 
-		if ( Feature_Flags::enabled( 'adsModule' ) ) {
-			$this->core_modules[ Ads::MODULE_SLUG ] = Ads::class;
+		if ( Feature_Flags::enabled( 'rrmModule' ) ) {
+			$this->core_modules[ Reader_Revenue_Manager::MODULE_SLUG ] = Reader_Revenue_Manager::class;
+		}
+
+		if ( Feature_Flags::enabled( 'signInWithGoogleModule' ) ) {
+			$this->core_modules[ Sign_In_With_Google::MODULE_SLUG ] = Sign_In_With_Google::class;
 		}
 
 		$this->rest_controller              = new REST_Modules_Controller( $this );
@@ -193,11 +199,11 @@ final class Modules {
 	public function register() {
 		add_filter(
 			'googlesitekit_features_request_data',
-			function( $body ) {
+			function ( $body ) {
 				$active_modules    = $this->get_active_modules();
 				$connected_modules = array_filter(
 					$active_modules,
-					function( $module ) {
+					function ( $module ) {
 						return $module->is_connected();
 					}
 				);
@@ -211,7 +217,7 @@ final class Modules {
 		$available_modules = $this->get_available_modules();
 		array_walk(
 			$available_modules,
-			function( Module $module ) {
+			function ( Module $module ) {
 				if ( $module instanceof Module_With_Settings ) {
 					$module->get_settings()->register();
 				}
@@ -228,7 +234,7 @@ final class Modules {
 
 		add_filter(
 			'googlesitekit_assets',
-			function( $assets ) use ( $available_modules ) {
+			function ( $assets ) use ( $available_modules ) {
 				foreach ( $available_modules as $module ) {
 					if ( $module instanceof Module_With_Assets ) {
 						$assets = array_merge( $assets, $module->get_assets() );
@@ -241,7 +247,7 @@ final class Modules {
 		$active_modules = $this->get_active_modules();
 		array_walk(
 			$active_modules,
-			function( Module $module ) {
+			function ( Module $module ) {
 				$module->register();
 			}
 		);
@@ -292,11 +298,11 @@ final class Modules {
 		add_filter( 'default_option_' . Module_Sharing_Settings::OPTION, $this->get_method_proxy( 'populate_default_shared_ownership_module_settings' ), 20 );
 
 		$this->sharing_settings->on_change(
-			function( $old_values, $values ) {
+			function ( $old_values, $values ) {
 				if ( is_array( $values ) && is_array( $old_values ) ) {
 					array_walk(
 						$values,
-						function( $value, $module_slug ) use ( $old_values ) {
+						function ( $value, $module_slug ) use ( $old_values ) {
 							if ( ! $this->module_exists( $module_slug ) ) {
 								return;
 							}
@@ -320,7 +326,7 @@ final class Modules {
 								if ( is_array( $value ) ) {
 									array_walk(
 										$value,
-										function( $setting, $setting_key ) use ( $old_values, $module_slug, &$changed_settings ) {
+										function ( $setting, $setting_key ) use ( $old_values, $module_slug, &$changed_settings ) {
 											// Check if old value is an array and set, then compare both arrays.
 											if (
 												is_array( $setting ) &&
@@ -372,7 +378,7 @@ final class Modules {
 
 		$non_internal_active_modules = array_filter(
 			$all_active_modules,
-			function( Module $module ) {
+			function ( Module $module ) {
 				return false === $module->internal;
 			}
 		);
@@ -434,7 +440,7 @@ final class Modules {
 
 			uasort(
 				$this->modules,
-				function( Module $a, Module $b ) {
+				function ( Module $a, Module $b ) {
 					if ( $a->order === $b->order ) {
 						return 0;
 					}
@@ -446,7 +452,7 @@ final class Modules {
 			// being removed via the googlesitekit_available_modules filter.
 			$this->modules = array_filter(
 				$this->modules,
-				function( Module $module ) {
+				function ( Module $module ) {
 					foreach ( $module->depends_on as $dependency ) {
 						if ( ! isset( $this->modules[ $dependency ] ) ) {
 							return false;
@@ -485,7 +491,7 @@ final class Modules {
 
 		return array_filter(
 			$modules,
-			function( Module $module ) use ( $option ) {
+			function ( Module $module ) use ( $option ) {
 				// Force active OR manually active modules.
 				return $module->force_active || in_array( $module->slug, $option, true );
 			}
@@ -504,7 +510,7 @@ final class Modules {
 
 		return array_filter(
 			$modules,
-			function( Module $module ) {
+			function ( Module $module ) {
 				return $this->is_module_connected( $module->slug );
 			}
 		);
@@ -730,7 +736,7 @@ final class Modules {
 		$available_modules = $this->get_available_modules();
 		array_walk(
 			$available_modules,
-			function( Module $module ) {
+			function ( Module $module ) {
 				if ( $module instanceof Module_With_Assets ) {
 					$module->enqueue_assets();
 				}
@@ -830,7 +836,7 @@ final class Modules {
 
 		return array_filter(
 			$all_connected_modules,
-			function( Module $module ) {
+			function ( Module $module ) {
 				return $module->is_shareable();
 			}
 		);
@@ -908,7 +914,7 @@ final class Modules {
 	public function get_shared_ownership_modules() {
 		return array_filter(
 			$this->get_shareable_modules(),
-			function( $module ) {
+			function ( $module ) {
 				return ! ( $module instanceof Module_With_Service_Entity );
 			}
 		);

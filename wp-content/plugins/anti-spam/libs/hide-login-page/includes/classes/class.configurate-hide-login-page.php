@@ -13,6 +13,8 @@ if( !defined('ABSPATH') ) {
 
 class WHLP_ConfigHideLoginPage {
 
+    public $plugin;
+
 	/**
 	 * @var bool
 	 */
@@ -34,7 +36,7 @@ class WHLP_ConfigHideLoginPage {
 	private $login_path;
 
 	/**
-	 * @param Wbcr_Factory466_Plugin $plugin
+	 * @param Wbcr_Factory475_Plugin $plugin
 	 */
 	public function __construct($plugin)
 	{
@@ -72,7 +74,7 @@ class WHLP_ConfigHideLoginPage {
 	 */
 	private function isAdminWhenThisIsBlocked()
 	{
-		return $this->disable_wp_admin && $this->disable_wp_login && $this->login_path && \WBCR\Factory_Templates_116\Helpers::strContains(rawurldecode($_SERVER['REQUEST_URI']), '/wp-admin/');
+		return $this->disable_wp_admin && $this->disable_wp_login && $this->login_path && \WBCR\Factory_Templates_128\Helpers::strContains(rawurldecode($_SERVER['REQUEST_URI']), '/wp-admin/');
 	}
 
 	public function init()
@@ -155,17 +157,17 @@ class WHLP_ConfigHideLoginPage {
 
 		$request = parse_url($_SERVER['REQUEST_URI']);
 
-		if( $pagenow === 'wp-login.php' && $request['path'] !== \WBCR\Factory_Templates_116\Helpers::userTrailingslashit($request['path']) && get_option('permalink_structure') ) {
+		if( $pagenow === 'wp-login.php' && $request['path'] !== \WBCR\Factory_Templates_128\Helpers::userTrailingslashit($request['path']) && get_option('permalink_structure') ) {
 			$query_string = !empty($_SERVER['QUERY_STRING']) ? '?' . sanitize_text_field($_SERVER['QUERY_STRING']) : '';
 
-			wp_safe_redirect(\WBCR\Factory_Templates_116\Helpers::userTrailingslashit($this->login_path) . $query_string);
+			wp_safe_redirect(\WBCR\Factory_Templates_128\Helpers::userTrailingslashit($this->login_path) . $query_string);
 			die();
 		} elseif( $this->wp_login_php ) {
 			$new_login_redirect = false;
 			$referer = wp_get_referer();
 			$parse_referer = parse_url($referer);
 
-			if( $referer && \WBCR\Factory_Templates_116\Helpers::strContains($referer, 'wp-activate.php') && $parse_referer && !empty($parse_referer['query']) ) {
+			if( $referer && \WBCR\Factory_Templates_128\Helpers::strContains($referer, 'wp-activate.php') && $parse_referer && !empty($parse_referer['query']) ) {
 
 				parse_str($parse_referer['query'], $parse_referer);
 
@@ -177,7 +179,7 @@ class WHLP_ConfigHideLoginPage {
 			if( !$this->disable_wp_login || $new_login_redirect ) {
 				$query_string = !empty($_SERVER['QUERY_STRING']) ? '?' . sanitize_text_field($_SERVER['QUERY_STRING']) : '';
 
-				if( \WBCR\Factory_Templates_116\Helpers::isPermalink() ) {
+				if( \WBCR\Factory_Templates_128\Helpers::isPermalink() ) {
 					$redirect_uri = $this->login_path . $query_string;
 				} else {
 					$redirect_uri = home_url() . '/' . add_query_arg(array(
@@ -185,7 +187,7 @@ class WHLP_ConfigHideLoginPage {
 						), $query_string);
 				}
 
-				if( \WBCR\Factory_Templates_116\Helpers::strContains($_SERVER['REQUEST_URI'], 'wp-signup') ) {
+				if( \WBCR\Factory_Templates_128\Helpers::strContains($_SERVER['REQUEST_URI'], 'wp-signup') ) {
 					$redirect_uri = add_query_arg(array(
 						'action' => 'register'
 					), $redirect_uri);
@@ -206,6 +208,8 @@ class WHLP_ConfigHideLoginPage {
 				define('DONOTCACHEPAGE', true);
 			}
 
+            $user_login = '';
+            $error = '';
 			@require_once ABSPATH . 'wp-login.php';
 
 			die();
@@ -223,7 +227,7 @@ class WHLP_ConfigHideLoginPage {
 			nocache_headers();
 			die();
 		} else {
-			\WBCR\Factory_Templates_116\Helpers::setError404();
+			\WBCR\Factory_Templates_128\Helpers::setError404();
 		}
 	}
 
@@ -239,33 +243,38 @@ class WHLP_ConfigHideLoginPage {
 
 	public function filterWpLoginPhp($url, $scheme = null)
 	{
-		if( strpos($url, 'wp-login.php') !== false ) {
-			if( is_ssl() ) {
-				$scheme = 'https';
-			}
+        global $pagenow;
 
-			$args = explode('?', $url);
+        // todo: Needs a better solution (Hotfix)
+        if((function_exists('is_user_logged_in') && is_user_logged_in()) || 'wp-login.php' === $pagenow) {
+            if (strpos($url, 'wp-login.php') !== false) {
+                if (is_ssl()) {
+                    $scheme = 'https';
+                }
 
-			if( isset($args[1]) ) {
-				parse_str($args[1], $args);
-				$url = add_query_arg($args, $this->newLoginUrl($scheme));
-			} else {
-				$url = $this->newLoginUrl($scheme);
-			}
-		}
+                $args = explode('?', $url);
+
+                if (isset($args[1])) {
+                    parse_str($args[1], $args);
+                    $url = add_query_arg($args, $this->newLoginUrl($scheme));
+                } else {
+                    $url = $this->newLoginUrl($scheme);
+                }
+            }
+        }
 
 		return $url;
 	}
 
 	public function welcomeEmail($value)
 	{
-		return $value = str_replace('wp-login.php', \WBCR\Factory_Templates_116\Helpers::userTrailingslashit($this->login_path), $value);
+		return $value = str_replace('wp-login.php', \WBCR\Factory_Templates_128\Helpers::userTrailingslashit($this->login_path), $value);
 	}
 
 	public function newLoginUrl($scheme = null)
 	{
-		if( \WBCR\Factory_Templates_116\Helpers::isPermalink() ) {
-			return \WBCR\Factory_Templates_116\Helpers::userTrailingslashit(home_url('/', $scheme) . $this->login_path);
+		if( \WBCR\Factory_Templates_128\Helpers::isPermalink() ) {
+			return \WBCR\Factory_Templates_128\Helpers::userTrailingslashit(home_url('/', $scheme) . $this->login_path);
 		} else {
 			return home_url('/', $scheme) . '?' . $this->login_path;
 		}

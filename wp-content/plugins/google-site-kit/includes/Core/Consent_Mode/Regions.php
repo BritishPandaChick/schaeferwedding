@@ -10,6 +10,8 @@
 
 namespace Google\Site_Kit\Core\Consent_Mode;
 
+use Google\Site_Kit\Core\Util\Feature_Flags;
+
 /**
  * Class containing Consent Mode Regions.
  *
@@ -27,6 +29,7 @@ class Regions {
 		'AT',
 		'BE',
 		'BG',
+		'CH',
 		'CY',
 		'CZ',
 		'DE',
@@ -56,4 +59,15 @@ class Regions {
 		'SI',
 		'SK',
 	);
+
+	/**
+	 * Returns the list of regions that Google's EU user consent policy applies to.
+	 *
+	 * @since 1.128.0
+	 *
+	 * @return array<string> List of regions.
+	 */
+	public static function get_regions() {
+		return self::EU_USER_CONSENT_POLICY;
+	}
 }

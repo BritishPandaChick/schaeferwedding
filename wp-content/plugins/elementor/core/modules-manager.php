@@ -111,10 +111,19 @@ class Modules_Manager {
 			'image-loading-optimization',
 			'kit-elements-defaults',
 			'announcements',
+			'editor-app-bar',
 			'site-navigation',
 			'styleguide',
+			'element-cache',
 			'apps',
+			'home',
+			'link-in-bio',
+			'floating-buttons',
+			'content-sanitizer',
 			'editor-events',
+			'atomic-widgets',
+			'wc-product-editor',
+			'checklist',
 		];
 	}
 
