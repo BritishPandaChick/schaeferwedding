@@ -225,10 +225,11 @@ class ConvertKit_Block_Form extends ConvertKit_Block {
 
 		return array(
 			'form' => array(
-				'label'  => __( 'Form', 'convertkit' ),
-				'type'   => 'select',
-				'values' => $forms,
-				'data'   => array(
+				'label'    => __( 'Form', 'convertkit' ),
+				'type'     => 'resource',
+				'resource' => 'forms',
+				'values'   => $forms,
+				'data'     => array(
 					// Used by resources/backend/js/gutenberg-block-form.js to determine the selected form's format
 					// (modal, slide in, sticky bar) and output a message in the block editor for the preview to explain
 					// why some formats cannot be previewed.
@@ -289,6 +290,13 @@ class ConvertKit_Block_Form extends ConvertKit_Block {
 	 * @return  string          Output
 	 */
 	public function render( $atts ) {
+
+		// Check if the Block Visibility Plugin permits displaying this block.
+		if ( ! $this->is_block_visible( $atts ) ) {
+			// Block should not be displayed due to Block Visibility Plugin conditions.
+			// Return a blank string now.
+			return '';
+		}
 
 		// Parse shortcode attributes, defining fallback defaults if required.
 		$atts = shortcode_atts(

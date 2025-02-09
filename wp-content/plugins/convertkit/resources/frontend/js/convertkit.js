@@ -18,72 +18,6 @@
  *
  * @since   1.9.6
  *
- * @param   int  id   Subscriber ID
- */
-function convertStoreSubscriberIDInCookie( subscriber_id ) {
-
-	if ( convertkit.debug ) {
-		console.log( 'convertStoreSubscriberIDInCookie' );
-		console.log( subscriber_id );
-	}
-
-	fetch(
-		convertkit.ajaxurl,
-		{
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-			body: new URLSearchParams(
-				{
-					action: 'convertkit_store_subscriber_id_in_cookie',
-					convertkit_nonce: convertkit.nonce,
-					subscriber_id: subscriber_id
-				}
-			)
-		}
-	)
-	.then(
-		function ( response ) {
-			if ( convertkit.debug ) {
-				console.log( response );
-			}
-
-			return response.json();
-		}
-	)
-	.then(
-		function ( result ) {
-			if ( convertkit.debug ) {
-				console.log( result );
-			}
-
-			convertKitRemoveSubscriberIDFromURL( window.location.href );
-		}
-	)
-	.catch(
-		function ( error ) {
-			if ( convertkit.debug ) {
-				console.error( error );
-			}
-
-			convertKitRemoveSubscriberIDFromURL( window.location.href );
-		}
-	);
-
-}
-
-/**
- * Gets the subscriber ID for the given email address, storing
- * it in the `ck_subscriber_id` cookie if it exists.
- *
- * Typically called when the user completes a ConvertKit Form
- * that has either "Auto-confirm new subscribers" or
- * "Send subscriber to thank you page" enabled (both scenarios
- * include a ck_subscriber_id).
- *
- * @since   1.9.6
- *
  * @param   string  emailAddress   Email Address
  */
 function convertStoreSubscriberEmailAsIDInCookie( emailAddress ) {
@@ -114,6 +48,8 @@ function convertStoreSubscriberEmailAsIDInCookie( emailAddress ) {
 			if ( convertkit.debug ) {
 				console.log( response );
 			}
+
+			return response.json();
 		}
 	)
 	.then(
@@ -121,6 +57,15 @@ function convertStoreSubscriberEmailAsIDInCookie( emailAddress ) {
 			if ( convertkit.debug ) {
 				console.log( result );
 			}
+
+			// Emit custom event with subscriber ID.
+			convertKitEmitCustomEvent(
+				'convertkit_user_subscribed',
+				{
+					id: result.data.id,
+					email: emailAddress
+				}
+			);
 		}
 	)
 	.catch(
@@ -145,8 +90,17 @@ function convertStoreSubscriberEmailAsIDInCookie( emailAddress ) {
  */
 function convertKitRemoveSubscriberIDFromURL( url ) {
 
-	// Remove ck_subscriber_id, retaining other params.
-	const url_object = new URL( url );
+	// Parse URL.
+	const url_object       = new URL( url );
+	const ck_subscriber_id = url_object.searchParams.get( 'ck_subscriber_id' );
+
+	// If ck_subscriber_id is null, it's not included in the URL.
+	// Don't modify the URL.
+	if ( ck_subscriber_id === null ) {
+		return;
+	}
+
+	// Remove ck_subscriber_id from URL params.
 	url_object.searchParams.delete( 'ck_subscriber_id' );
 
 	// Get title and string of parameters.
@@ -159,7 +113,7 @@ function convertKitRemoveSubscriberIDFromURL( url ) {
 	}
 
 	// Update history.
-	window.history.pushState( null, title, url_object.pathname + params );
+	window.history.replaceState( null, title, url_object.pathname + params + url_object.hash );
 
 }
 
@@ -182,17 +136,32 @@ function convertKitSleep( milliseconds ) {
 }
 
 /**
+ * Emit a custom event with optional detail data.
+ *
+ * This function creates and dispatches a custom event with the specified
+ * event name and detail data.
+ *
+ * @since 2.5.0
+ *
+ * @param {string} eventName	The name of the custom event to emit.
+ * @param {Object} [detail={}] 	Optional detail data to include with the event.
+ */
+function convertKitEmitCustomEvent( eventName, detail ) {
+
+	const event = new CustomEvent( eventName, { detail } );
+	document.dispatchEvent( event );
+
+}
+
+/**
  * Register events
  */
 document.addEventListener(
 	'DOMContentLoaded',
 	function () {
 
-		if ( convertkit.subscriber_id > 0 ) {
-			// If the user can be detected as a ConvertKit Subscriber (i.e. their Subscriber ID is in a cookie or the URL),
-			// update the cookie now.
-			convertStoreSubscriberIDInCookie( convertkit.subscriber_id );
-		}
+		// Removes `ck_subscriber_id` from the URI.
+		convertKitRemoveSubscriberIDFromURL( window.location.href );
 
 		// Store subscriber ID as a cookie from the email address used when a ConvertKit Form is submitted.
 		document.addEventListener(

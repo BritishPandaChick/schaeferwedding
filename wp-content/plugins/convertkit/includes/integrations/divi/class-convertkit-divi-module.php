@@ -70,7 +70,7 @@ class ConvertKit_Divi_Module extends ET_Builder_Module {
 		$blocks = convertkit_get_blocks();
 
 		// Bail if no blocks are available.
-		if ( ! is_array( $blocks ) || ! count( $blocks ) ) {
+		if ( ! count( $blocks ) ) {
 			return;
 		}
 
@@ -138,11 +138,13 @@ class ConvertKit_Divi_Module extends ET_Builder_Module {
 				/**
 				 * Select
 				 */
+				case 'resource':
 				case 'select':
 					// For select dropdowns, Divi treats the first <option> as the default. If it's selected,
 					// Divi won't pass the underlying value, resulting in no output.
 					// Forcing a 'None' option as the first ensures the user must select an <option>, therefore
 					// ensuring output is correct.
+					$fields[ $field_name ]['type']    = 'select';
 					$fields[ $field_name ]['options'] = array( 0 => __( '(None)', 'convertkit' ) ) + $field['values'];
 					break;
 

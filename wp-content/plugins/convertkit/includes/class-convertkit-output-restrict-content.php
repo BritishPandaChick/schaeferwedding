@@ -207,6 +207,97 @@ class ConvertKit_Output_Restrict_Content {
 				break;
 
 			case 'tag':
+				// If require login is enabled, show the login screen.
+				if ( $this->restrict_content_settings->require_tag_login() ) {
+					// Tag the subscriber.
+					$result = $this->api->tag_subscribe( $this->resource_id, $email );
+
+					// Bail if an error occured.
+					if ( is_wp_error( $result ) ) {
+						$this->error = $result;
+						return;
+					}
+
+					// Send email to subscriber with a link to authenticate they have access to the email address submitted.
+					$result = $this->api->subscriber_authentication_send_code(
+						$email,
+						$this->get_url()
+					);
+
+					// Bail if an error occured.
+					if ( is_wp_error( $result ) ) {
+						$this->error = $result;
+						return;
+					}
+
+					// Clear any existing subscriber ID cookie, as the authentication flow has started by sending the email.
+					$subscriber = new ConvertKit_Subscriber();
+					$subscriber->forget();
+
+					// Store the token so it's included in the subscriber code form.
+					$this->token = $result;
+					break;
+				}
+
+				// If here, require login is disabled.
+				// Check reCAPTCHA, tag subscriber and assign subscriber ID integer to cookie
+				// without email link.
+
+				// If Google reCAPTCHA is enabled, check if the submission is spam.
+				if ( $this->restrict_content_settings->has_recaptcha_site_and_secret_keys() ) {
+					$response = wp_remote_post(
+						'https://www.google.com/recaptcha/api/siteverify',
+						array(
+							'body' => array(
+								'secret'   => $this->restrict_content_settings->get_recaptcha_secret_key(),
+								'response' => $_POST['g-recaptcha-response'],
+								'remoteip' => $_SERVER['REMOTE_ADDR'],
+							),
+						)
+					);
+
+					// Bail if an error occured.
+					if ( is_wp_error( $response ) ) {
+						$this->error = $response;
+						return;
+					}
+
+					// Inspect response.
+					$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+					// If the request wasn't successful, throw an error.
+					if ( ! $body['success'] ) {
+						$this->error = new WP_Error(
+							'convertkit_output_restrict_content_maybe_run_subscriber_authentication_error',
+							sprintf(
+								/* translators: Error codes */
+								__( 'Google reCAPTCHA failure: %s', 'convertkit' ),
+								implode( ', ', $body['error-codes'] )
+							)
+						);
+						return;
+					}
+
+					// If the action doesn't match the Plugin action, this might not be a reCAPTCHA request
+					// for this Plugin.
+					if ( $body['action'] !== 'convertkit_restrict_content_tag' ) {
+						// Just silently return.
+						return;
+					}
+
+					// If the score is less than 0.5 (on a scale of 0.0 to 1.0, with 0.0 being a bot, 1.0 being very good),
+					// it's likely a spam submission.
+					if ( $body['score'] < $this->restrict_content_settings->get_recaptcha_minimum_score() ) {
+						$this->error = new WP_Error(
+							'convertkit_output_restrict_content_maybe_run_subscriber_authentication_error',
+							__( 'Google reCAPTCHA failed', 'convertkit' )
+						);
+						return;
+					}
+
+					// If here, the submission looks genuine. Continue the request.
+				}
+
 				// Tag the subscriber.
 				$result = $this->api->tag_subscribe( $this->resource_id, $email );
 
@@ -774,54 +865,126 @@ class ConvertKit_Output_Restrict_Content {
 		// for restrict by tag and form later.
 		switch ( $this->resource_type ) {
 			case 'product':
-				// Get products that the subscriber has access to.
-				$result = $this->api->profile( $subscriber_id );
-
-				// If an error occured, the subscriber ID is invalid.
-				if ( is_wp_error( $result ) ) {
-					return false;
-				}
-
-				// If no products exist, there's no access.
-				if ( ! $result['products'] || ! count( $result['products'] ) ) {
-					return false;
-				}
-
-				// Return if the subscriber is not subscribed to the product.
-				if ( ! in_array( absint( $this->resource_id ), $result['products'], true ) ) {
-					return false;
-				}
-
-				// If here, the subscriber is subscribed to the product.
-				return true;
+				// For products, the subscriber ID has to be a signed subscriber ID string.
+				return $this->subscriber_has_access_to_product_by_signed_subscriber_id( $subscriber_id, absint( $this->resource_id ) );
 
 			case 'tag':
-				// Get tags that the subscriber has been assigned.
-				$tags = $this->api->get_subscriber_tags( $subscriber_id );
-
-				// If an error occured, the subscriber ID is invalid.
-				if ( is_wp_error( $tags ) ) {
-					return false;
-				}
-
-				// If no tags exist, there's no access.
-				if ( ! count( $tags['tags'] ) ) {
-					return false;
-				}
-
-				// Iterate through the subscriber's tags to see if they have the required tag.
-				foreach ( $tags['tags'] as $tag ) {
-					if ( $tag['id'] === absint( $this->resource_id ) ) {
-						// Subscriber has the required tag assigned to them - grant access.
-						return true;
+				// If the subscriber ID is numeric, check using get_subscriber_tags().
+				if ( is_numeric( $subscriber_id ) ) {
+					// If require login is enabled, only a signed subscriber ID is accepted, as this is generated
+					// via the subscriber verify email flow.
+					if ( $this->restrict_content_settings->require_tag_login() ) {
+						return false;
 					}
+
+					return $this->subscriber_has_access_to_tag_by_subscriber_id( $subscriber_id, absint( $this->resource_id ) );
 				}
 
-				// If here, the subscriber does not have the tag.
-				return false;
+				// The subscriber ID is a signed subscriber ID string.
+				// Check using profile().
+				return $this->subscriber_has_access_to_tag_by_signed_subscriber_id( $subscriber_id, absint( $this->resource_id ) );
+
 		}
 
 		// If here, the subscriber does not have access.
+		return false;
+
+	}
+
+	/**
+	 * Determines if the given signed subscriber ID has an active subscription to
+	 * the given product.
+	 *
+	 * @since   2.7.1
+	 *
+	 * @param   string $signed_subscriber_id   Signed Subscriber ID.
+	 * @param   int    $product_id             Product ID.
+	 * @return  bool                            Has access to product
+	 */
+	private function subscriber_has_access_to_product_by_signed_subscriber_id( $signed_subscriber_id, $product_id ) {
+
+		// Get products that the subscriber has access to.
+		$result = $this->api->profile( $signed_subscriber_id );
+
+		// If an error occured, the subscriber ID is invalid.
+		if ( is_wp_error( $result ) ) {
+			return false;
+		}
+
+		// If no products exist, there's no access.
+		if ( ! $result['products'] || ! count( $result['products'] ) ) {
+			return false;
+		}
+
+		// Return if the subscriber is subscribed to the product or not.
+		return in_array( $product_id, $result['products'], true );
+
+	}
+
+	/**
+	 * Determines if the given signed subscriber ID has an active subscription to
+	 * the given tag.
+	 *
+	 * @since   2.7.1
+	 *
+	 * @param   string $signed_subscriber_id   Signed Subscriber ID.
+	 * @param   int    $tag_id                 Tag ID.
+	 * @return  bool                            Has access to tag
+	 */
+	private function subscriber_has_access_to_tag_by_signed_subscriber_id( $signed_subscriber_id, $tag_id ) {
+
+		// Get products that the subscriber has access to.
+		$result = $this->api->profile( $signed_subscriber_id );
+
+		// If an error occured, the subscriber ID is invalid.
+		if ( is_wp_error( $result ) ) {
+			return false;
+		}
+
+		// If no tags exist, there's no access.
+		if ( ! $result['tags'] || ! count( $result['tags'] ) ) {
+			return false;
+		}
+
+		// Return if the subscriber is subscribed to the tag or not.
+		return in_array( $tag_id, $result['tags'], true );
+
+	}
+
+	/**
+	 * Determines if the given signed subscriber ID has an active subscription to
+	 * the given tag.
+	 *
+	 * @since   2.7.1
+	 *
+	 * @param   int $subscriber_id  Subscriber ID.
+	 * @param   int $tag_id         Tag ID.
+	 * @return  bool                Has access to tag
+	 */
+	private function subscriber_has_access_to_tag_by_subscriber_id( $subscriber_id, $tag_id ) {
+
+		// Get tags that the subscriber has been assigned.
+		$tags = $this->api->get_subscriber_tags( $subscriber_id );
+
+		// If an error occured, the subscriber ID is invalid.
+		if ( is_wp_error( $tags ) ) {
+			return false;
+		}
+
+		// If no tags exist, there's no access.
+		if ( ! count( $tags['tags'] ) ) {
+			return false;
+		}
+
+		// Iterate through the subscriber's tags to see if they have the required tag.
+		foreach ( $tags['tags'] as $tag ) {
+			if ( $tag['id'] === $tag_id ) {
+				// Subscriber has the required tag assigned to them - grant access.
+				return true;
+			}
+		}
+
+		// If here, the subscriber does not have the tag.
 		return false;
 
 	}
@@ -1008,17 +1171,21 @@ class ConvertKit_Output_Restrict_Content {
 
 		}
 
+		// Output code form if this request is after the user entered their email address,
+		// which means we're going through the authentication flow.
+		if ( $this->in_authentication_flow() ) { // phpcs:ignore WordPress.Security.NonceVerification
+			ob_start();
+			include CONVERTKIT_PLUGIN_PATH . '/views/frontend/restrict-content/code.php';
+			return trim( ob_get_clean() );
+		}
+
 		// This is deliberately a switch statement, because we will likely add in support
 		// for restrict by tag and form later.
 		switch ( $this->resource_type ) {
 			case 'product':
-				// Output product code form if this request is after the user entered their email address,
-				// which means we're going through the authentication flow.
-				if ( $this->in_authentication_flow() ) { // phpcs:ignore WordPress.Security.NonceVerification
-					ob_start();
-					include CONVERTKIT_PLUGIN_PATH . '/views/frontend/restrict-content/product-code.php';
-					return trim( ob_get_clean() );
-				}
+				// Get header and text from settings for Products.
+				$heading = $this->restrict_content_settings->get_by_key( 'subscribe_heading' );
+				$text    = $this->restrict_content_settings->get_by_key( 'subscribe_text' );
 
 				// Output product restricted message and email form.
 				// Get Product.
@@ -1038,7 +1205,7 @@ class ConvertKit_Output_Restrict_Content {
 						'wp_footer',
 						function () {
 
-							include_once CONVERTKIT_PLUGIN_PATH . '/views/frontend/restrict-content/product-modal.php';
+							include_once CONVERTKIT_PLUGIN_PATH . '/views/frontend/restrict-content/login-modal.php';
 
 						}
 					);
@@ -1051,6 +1218,39 @@ class ConvertKit_Output_Restrict_Content {
 				return trim( ob_get_clean() );
 
 			case 'tag':
+				// Get header and text from settings for Tags.
+				$heading = $this->restrict_content_settings->get_by_key( 'subscribe_heading_tag' );
+				$text    = $this->restrict_content_settings->get_by_key( 'subscribe_text_tag' );
+
+				// If require login is enabled and scripts are enabled, output the email login form in a modal, which will be displayed
+				// when the 'log in' link is clicked.
+				if ( $this->restrict_content_settings->require_tag_login() && ! $this->settings->scripts_disabled() ) {
+					add_action(
+						'wp_footer',
+						function () {
+
+							include_once CONVERTKIT_PLUGIN_PATH . '/views/frontend/restrict-content/login-modal.php';
+
+						}
+					);
+				}
+
+				// Enqueue Google reCAPTCHA JS if site and secret keys specified.
+				if ( $this->restrict_content_settings->has_recaptcha_site_and_secret_keys() ) {
+					add_filter(
+						'convertkit_output_scripts_footer',
+						function ( $scripts ) {
+
+							$scripts[] = array(
+								'src' => 'https://www.google.com/recaptcha/api.js?',
+							);
+
+							return $scripts;
+
+						}
+					);
+				}
+
 				// Output.
 				ob_start();
 				include CONVERTKIT_PLUGIN_PATH . '/views/frontend/restrict-content/tag.php';

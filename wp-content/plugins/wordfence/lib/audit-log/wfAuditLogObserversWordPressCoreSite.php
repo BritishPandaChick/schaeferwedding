@@ -138,6 +138,19 @@ abstract class wfAuditLogObserversWordPressCoreSite extends wfAuditLog {
 		);
 	}
 	
+	public static function eventRateLimiters() {
+		return array(
+			self::SITE_PERMISSIONS_ROLE_CAPABILITIES => function($auditLog, $payload) {
+				$hash = self::_normalizedPayloadHash($payload);
+				if (self::_rateLimiterCheck(self::SITE_PERMISSIONS_ROLE_CAPABILITIES, $hash)) {
+					self::_rateLimiterConsume(self::SITE_PERMISSIONS_ROLE_CAPABILITIES, $hash);
+					return true;
+				}
+				return false;
+			},
+		);
+	}
+	
 	/**
 	 * Registers the observers for this class's chunk of functionality.
 	 * 
@@ -150,6 +163,7 @@ abstract class wfAuditLogObserversWordPressCoreSite extends wfAuditLog {
 		
 		if ($auditLog->mode() == self::AUDIT_LOG_MODE_ALL) {
 			$auditLog->_addObserver('wp_mail_succeeded', function($args) use ($auditLog) { //Mail sent
+				if (isset($args['to']) && !is_array($args['to'])) { $args['to'] = array($args['to']); } //$args['to'] is supposed to be an array per the docs, but some plugins call it incorrectly
 				$payload = array(
 					'to_count' => isset($args['to']) ? count($args['to']) : 0,
 					'subject' => isset($args['subject']) ? $args['subject'] : null,
@@ -160,6 +174,7 @@ abstract class wfAuditLogObserversWordPressCoreSite extends wfAuditLog {
 			
 			$auditLog->_addObserver('wp_mail_failed', function($error /** @var WP_Error $error */) use ($auditLog) { //Mail failed sending
 				$args = $error->get_error_data();
+				if (isset($args['to']) && !is_array($args['to'])) { $args['to'] = array($args['to']); } //$args['to'] is supposed to be an array per the docs, but some plugins call it incorrectly
 				$payload = array(
 					'to_count' => isset($args['to']) ? count($args['to']) : 0,
 					'subject' => isset($args['subject']) ? $args['subject'] : null,
@@ -459,16 +474,22 @@ abstract class wfAuditLogObserversWordPressCoreSite extends wfAuditLog {
 				foreach ($old as $blog_id => $o) {
 					$new = $auditLog->_getState('update_option_wp_user_roles.new', $blog_id);
 					$diff = wfUtils::array_diff($o, $new);
-					$payload[] = array('capabilities' => $new, 'diff' => $diff, 'multisite_blog_id' => $blog_id);
+					if (!empty($diff['added']) || !empty($diff['removed'])) {
+						$payload[] = array('capabilities' => $new, 'diff' => $diff, 'multisite_blog_id' => $blog_id);
+					}
 				}
-				$auditLog->_recordAction(self::SITE_PERMISSIONS_ROLE_CAPABILITIES, array('changes' => $payload));
+				if (count($payload)) {
+					$auditLog->_recordAction(self::SITE_PERMISSIONS_ROLE_CAPABILITIES, array('changes' => $payload));
+				}
 			}
 			else {
 				$blog_id = wfUtils::array_key_first($old);
 				$old = $old[$blog_id];
 				$new = $auditLog->_getState('update_option_wp_user_roles.new', $blog_id);
 				$diff = wfUtils::array_diff($old, $new);
-				$auditLog->_recordAction(self::SITE_PERMISSIONS_ROLE_CAPABILITIES, array('capabilities' => $new, 'diff' => $diff));
+				if (!empty($diff['added']) || !empty($diff['removed'])) {
+					$auditLog->_recordAction(self::SITE_PERMISSIONS_ROLE_CAPABILITIES, array('capabilities' => $new, 'diff' => $diff));
+				}
 			}
 		});
 		
@@ -483,16 +504,22 @@ abstract class wfAuditLogObserversWordPressCoreSite extends wfAuditLog {
 				foreach ($old as $blog_id => $o) {
 					$new = $auditLog->_getState('update_option_active_plugins.new', $blog_id);
 					$diff = wfUtils::array_diff($o, $new);
-					$payload[] = array('plugins' => $new, 'diff' => $diff, 'multisite_blog_id' => $blog_id);
+					if (!empty($diff['added']) || !empty($diff['removed'])) {
+						$payload[] = array('plugins' => $new, 'diff' => $diff, 'multisite_blog_id' => $blog_id);
+					}
 				}
-				$auditLog->_recordAction(self::SITE_OPTION_ACTIVE_PLUGINS, array('changes' => $payload));
+				if (count($payload)) {
+					$auditLog->_recordAction(self::SITE_OPTION_ACTIVE_PLUGINS, array('changes' => $payload));
+				}
 			}
 			else {
 				$blog_id = wfUtils::array_key_first($old);
 				$old = $old[$blog_id];
 				$new = $auditLog->_getState('update_option_active_plugins.new', $blog_id);
 				$diff = wfUtils::array_diff($old, $new);
-				$auditLog->_recordAction(self::SITE_OPTION_ACTIVE_PLUGINS, array('plugins' => $new, 'diff' => $diff));
+				if (!empty($diff['added']) || !empty($diff['removed'])) {
+					$auditLog->_recordAction(self::SITE_OPTION_ACTIVE_PLUGINS, array('plugins' => $new, 'diff' => $diff));
+				}
 			}
 		});
 	}

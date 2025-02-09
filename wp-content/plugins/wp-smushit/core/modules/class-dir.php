@@ -672,7 +672,14 @@ class Dir extends Abstract_Module {
 				$i++;
 			}
 
-			return implode( '/', $common_path );
+			$is_valid_path = count( $common_path ) > 1 || ! empty( $common_path[0] );
+			if ( $is_valid_path ) {
+				return implode( '/', $common_path );
+			}
+
+			// If couldn't detect the root folder, it seems there is custom directory structure, e.g Flywheel.
+			// Let's try to use parent folder of WP_CONTENT_DIR.
+			return dirname( wp_normalize_path( WP_CONTENT_DIR ) );
 		}
 
 		$up = wp_upload_dir();

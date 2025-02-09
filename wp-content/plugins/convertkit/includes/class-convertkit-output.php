@@ -326,9 +326,24 @@ class ConvertKit_Output {
 			}
 		}
 
+		// If the Form HTML is empty, it's a modal form that has been set to load in the footer of the site.
+		// We don't need to append anything to the content.
+		if ( empty( $form ) ) {
+			if ( $this->settings->debug_enabled() ) {
+				$content .= '<!-- Kit append_form_to_content(): Form is non-inline, appended to footer. -->';
+			}
+
+			return $content;
+		}
+
 		// If here, we have a ConvertKit Form.
 		// Append form to Post's Content, based on the position setting.
 		$form_position = $this->settings->get_default_form_position( get_post_type( $post_id ) );
+
+		if ( $this->settings->debug_enabled() ) {
+			$content .= '<!-- Kit append_form_to_content(): Form Position: ' . esc_html( $form_position ) . ' -->';
+		}
+
 		switch ( $form_position ) {
 			case 'before_after_content':
 				$content = $form . $content . $form;
@@ -391,10 +406,27 @@ class ConvertKit_Output {
 	 */
 	private function inject_form_after_element( $content, $tag, $index, $form ) {
 
+		// If the form is empty, don't inject anything.
+		if ( empty( $form ) ) {
+			return $content;
+		}
+
+		// Define the meta tag.
+		$meta_tag = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+
+		// Wrap content in <html>, <head> and <body> tags now, so we can inject the UTF-8 Content-Type meta tag.
+		$modified_content = '<html><head></head><body>' . $content . '</body></html>';
+
+		// Forcibly tell DOMDocument that this HTML uses the UTF-8 charset.
+		// <meta charset="utf-8"> isn't enough, as DOMDocument still interprets the HTML as ISO-8859, which breaks character encoding
+		// Use of mb_convert_encoding() with HTML-ENTITIES is deprecated in PHP 8.2, so we have to use this method.
+		// If we don't, special characters render incorrectly.
+		$modified_content = str_replace( '<head>', '<head>' . "\n" . $meta_tag, $modified_content );
+
 		// Load Page / Post content into DOMDocument.
 		libxml_use_internal_errors( true );
 		$html = new DOMDocument();
-		$html->loadHTML( $content, LIBXML_HTML_NODEFDTD );
+		$html->loadHTML( $modified_content, LIBXML_HTML_NODEFDTD );
 
 		// Find the element to append the form to.
 		// item() is a zero based index.
@@ -402,7 +434,7 @@ class ConvertKit_Output {
 
 		// If the element could not be found, either the number of elements by tag name is less
 		// than the requested position the form be inserted in, or no element exists.
-		// Append the form to the content and return.
+		// Append the form to the original content and return.
 		if ( is_null( $element_node ) ) {
 			return $content . $form;
 		}
@@ -415,19 +447,20 @@ class ConvertKit_Output {
 		$element_node->parentNode->insertBefore( $html->importNode( $form_node->documentElement, true ), $element_node->nextSibling ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		// Fetch HTML string.
-		$content = $html->saveHTML();
+		$modified_content = $html->saveHTML();
 
 		// Remove some HTML tags that DOMDocument adds, returning the output.
 		// We do this instead of using LIBXML_HTML_NOIMPLIED in loadHTML(), because Legacy Forms are not always contained in
 		// a single root / outer element, which is required for LIBXML_HTML_NOIMPLIED to correctly work.
-		$content = str_replace( '<html>', '', $content );
-		$content = str_replace( '</html>', '', $content );
-		$content = str_replace( '<head>', '', $content );
-		$content = str_replace( '</head>', '', $content );
-		$content = str_replace( '<body>', '', $content );
-		$content = str_replace( '</body>', '', $content );
+		$modified_content = str_replace( '<html>', '', $modified_content );
+		$modified_content = str_replace( '</html>', '', $modified_content );
+		$modified_content = str_replace( '<head>', '', $modified_content );
+		$modified_content = str_replace( '</head>', '', $modified_content );
+		$modified_content = str_replace( '<body>', '', $modified_content );
+		$modified_content = str_replace( '</body>', '', $modified_content );
+		$modified_content = str_replace( $meta_tag, '', $modified_content );
 
-		return $content;
+		return $modified_content;
 
 	}
 
@@ -445,6 +478,11 @@ class ConvertKit_Output {
 	 * @return  string
 	 */
 	private function inject_form_after_element_fallback( $content, $tag, $index, $form ) {
+
+		// If the form is empty, don't inject anything.
+		if ( empty( $form ) ) {
+			return $content;
+		}
 
 		// Calculate tag length.
 		$tag_length = ( strlen( $tag ) + 3 );
@@ -652,9 +690,15 @@ class ConvertKit_Output {
 			if ( $term_settings->has_form() ) {
 				return $term_settings->get_form();
 			}
+
+			// If the Term specifies that no Form should be used, return false.
+			if ( $term_settings->uses_no_form() ) {
+				return false;
+			}
 		}
 
-		// If here, use the Plugin's Default Form.
+		// If here, all Terms were set to display the Default Form.
+		// Therefore use the Plugin's Default Form.
 		return $this->settings->get_default_form( get_post_type( $post_id ) );
 
 	}
@@ -759,8 +803,8 @@ class ConvertKit_Output {
 	}
 
 	/**
-	 * Outputs a non-inline form if defined in the Plugin's settings >
-	 * Default Non-Inline Form (Global) setting.
+	 * Outputs a non-inline forms if defined in the Plugin's settings >
+	 * Default Forms (Site Wide) setting.
 	 *
 	 * @since   2.3.3
 	 */
@@ -778,28 +822,33 @@ class ConvertKit_Output {
 
 		// Get form.
 		$convertkit_forms = new ConvertKit_Resource_Forms();
-		$form             = $convertkit_forms->get_by_id( (int) $this->settings->get_non_inline_form() );
 
-		// Bail if the Form doesn't exist (this shouldn't happen, but you never know).
-		if ( ! $form ) {
-			return;
-		}
+		// Iterate through forms.
+		foreach ( $this->settings->get_non_inline_form() as $form_id ) {
+			// Get Form.
+			$form = $convertkit_forms->get_by_id( (int) $form_id );
 
-		// Add the form to the scripts array so it is included in the output.
-		add_filter(
-			'convertkit_output_scripts_footer',
-			function ( $scripts ) use ( $form ) {
-
-				$scripts[] = array(
-					'async'    => true,
-					'data-uid' => $form['uid'],
-					'src'      => $form['embed_js'],
-				);
-
-				return $scripts;
-
+			// Bail if the Form doesn't exist (this shouldn't happen, but you never know).
+			if ( ! $form ) {
+				continue;
 			}
-		);
+
+			// Add the form to the scripts array so it is included in the output.
+			add_filter(
+				'convertkit_output_scripts_footer',
+				function ( $scripts ) use ( $form ) {
+
+					$scripts[] = array(
+						'async'    => true,
+						'data-uid' => $form['uid'],
+						'src'      => $form['embed_js'],
+					);
+
+					return $scripts;
+
+				}
+			);
+		}
 
 	}
 

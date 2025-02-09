@@ -3520,7 +3520,7 @@ jQuery(function($) {
 									} else {
 										for (var i=0; i<which_to_download.length; i++) {
 											// updraft_downloader(base, backup_timestamp, what, whicharea, set_contents, prettydate, async)
-											updraft_downloader('udrestoredlstatus_', backup_timestamp, which_to_download[i][0], '#ud_downloadstatus2', which_to_download[i][1], pretty_date, false);
+											updraft_downloader('udrestoredlstatus_', backup_timestamp, which_to_download[i][0], '#ud_downloadstatus2', which_to_download[i][1], pretty_date, true);
 										}
 									}
 		
@@ -3641,7 +3641,7 @@ jQuery(function($) {
 					var restore_options = $('#updraft_restoreoptions_ui select, #updraft_restoreoptions_ui input').serialize();
 
 					// jQuery serialize does not pick up unchecked checkboxes, but we want to include these so that we have a list of table/plugins/themes the user does not want to restore we prepend these with udp-skip-{entity}- and check this on the backend
-					var entities = ['table', 'plugins', 'themes'];
+					var entities = ['tables', 'plugins', 'themes'];
 
 					jQuery.each(entities, function(i, entity) {
 						jQuery.each(jQuery('input[name="updraft_restore_' + entity + '_options[]').filter(function(idx) {
@@ -4400,8 +4400,8 @@ jQuery(function($) {
 	
 	function updraft_restore_setup(entities, key, show_data) {
 		updraft_restore_setoptions(entities);
-		jQuery('#updraft_restore_timestamp').val(key);
-		jQuery('.updraft_restore_date').html(show_data);
+		if (key.toString().match(/^[0-9]+$/i)) jQuery('#updraft_restore_timestamp').val(key);
+		jQuery('.updraft_restore_date').text(show_data);
 		
 		updraft_restore_stage = 1;
 		

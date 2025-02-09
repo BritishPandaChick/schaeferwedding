@@ -643,6 +643,11 @@ class UpdraftPlus_Admin {
 			return;
 		}
 
+		if (isset($_REQUEST['udaction']) && 'initiate_restore' === $_REQUEST['udaction']) {
+			// capability, backup_timestamp and nonce validations
+			if (!UpdraftPlus_Options::user_can_manage() || (!empty($_REQUEST['backup_timestamp']) && !preg_match('#^[0-9]+$#i', $_REQUEST['backup_timestamp'])) || !isset($_REQUEST['restore_initiation_nonce']) || !wp_verify_nonce($_REQUEST['restore_initiation_nonce'], 'updraftplus_udcentral_initiate_restore')) wp_die(esc_html__('Sorry, you are not allowed to access this page.', 'updraftplus'));
+		}
+
 		// Next, the actions that only come on the UpdraftPlus page
 		$this->setup_all_admin_notices_udonly($service);
 
@@ -870,7 +875,10 @@ class UpdraftPlus_Admin {
 		$updraft_min_or_not = $updraftplus->get_updraftplus_file_version();
 
 		// Defeat other plugins/themes which dump their jQuery UI CSS onto our settings page
-		wp_deregister_style('jquery-ui');
+		if (!wp_style_is('jquery-ui', 'done')) {
+			wp_dequeue_style('jquery-ui');
+			wp_deregister_style('jquery-ui');
+		}
 		$jquery_ui_version = version_compare($updraftplus->get_wordpress_version(), '5.6', '>=') ? '1.12.1' : '1.11.4';
 		$jquery_ui_css_enqueue_version = $updraftplus->use_unminified_scripts() ? $jquery_ui_version.'.0'.'.'.time() : $jquery_ui_version.'.0';
 		wp_enqueue_style('updraft-jquery-ui', UPDRAFTPLUS_URL."/includes/jquery-ui.custom-v$jquery_ui_version$updraft_min_or_not.css", array(), $jquery_ui_css_enqueue_version);
@@ -3944,7 +3952,7 @@ class UpdraftPlus_Admin {
 				echo $updraftplus->log_permission_failure_message($wp_filesystem->wp_content_dir(), 'Delete '.$plugs.'-old');
 			} else {
 				$ret3 = true;
-				echo "<strong>".__('OK', 'updraftplus')."</strong><br>";
+				echo "<strong>".esc_html__('OK', 'updraftplus')."</strong><br>";
 			}
 		} else {
 			$ret3 = true;
@@ -3952,13 +3960,13 @@ class UpdraftPlus_Admin {
 
 		$ret2 = true;
 		if ($wp_filesystem->is_file(ABSPATH.'wp-config-pre-ud-restore-backup.php')) {
-			echo "<strong>".__('Delete', 'updraftplus').": </strong>wp-config-pre-ud-restore-backup.php: ";
+			echo "<strong>".esc_html__('Delete', 'updraftplus').": </strong>wp-config-pre-ud-restore-backup.php: ";
 
 			if ($wp_filesystem->delete(ABSPATH.'wp-config-pre-ud-restore-backup.php')) {
-				echo "<strong>".__('OK', 'updraftplus')."</strong><br>";
+				echo "<strong>".esc_html__('OK', 'updraftplus')."</strong><br>";
 			} else {
 				$ret2 = false;
-				echo "<strong>".__('Failed', 'updraftplus')."</strong><br>";
+				echo "<strong>".esc_html__('Failed', 'updraftplus')."</strong><br>";
 			}
 		}
 
@@ -3984,23 +3992,23 @@ class UpdraftPlus_Admin {
 			$name = (is_array($item)) ? $item['name'] : $item;
 			if ("-old" == substr($name, -4, 4)) {
 				// recursively delete
-				print "<strong>".__('Delete', 'updraftplus').": </strong>".htmlspecialchars(basename($dir).'/'.$name).": ";
+				print "<strong>".esc_html__('Delete', 'updraftplus').": </strong>".esc_html(basename($dir).'/'.$name).": ";
 
 				if ($wpfs) {
 					if (!$wp_filesystem->delete($dir.$name, true)) {
 						$ret = false;
-						echo "<strong>".__('Failed', 'updraftplus')."</strong><br>";
-						echo $updraftplus->log_permission_failure_message($dir, 'Delete '.$dir.$name);
+						echo "<strong>".esc_html__('Failed', 'updraftplus')."</strong><br>";
+						echo wp_kses_post($updraftplus->log_permission_failure_message($dir, 'Delete '.$dir.$name));
 					} else {
-						echo "<strong>".__('OK', 'updraftplus')."</strong><br>";
+						echo "<strong>".esc_html__('OK', 'updraftplus')."</strong><br>";
 					}
 				} else {
 					if (UpdraftPlus_Filesystem_Functions::remove_local_directory($dir.$name)) {
-						echo "<strong>".__('OK', 'updraftplus')."</strong><br>";
+						echo "<strong>".esc_html__('OK', 'updraftplus')."</strong><br>";
 					} else {
 						$ret = false;
-						echo "<strong>".__('Failed', 'updraftplus')."</strong><br>";
-						echo $updraftplus->log_permission_failure_message($dir, 'Delete '.$dir.$name);
+						echo "<strong>".esc_html__('Failed', 'updraftplus')."</strong><br>";
+						echo wp_kses_post($updraftplus->log_permission_failure_message($dir, 'Delete '.$dir.$name));
 					}
 				}
 			}
@@ -4055,7 +4063,7 @@ class UpdraftPlus_Admin {
 			@$wp_filesystem->chmod($default_backup_dir, 0777);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged -- Silenced to suppress errors that may arise because of the method.
 
 			if (UpdraftPlus_Filesystem_Functions::really_is_writable($updraft_dir)) {
-				echo '<p>'.__('The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it.', 'updraftplus').' '.__('You should check with your hosting provider that this will not cause any problems', 'updraftplus').'</p>';
+				echo '<p>'.esc_html__('The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it.', 'updraftplus').' '.esc_html__('You should check with your hosting provider that this will not cause any problems', 'updraftplus').'</p>';
 				return true;
 			} else {
 				@$wp_filesystem->chmod($default_backup_dir, 0775);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged -- Silenced to suppress errors that may arise because of the method.
@@ -4084,18 +4092,18 @@ class UpdraftPlus_Admin {
 			// is_dir() should be checked because scandir() occasionally returns a cached directory list.
 			$dir_path = $backups_dir_location.'/'.$dir;
 			if (preg_match('/-old$/', $dir) && is_dir($dir_path)) {
-				if ($print_as_comment) echo '<!--'.htmlspecialchars($dir).'-->';
+				if ($print_as_comment) echo '<!--'.esc_html($dir).'-->';
 				return true;
 			}
 		}
 		// No need to scan ABSPATH - we don't backup there
 		if (is_dir(untrailingslashit(WP_PLUGIN_DIR).'-old')) {
-			if ($print_as_comment) echo '<!--'.htmlspecialchars(untrailingslashit(WP_PLUGIN_DIR).'-old').'-->';
+			if ($print_as_comment) echo '<!--'.esc_html(untrailingslashit(WP_PLUGIN_DIR).'-old').'-->';
 			return true;
 		}
 
 		if (is_file(ABSPATH.'wp-config-pre-ud-restore-backup.php')) {
-			if ($print_as_comment) echo '<!--'.htmlspecialchars(ABSPATH.'wp-config-pre-ud-restore-backup.php').'-->';
+			if ($print_as_comment) echo '<!--'.esc_html(ABSPATH.'wp-config-pre-ud-restore-backup.php').'-->';
 			return true;
 		}
 
@@ -4404,7 +4412,7 @@ class UpdraftPlus_Admin {
 		$ret = "<div class=\"error updraftplusmethod $extraclass\"><p>$text</p></div>";
 		$ret .= "<div class=\"notice error below-h2\"><p>$text</p></div>";
 
-		if ($echo) echo $ret;
+		if ($echo) echo wp_kses_post($ret);
 		return $ret;
 
 	}
@@ -4445,7 +4453,7 @@ class UpdraftPlus_Admin {
 			}
 		}
 		if ($echo_instead_of_return) {
-			echo $ret;
+			echo wp_kses_post($ret);
 		} else {
 			return $ret;
 		}
@@ -6113,15 +6121,16 @@ class UpdraftPlus_Admin {
 	/**
 	 * This function will build and return the UpdraftPlus temporary clone ui widget
 	 *
-	 * @param boolean $include_testing_ui	 - a boolean to indicate if testing-only UI elements should be shown (N.B. they can only work if the user also has testing permissions)
-	 * @param array   $supported_wp_versions - an array of supported WordPress versions
-	 * @param array   $supported_packages    - an array of supported clone packages
-	 * @param array   $supported_regions     - an array of supported clone regions
-	 * @param string  $nearest_region        - the user's nearest region
+	 * @param boolean $include_testing_ui	    - a boolean to indicate if testing-only UI elements should be shown (N.B. they can only work if the user also has testing permissions)
+	 * @param array   $supported_wp_versions    - an array of supported WordPress versions
+	 * @param array   $supported_packages       - an array of supported clone packages
+	 * @param array   $supported_regions        - an array of supported clone regions
+	 * @param string  $nearest_region           - the user's nearest region
+	 * @param array   $supported_packages_label - an array of supported clone packages label
 	 *
 	 * @return string - the clone UI widget
 	 */
-	public function updraftplus_clone_ui_widget($include_testing_ui, $supported_wp_versions, $supported_packages, $supported_regions, $nearest_region = '') {
+	public function updraftplus_clone_ui_widget($include_testing_ui, $supported_wp_versions, $supported_packages, $supported_regions, $nearest_region = '', $supported_packages_label = array()) {
 		global $updraftplus;
 
 		$output = '<p class="updraftplus-option updraftplus-option-inline php-version">';
@@ -6168,7 +6177,8 @@ class UpdraftPlus_Admin {
 		foreach ($supported_packages as $key => $value) {
 			$output .= '<option value="'.esc_attr($key).'" data-size="'.esc_attr($value).'"';
 			if ('starter' == $key) $output .= 'selected="selected"';
-			$output .= ">".htmlspecialchars($key) . ('starter' == $key ? ' ' . __('(current version)', 'updraftplus') : '')."</option>\n";
+			$label = isset($supported_packages_label[$key]) ? $supported_packages_label[$key] : $key;
+			$output .= ">".esc_html($label).('starter' == $key ? ' ' . __('(current version)', 'updraftplus') : '')."</option>\n";
 		}
 		$output .= '</select>';
 		$output .= '</p>';

@@ -10,22 +10,18 @@ if ( ! defined( 'ABSPATH' ) )
  */
 class Cookie_Notice_Consent_Logs_List_Table extends WP_List_Table {
 
+	private $cn_data = [];
+	private $cn_item_number = 0;
+
 	/**
-	 * Display content.
+	 * Set data.
+	 *
+	 * @param array $data
 	 *
 	 * @return void
 	 */
-	public function views() {
-		// get main instance
-		$cn = Cookie_Notice();
-
-		$message = __( 'The table below shows the consent records from your website accumulated from the last thirty days. You can view individual records by expanding a single row of data.', 'cookie-notice' );
-
-		// disable if basic plan and data older than 7 days
-		if ( $cn->get_subscription() === 'basic' )
-			$message .= '<br/><span class="cn-asterix">*</span> ' . __( 'Note: domains using Cookie Compliance limited, Basic plan allow you to view consent records from the last 7 days and store data only for 30 days.', 'cookie-notice' );
-
-		echo '<p class="description">' . wp_kses_post( $message ) . '</p>';
+	public function cn_set_data( $data ) {
+		$this->cn_data = $data;
 	}
 
 	/**
@@ -34,169 +30,97 @@ class Cookie_Notice_Consent_Logs_List_Table extends WP_List_Table {
 	 * @return void
 	 */
 	public function prepare_items() {
-		// get main instance
-		$cn = Cookie_Notice();
+		// prepare items
+		$items = [];
 
-		// get consent logs
-		if ( is_multisite() && $cn->is_network_admin() && $cn->is_plugin_network_active() && $cn->network_options['global_override'] )
-			$analytics = get_site_option( 'cookie_notice_app_analytics', [] );
-		else
-			$analytics = get_option( 'cookie_notice_app_analytics', [] );
+		// no data?
+		if ( ! empty( $this->cn_data ) ) {
+			foreach ( $this->cn_data as $no => $consent_log ) {
+				$categories = [];
 
-		// get date format
-		$format = get_option( 'date_format' );
+				if ( $consent_log->ev_essential )
+					$categories[] = esc_html__( 'Basic Operations', 'cookie-notice' );
 
-		// get 30 days of default data
-		$logs = $this->fill_missing_dates( $format );
+				if ( $consent_log->ev_functional )
+					$categories[] = esc_html__( 'Content Personalization', 'cookie-notice' );
 
-		// any data?
-		if ( ! empty( $analytics['consentActivities'] ) && is_array( $analytics['consentActivities'] ) ) {
-			foreach ( $analytics['consentActivities'] as $index => $entry ) {
-				// get date in digits only
-				$digits = (int) str_replace( '-', '', substr( $entry->eventdt, 0, 10 ) );
+				if ( $consent_log->ev_analytics )
+					$categories[] = esc_html__( 'Site Optimization', 'cookie-notice' );
 
-				// current data?
-				if ( array_key_exists( $digits, $logs ) ) {
-					$logs[$digits]['level_' . (int) $entry->consentlevel] = (int) $entry->totalrecd;
-					$logs[$digits]['total'] += (int) $entry->totalrecd;
-				}
+				if ( $consent_log->ev_marketing )
+					$categories[] = esc_html__( 'Ad Personalization', 'cookie-notice' );
+
+				// get current date
+				$timestamp = new DateTime( $consent_log->timestamp );
+
+				// get deuration in days
+				$duration = (int) $consent_log->ev_eventdetails_expiry;
+
+				if ( $duration === 30 )
+					$duration = __( '1 month', 'cookie-notice' );
+				elseif ( $duration === 90 )
+					$duration = __( '3 months', 'cookie-notice' );
+				elseif ( $duration === 182 )
+					$duration = __( '6 months', 'cookie-notice' );
+				elseif ( $duration === 365 )
+					$duration = __( '1 year', 'cookie-notice' );
+				elseif ( $duration === 730 )
+					$duration = __( '2 years', 'cookie-notice' );
+
+				$items[] = [
+					'consent_id'			=> $consent_log->ev_eventdetails_consentid,
+					'consent_level'			=> sprintf( __( 'Level %d', 'cookie-notice' ), $consent_log->ev_consentlevel ),
+					'consent_categories'	=> implode( ', ', $categories ),
+					'consent_duration'		=> $duration,
+					'consent_time'			=> $timestamp->format( get_option( 'time_format' ) ) . ' ' . __( 'GMT', 'cookie-notice' ),
+					'consent_ip_address'	=> $consent_log->rj_ip
+				];
 			}
-
-			krsort( $logs, SORT_NUMERIC );
 		}
 
-		$this->_column_headers = [ $this->get_columns(), [], $this->get_sortable_columns(), 'date' ];
+		// count items
+		$noi = count( $items );
 
-		usort( $logs, [ $this, 'usort_reorder' ] );
+		$per_page = 10;
 
-		$this->items = $logs;
+		$this->set_pagination_args(
+			[
+				'total_items'	=> $noi,
+				'total_pages'	=> (int) ceil( $noi / $per_page ),
+				'per_page'		=> $per_page
+			]
+		);
+
+		$this->_column_headers = [ $this->get_columns(), [], $this->get_sortable_columns(), '' ];
+
+		$this->items = $items;
 	}
 
 	/**
-	 * Fill missing dates.
-	 *
-	 * @param string $format
-	 * @return array
-	 */
-	private function fill_missing_dates( $format ) {
-		$empty_logs = [];
-
-		// get current date
-		$d = new DateTime();
-
-		// go back 30 days
-		$d->modify( '-30 days' );
-
-		// update dates for last 30 days
-		for ( $i = 1; $i <= 31; $i++ ) {
-			$date = $d->format( 'Y-m-d' );
-			$digits = (int) str_replace( '-', '', $date );
-
-			$empty_logs[$digits] = [
-				'slug'		=> $digits,
-				'date'		=> date_i18n( $format, strtotime( $date ) ),
-				'date_iso'	=> $date,
-				'level_1'	=> 0,
-				'level_2'	=> 0,
-				'level_3'	=> 0,
-				'total'		=> 0
-			];
-
-			$d->modify( '+1 days' );
-		}
-
-		return $empty_logs;
-	}
-
-	/**
-	 * Sort consent logs.
-	 *
-	 * @param int $first
-	 * @param int $second
-	 * @return array
-	 */
-	public function usort_reorder( $first, $second ) {
-		// get orderby
-		$orderby = ( ! empty( $_GET['orderby'] ) ) ? sanitize_key( $_GET['orderby'] ) : 'date';
-
-		// skip invalid orderby
-		if ( ! array_key_exists( $orderby, $this->get_sortable_columns() ) )
-			return 0;
-
-		// get order
-		$order = ( ! empty( $_GET['order'] ) ) ? sanitize_key( $_GET['order'] ) : 'desc';
-
-		// use numeric value for dates
-		if ( $orderby === 'date' )
-			$orderby = 'slug';
-
-		// determine sort order
-		if ( $first[$orderby] === $second[$orderby] )
-			$result = 0;
-		else
-			$result = ( $first[$orderby] < $second[$orderby] ) ? -1 : 1;
-
-		return ( $order === 'asc' ) ? $result : -$result;
-	}
-
-	/**
-	 * Override the parent columns method. Defines the columns to use in your listing table.
+	 * Define columns in listing table.
 	 *
 	 * @return array
 	 */
 	public function get_columns() {
 		$columns = [
-			'cb'		=> '',
-			'date'		=> __( 'Date', 'cookie-notice' ),
-			'level_1'	=> __( 'Level 1', 'cookie-notice' ),
-			'level_2'	=> __( 'Level 2', 'cookie-notice' ),
-			'level_3'	=> __( 'Level 3', 'cookie-notice' ),
-			'total'		=> __( 'Total', 'cookie-notice' )
+			'consent_id'			=> __( 'Consent ID', 'cookie-notice' ),
+			'consent_level'			=> __( 'Consent Level', 'cookie-notice' ),
+			'consent_categories'	=> __( 'Categories', 'cookie-notice' ),
+			'consent_duration'		=> __( 'Duration', 'cookie-notice' ),
+			'consent_time'			=> __( 'Time', 'cookie-notice' ),
+			'consent_ip_address'	=> __( 'IP address', 'cookie-notice' )
 		];
 
 		return $columns;
 	}
 
 	/**
-	 * Define the sortable columns
+	 * Define sortable columns.
 	 *
 	 * @return array
 	 */
 	public function get_sortable_columns() {
-		return [
-			'date'		=> [ 'date', false ],
-			'level_1'	=> [ 'level_1', true ],
-			'level_2'	=> [ 'level_2', true ],
-			'level_3'	=> [ 'level_3', true ],
-			'total'		=> [ 'total', true ]
-		];
-	}
-
-	/**
-	 * Display single row.
-	 *
-	 * @param array $item
-	 * @return void
-	 */
-	public function single_row( $item ) {
-		$disabled = false;
-
-		// disable if basic plan and data older than 7 days
-		if ( Cookie_Notice()->get_subscription() === 'basic' ) {
-			$last_date = strtotime( '-7 day' );
-			$event_date = strtotime( $item[ 'date_iso' ] );
-
-			if ( $event_date < $last_date )
-				$disabled = true;
-		}
-
-		echo '
-		<tr id="cn_consent_log_' . esc_attr( $item['slug'] ) . '" class="cn-consent-log' . ( $disabled ? ' disabled' : '' ) . '" data-date="' . esc_attr( $item['date_iso'] ) . '">';
-
-		$this->single_row_columns( $item );
-
-		echo '
-		</tr>';
+		return [];
 	}
 
 	/**
@@ -204,6 +128,7 @@ class Cookie_Notice_Consent_Logs_List_Table extends WP_List_Table {
 	 *
 	 * @param array $item
 	 * @param string $column_name
+	 *
 	 * @return string
 	 */
 	public function column_default( $item, $column_name ) {
@@ -211,23 +136,147 @@ class Cookie_Notice_Consent_Logs_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Define what data to show on cb column of the table.
+	 * Generate table navigation.
+	 *
+	 * @param string $which
+	 *
+	 * @return void
+	 */
+	protected function display_tablenav( $which ) {
+		parent::display_tablenav( $which );
+	}
+
+	/**
+	 * Generate content for a single row of the table.
 	 *
 	 * @param array $item
-	 * @return string
+	 *
+	 * @return void
 	 */
-	function column_cb( $item ) {
-		$disabled = false;
+	public function single_row( $item ) {
+		$this->cn_item_number++;
 
-		// disable if no data
-		if ( $item['total'] === 0 )
-			$disabled = true;
+		echo '<tr' . ( $this->cn_item_number > $this->_pagination_args['per_page'] ? ' style="display: none"' : '' ) . '>';
 
-		return '
-		<label for="cn-consent-log-' . esc_attr( $item['slug'] ) . '" class="cn-consent-log-item' . ( $disabled ? ' disabled' : '' ) . '">
-			<input id="cn-consent-log-' . esc_attr( $item['slug'] ) . '" type="checkbox">
-			<span class="cn-consent-log-head"></span>
-		</label>';
+		$this->single_row_columns( $item );
+
+		echo '</tr>';
+	}
+
+	/**
+	 * Display the pagination.
+	 *
+	 * @param string $which
+	 *
+	 * @return void
+	 */
+	protected function pagination( $which ) {
+		if ( empty( $this->_pagination_args ) )
+			return;
+
+		$total_items = $this->_pagination_args['total_items'];
+		$total_pages = $this->_pagination_args['total_pages'];
+
+		$output = '<span class="displaying-num">' . sprintf(
+			/* translators: %s: Number of items. */
+			_n( '%s item', '%s items', $total_items ),
+			number_format_i18n( $total_items )
+		) . '</span>';
+
+		$page_links = array();
+
+		$total_pages_before = '<span class="paging-input">';
+		$total_pages_after  = '</span></span>';
+
+		// first page
+		$page_links[] = sprintf(
+			"<a class='first-page button disabled' href='#'>" .
+				"<span class='screen-reader-text'>%s</span>" .
+				"<span aria-hidden='true'>%s</span>" .
+			'</a>',
+			/* translators: Hidden accessibility text. */
+			__( 'First page' ),
+			'&laquo;'
+		);
+
+		// previous page
+		$page_links[] = sprintf(
+			"<a class='prev-page button disabled' href='#'>" .
+				"<span class='screen-reader-text'>%s</span>" .
+				"<span aria-hidden='true'>%s</span>" .
+			'</a>',
+			/* translators: Hidden accessibility text. */
+			__( 'Previous page' ),
+			'&lsaquo;'
+		);
+
+		$html_current_page  = '<span class="current-page">' . (int) $this->get_pagenum() . '</span>';
+		$total_pages_before = sprintf(
+			'<span class="screen-reader-text">%s</span>' .
+			'<span id="table-paging-' . $which . '" class="paging-input">' .
+			'<span class="tablenav-paging-text">',
+			/* translators: Hidden accessibility text. */
+			__( 'Current Page' )
+		);
+
+		$html_total_pages = sprintf( "<span class='total-pages'>%s</span>", number_format_i18n( $total_pages ) );
+
+		$page_links[] = $total_pages_before . sprintf(
+			/* translators: 1: Current page, 2: Total pages. */
+			_x( '%1$s of %2$s', 'paging' ),
+			$html_current_page,
+			$html_total_pages
+		) . $total_pages_after;
+
+		// next page
+		$page_links[] = sprintf(
+			"<a class='next-page button' href='#'>" .
+				"<span class='screen-reader-text'>%s</span>" .
+				"<span aria-hidden='true'>%s</span>" .
+			'</a>',
+			/* translators: Hidden accessibility text. */
+			__( 'Next page' ),
+			'&rsaquo;'
+		);
+
+		// last page
+		$page_links[] = sprintf(
+			"<a class='last-page button' href='#'>" .
+				"<span class='screen-reader-text'>%s</span>" .
+				"<span aria-hidden='true'>%s</span>" .
+			'</a>',
+			/* translators: Hidden accessibility text. */
+			__( 'Last page' ),
+			'&raquo;'
+		);
+
+		$pagination_links_class = 'pagination-links';
+
+		if ( ! empty( $infinite_scroll ) )
+			$pagination_links_class .= ' hide-if-js';
+
+		$output .= "\n<span class='$pagination_links_class' data-total=" . (int) $total_pages . ">" . implode( "\n", $page_links ) . '</span>';
+
+		if ( $total_pages )
+			$page_class = $total_pages < 2 ? ' one-page' : '';
+		else
+			$page_class = ' no-pages';
+
+		$this->_pagination = "<div class='tablenav-pages{$page_class}'>$output</div>";
+
+		echo $this->_pagination;
+	}
+
+	/**
+	 * Print column headers.
+	 *
+	 * @param bool $with_id
+	 *
+	 * @return void
+	 */
+	public function print_column_headers( $with_id = true ) {
+		// do not print column ids
+		parent::print_column_headers( false );
 	}
 
 	/**
@@ -245,6 +294,6 @@ class Cookie_Notice_Consent_Logs_List_Table extends WP_List_Table {
 	 * @return void
 	 */
 	public function no_items() {
-		echo __( 'No consent logs found.', 'cookie-notice' );
+		echo __( 'No cookie consent logs found.', 'cookie-notice' );
 	}
 }
