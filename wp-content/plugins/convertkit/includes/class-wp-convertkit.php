@@ -40,15 +40,30 @@ class WP_ConvertKit {
 	 */
 	public function __construct() {
 
-		// Initialize class(es) to register hooks.
+		// Initialize classes that have hooks prior to the `init` hook.
+		// Divi Theme requires us to do this, although the Divi Builder Plugin works fine when loading
+		// our integration on `init`.
+		$this->classes['divi']    = new ConvertKit_Divi();
+		$this->classes['widgets'] = new ConvertKit_Widgets();
+
+		// Initialize Plugin classes on init, so the `_load_textdomain_just_in_time` warning isn't triggered.
+		add_action( 'init', array( $this, 'initialize' ), 1 );
+		add_action( 'init', array( $this, 'setup' ), 2 );
+
+	}
+
+	/**
+	 * Initialize classes.
+	 *
+	 * @since   2.7.7
+	 */
+	public function initialize() {
+
 		$this->initialize_admin();
 		$this->initialize_admin_or_frontend_editor();
 		$this->initialize_cli_cron();
 		$this->initialize_frontend();
 		$this->initialize_global();
-
-		// Load language files.
-		add_action( 'init', array( $this, 'load_language_files' ) );
 
 	}
 
@@ -143,8 +158,9 @@ class WP_ConvertKit {
 			return;
 		}
 
-		$this->classes['cache_plugins'] = new ConvertKit_Cache_Plugins();
-		$this->classes['output']        = new ConvertKit_Output();
+		$this->classes['cache_plugins']     = new ConvertKit_Cache_Plugins();
+		$this->classes['output']            = new ConvertKit_Output();
+		$this->classes['output_broadcasts'] = new ConvertKit_Output_Broadcasts();
 
 		/**
 		 * Initialize integration classes for the frontend web site.
@@ -174,7 +190,6 @@ class WP_ConvertKit {
 		$this->classes['pre_publish_action_broadcast_export'] = new ConvertKit_Pre_Publish_Action_Broadcast_Export();
 		$this->classes['broadcasts_exporter']                 = new ConvertKit_Broadcasts_Exporter();
 		$this->classes['broadcasts_importer']                 = new ConvertKit_Broadcasts_Importer();
-		$this->classes['divi']                                = new ConvertKit_Divi();
 		$this->classes['elementor']                           = new ConvertKit_Elementor();
 		$this->classes['gutenberg']                           = new ConvertKit_Gutenberg();
 		$this->classes['media_library']                       = new ConvertKit_Media_Library();
@@ -183,12 +198,6 @@ class WP_ConvertKit {
 		$this->classes['preview_output']                      = new ConvertKit_Preview_Output();
 		$this->classes['setup']                               = new ConvertKit_Setup();
 		$this->classes['shortcodes']                          = new ConvertKit_Shortcodes();
-		$this->classes['widgets']                             = new ConvertKit_Widgets();
-
-		// Run the setup's update process on WordPress' init hook.
-		// Doing this sooner may result in errors with WordPress functions that are not yet
-		// available to the update routine.
-		add_action( 'init', array( $this, 'init' ) );
 
 		/**
 		 * Initialize integration classes for the frontend web site.
@@ -206,7 +215,7 @@ class WP_ConvertKit {
 	 *
 	 * @since   1.9.7.4
 	 */
-	public function init() {
+	public function setup() {
 
 		$this->get_class( 'setup' )->initialize();
 		$this->get_class( 'setup' )->update();
@@ -230,13 +239,13 @@ class WP_ConvertKit {
 
 		// Pro.
 		if ( array_key_exists( 'REQUEST_URI', $_SERVER ) ) {
-			if ( strpos( sanitize_text_field( $_SERVER['REQUEST_URI'] ), '/pro/' ) !== false ) {
+			if ( strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/pro/' ) !== false ) {
 				return true;
 			}
-			if ( strpos( sanitize_text_field( $_SERVER['REQUEST_URI'] ), '/x/' ) !== false ) {
+			if ( strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/x/' ) !== false ) {
 				return true;
 			}
-			if ( strpos( sanitize_text_field( $_SERVER['REQUEST_URI'] ), 'cornerstone-endpoint' ) !== false ) {
+			if ( strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'cornerstone-endpoint' ) !== false ) {
 				return true;
 			}
 		}
@@ -270,7 +279,7 @@ class WP_ConvertKit {
 		}
 
 		// Elementor.
-		if ( array_key_exists( 'action', $_REQUEST ) && sanitize_text_field( $_REQUEST['action'] ) === 'elementor' ) {
+		if ( array_key_exists( 'action', $_REQUEST ) && sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) === 'elementor' ) {
 			return true;
 		}
 
@@ -300,7 +309,7 @@ class WP_ConvertKit {
 		}
 
 		// Zion Builder.
-		if ( array_key_exists( 'action', $_REQUEST ) && sanitize_text_field( $_REQUEST['action'] ) === 'zion_builder_active' ) {
+		if ( array_key_exists( 'action', $_REQUEST ) && sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) === 'zion_builder_active' ) {
 			return true;
 		}
 
@@ -362,20 +371,6 @@ class WP_ConvertKit {
 		}
 
 		return true;
-
-	}
-
-	/**
-	 * Loads the plugin's translated strings, if available.
-	 *
-	 * @since   1.0.0
-	 */
-	public function load_language_files() {
-
-		// If the .mo file for a given language is available in WP_LANG_DIR/convertkit
-		// i.e. it's available as a translation at https://translate.wordpress.org/projects/wp-plugins/convertkit/,
-		// it will be used instead of the .mo file in convertkit/languages.
-		load_plugin_textdomain( 'convertkit', false, 'convertkit/languages' );
 
 	}
 

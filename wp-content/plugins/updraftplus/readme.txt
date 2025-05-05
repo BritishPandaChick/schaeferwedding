@@ -2,8 +2,8 @@
 Contributors: Backup with UpdraftPlus, DavidAnderson, pmbaldha, DNutbourne, aporter, bcrodua
 Tags: backup, database backup, wordpress backup, cloud backup, migration
 Requires at least: 3.2
-Tested up to: 6.7
-Stable tag: 1.25.1
+Tested up to: 6.8
+Stable tag: 1.25.5
 Author URI: https://updraftplus.com
 Donate link: https://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -179,7 +179,49 @@ The <a href="https://updraftplus.com/news/">UpdraftPlus backup blog</a> is the b
 
 N.B. Paid versions of UpdraftPlus Backup / Restore have a version number which is 1 higher in the first digit, and has an extra component on the end, but the changelog below still applies. i.e. changes listed for 1.16.32.x of the free version correspond to changes made in 2.16.32.x of the paid version.
 
-= 1.25.1 - 11/Jan/2025
+= 1.25.5 - 17/Apr/2025 =
+
+* FIX: A bug that prevented the Rackspace "Create new API user and container" dialog from opening.
+* TWEAK: An HTTP header intended to terminate the browser's connection was incorrectly assigned a value that the header does not support.
+* TWEAK: Ability to automatically choose the proper checkout page when the user is about to buy TeamUpdraft products from within the plugin
+* TWEAK: Clear Divi theme CSS cache at the end of the restoration process
+* TWEAK: Resolve PHP warning in pCloud addon when upgrading from free to premium version.
+* TWEAK: Update error messages when the user fails to connect to their TeamUpdraft account on the 'Premium/Extensions' tab.
+
+= 1.25.4 - 24/Mar/2025 =
+
+* FIX: Regression in 1.25.3 - missing database encryption input field due to the use of the "wp_kses_post" function that doesn't allow "<input>" tag to be rendered
+* TWEAK: Add new fields to UpdraftCentral handler
+
+= 1.25.3 - 21/Mar/2025 =
+
+* FIX: An issue that prevented an UpdraftClone backup from sending when attempting to boot an UpdraftClone from WP_CLI
+* FIX: An issue that prevented changing the default UpdraftClone region when attempting to boot an UpdraftClone from WP_CLI
+* TWEAK: The "x-amz-content-sha256" request header is now signed and included in the S3 signature version 4. Some S3-based providers mandate the signing of this header for accurate signature calculation.
+* TWEAK: Introduce a new constant named "UPDRAFTPLUS_S3_EXCLUDE_SIGV4_CONTENT_SHA256_HEADER". This constant allows for the exclusion of the "x-amz-content-sha256" headers from being signed if desired; it accepts a boolean value, defaulting to false.
+* TWEAK: Add 'noopener, noreferrer' window features to the Javascript's window.open() call to prevent the target page from changing content of the original page
+* TWEAK: Favicon fetching feature for UpdraftCentral
+* TWEAK: Minor tweak to "updates" module to include icons to plugin and screenshot url to theme update items  
+* TWEAK: New UpdraftCentral module for background fetching
+* TWEAK: Revise the wording found in the expert settings regarding the deletion of local backup files
+* TWEAK: Update seasonal notices
+* TWEAK: Enhance the notifications to signify the introduction of other plugins that belong to the same plugin family
+* TWEAK: To avoid CORS issues and ensure the UpdraftPlus plugin is functional and accessible via the UpdraftCentral dashboard, the hostname and/or domain origin is changed from updraftplus.com to teamupdraft.com.
+* COMPATIBILITY: Resolved PHP deprecation warnings in lockadmin.php by eliminating the use of dynamic properties
+
+= 1.25.2 - 26/Feb/2025 =
+
+* FEATURE: Added a "Cron events" tab in the Advanced Tools section to check for the presence of the UpdraftPlus cron job.
+* FIX: Resolve the issue of uploads to pCloud failing after a folder name change by resetting the "folderid" whenever the folder name is updated.
+* TWEAK: Add site information for WooCommerce and HPOS support to the database backup header.
+* TWEAK: Create a log entry when a bot verification page appears during the file upload in the migration procedure.
+* TWEAK: Improve error message clarity for failed connection tests in migration.
+* TWEAK: Include details in the backup log file about the status and availability of the proxy configured in the system.
+* TWEAK: Update the Google library to support the WP_PROXY_HOST and WP_PROXY_PORT constants.
+* TWEAK: TWEAK Update the link for Onedrive and Azure app creation
+* COMPATIBILITY: Got rid of PHP 8.4 deprecation messages caused by the E_STRICT constant usage
+
+= 1.25.1 - 11/Jan/2025 =
 
 * SECURITY: Fix a non-persistent reflected XSS vulnerability due to a missing nonce combined with missing sanitisation. This could allow an attacker, who persuaded you to click a personally-crafted link to your site's dashboard whilst you were logged in, to once run JavaScript code in your dashboard. Thanks to Asaf Mozes for finding and responsibly disclosing this issue.
 * FIX: Prevent the restoration from failing when there is a 'sync-xhr=()' permission policy on the response header.
@@ -2004,4 +2046,4 @@ Non-English translators are provided by volunteers, and wordpress.org does not g
 We recognise and thank those mentioned at https://updraftplus.com/acknowledgements/ for code and/or libraries used and/or modified under the terms of their open source licences.
 
 == Upgrade Notice ==
-* 1.25.1: Fixes a non-persistent XSS vulnerability (details in changelog); mitigation strategies for addressing region mismatches in Amazon AWS S3 caused by recent AWS changes. Various fixes and small tweaks - see the changelog for details. A recommended update for all.
+* 1.25.5: Various fixes and small tweaks - see the changelog for details. A recommended update for all.

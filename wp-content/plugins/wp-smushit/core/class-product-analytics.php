@@ -5,7 +5,7 @@ namespace Smush\Core;
 use Smush\Core\Threads\Thread_Safe_Options;
 use WP_Smush;
 use WPMUDEV_Analytics;
-use WPMUDEV_Analytics_V3;
+use WPMUDEV_Analytics_V4;
 
 class Product_Analytics {
 	const PROJECT_TOKEN = '5d545622e3a040aca63f2089b0e6cae7';
@@ -83,11 +83,11 @@ class Product_Analytics {
 	}
 
 	private function prepare_analytics_instance() {
-		if ( ! class_exists( 'WPMUDEV_Analytics_V3' ) ) {
+		if ( ! class_exists( 'WPMUDEV_Analytics_V4' ) ) {
 			require_once WP_SMUSH_DIR . 'core/external/wpmudev-analytics/autoload.php';
 		}
 
-		$mixpanel = new WPMUDEV_Analytics_V3( 'smush', 'Smush', 55, $this->get_token() );
+		$mixpanel = new WPMUDEV_Analytics_V4( 'smush', 'Smush', 55, $this->get_token() );
 		$mixpanel->identify( $this->get_unique_id() );
 		$mixpanel->registerAll( $this->get_super_properties() );
 

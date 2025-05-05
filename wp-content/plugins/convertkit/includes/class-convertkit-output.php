@@ -137,6 +137,21 @@ class ConvertKit_Output {
 			'output'
 		);
 
+		// If the subscriber ID is not numeric, it's a cryptographically-signed subscriber ID, set
+		// when using the Member Content functionality by Kit's API.
+		// Fetch the underlying subscriber ID for the tag_subscriber() method.
+		if ( ! is_numeric( $this->subscriber_id ) ) {
+			$result = $api->profile( $this->subscriber_id );
+
+			// If an error occured, the subscriber ID is invalid.
+			if ( is_wp_error( $result ) ) {
+				return;
+			}
+
+			// Set the subscriber ID.
+			$this->subscriber_id = $result['id'];
+		}
+
 		// Tag subscriber.
 		$api->tag_subscriber( $this->post_settings->get_tag(), $this->subscriber_id );
 
@@ -261,8 +276,15 @@ class ConvertKit_Output {
 			return $content;
 		}
 
-		// Get Post ID and ConvertKit Form ID for the Post.
+		// Get Post ID.
 		$post_id = get_the_ID();
+
+		// Bail if Post Type is not supported by Kit.
+		if ( ! in_array( get_post_type( $post_id ), convertkit_get_supported_post_types(), true ) ) {
+			return $content;
+		}
+
+		// Get Form ID for the Post.
 		$form_id = $this->get_post_form_id( $post_id );
 
 		/**
@@ -820,6 +842,12 @@ class ConvertKit_Output {
 			return;
 		}
 
+		// Bail if the Page, Post or Custom Post Type's Form setting is set to 'None'
+		// and the Plugin is set to honor this setting.
+		if ( $this->post_settings !== false && $this->post_settings->uses_no_form() && $this->settings->non_inline_form_honor_none_setting() ) {
+			return;
+		}
+
 		// Get form.
 		$convertkit_forms = new ConvertKit_Resource_Forms();
 
@@ -859,6 +887,11 @@ class ConvertKit_Output {
 	 * @since   2.1.4
 	 */
 	public function output_scripts_footer() {
+
+		// Don't output scripts if the request is for a search page or 404.
+		if ( is_search() || is_404() ) {
+			return;
+		}
 
 		// Define array of scripts.
 		$scripts = array();

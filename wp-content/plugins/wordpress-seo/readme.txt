@@ -4,9 +4,9 @@ Donate link: https://yoa.st/1up
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: SEO, XML sitemap, Content analysis, Readability, Schema
-Tested up to: 6.7
-Stable tag: 24.4
-Requires PHP: 7.2.5
+Tested up to: 6.8
+Stable tag: 25.0
+Requires PHP: 7.4
 
 Improve your WordPress SEO: Write better content and have a fully optimized WordPress site using the Yoast SEO plugin.
 
@@ -274,39 +274,47 @@ Your question has most likely been answered on our help center: [yoast.com/help/
 
 == Changelog ==
 
-= 24.4 =
+= 25.0 =
 
-Release date: 2025-02-04
+Release date: 2025-04-29
 
-Yoast SEO 24.4 brings more enhancements and bugfixes. [Find more information about our software releases and updates here](https://yoa.st/releases).
-
-#### Bugfixes
-
-* Fixes a bug where editing a link in the block editor would have unexpected consequences when using undo.
-* Fixes a bug where the `article:modified_time` meta tag would show an earlier time than the `article:published_time` meta tag for scheduled posts.
-* Fixes a bug where the Schema type of the product would not be locked when Yoast WooCommerce SEO is enabled.
-* Fixes a bug where using hyphens at the start or end of a sentence would cripple the content analysis when editing a post.
-
-= 24.3 =
-
-Release date: 2025-01-21
-
-Yoast SEO 24.3 brings more enhancements and bugfixes. [Find more information about our software releases and updates here](https://yoa.st/releases).
+Yoast SEO 25.0 brings more enhancements and bugfixes. [Find more information about our software releases and updates here](https://yoa.st/releases).
 
 #### Enhancements
 
-* Introduces more robust HTML processing and highlighting for the _sentence length_ and _paragraph length_ assessments.
-
-#### Bugfixes
-
-* Fixes a bug where the Semrush request would be executed twice when opening the related keyphrases modal.
-* Fixes a bug where the text color in the search on our settings page would not change correctly when active, resulting in bad contrast.
-* Fixes a bug where the _View_ button label in the Yoast dashboard would not be available for translation.
+* Optimizes the `wp yoast cleanup` CLI command  `update_indexables_author_to_reassigned` step, which can become very slow for very large data sets. Props to [eddiesshop](https://github.com/eddiesshop).
+* Improves the feedback texts for the _passive voice_ and _consecutive sentences_ assessments in case there is nothing to report.
+* Makes the _images_, _internal links_, and _external links_ assessments available when no content has been added.
 
 #### Other
 
-* Improves contrast in the related keyphrase suggestions table.
-* Improves contrast in the RSS supported variables explainer table.
+* Drops compatibility with PHP 7.2 and 7.3.
+* Improves the translatability of feedback strings for the keyphrase length assessment.
+
+= 24.9 =
+
+Release date: 2025-04-15
+
+Yoast SEO 24.9 brings more enhancements and bugfixes. [Find more information about our software releases and updates here](https://yoa.st/releases).
+
+#### Enhancements
+
+* Changes the applicability criteria of readability assessments so that they are shown even if there is little or no text.
+* Improves the recognition of transition words for Farsi.
+* Introduces more robust HTML processing and highlighting for the _consecutive sentences_ assessment.
+
+#### Bugfixes
+
+* Fixes a bug where long sentences would be incorrectly highlighted in _sentence length_ assessment in the default editor when they were part of a block that contained non-breaking spaces or closing tags (`>`).
+* Fixes a bug where the advanced replacement variables would not be visible when editing social previews in Elementor.
+* Fixes a bug where the content image would not show on social previews when editing it in Elementor.
+* Fixes a bug where Yoast modals would not be visible when using Astra plugins.
+
+#### Other
+
+* Adds a space before the closing slash in self-closing HTML tags to comply with recommended coding standards. Props to [laxman1192](https://github.com/laxman1192).
+* Sets the _WordPress tested up to_ version to 6.8.
+* Updates the Google AI bot name in the _crawl optimization_ settings from _Google Bard_ to _Google Gemini_.
 
 = Earlier versions =
 For the changelog of earlier versions, please refer to [the changelog on yoast.com](https://yoa.st/yoast-seo-changelog).

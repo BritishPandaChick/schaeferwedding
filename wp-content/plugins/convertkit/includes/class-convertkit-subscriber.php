@@ -35,7 +35,7 @@ class ConvertKit_Subscriber {
 
 		// If the subscriber ID is in the request URI, use it.
 		if ( isset( $_REQUEST[ $this->key ] ) && is_numeric( $_REQUEST[ $this->key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			return $this->validate_and_store_subscriber_id( sanitize_text_field( $_REQUEST[ $this->key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+			return $this->validate_and_store_subscriber_id( sanitize_text_field( wp_unslash( $_REQUEST[ $this->key ] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		}
 
 		// If the subscriber ID is in a cookie, return it.
@@ -154,15 +154,22 @@ class ConvertKit_Subscriber {
 	 * Gets the subscriber ID from the `ck_subscriber_id` cookie.
 	 *
 	 * @since   2.0.0
+	 *
+	 * @return  string
 	 */
 	private function get_subscriber_id_from_cookie() {
 
-		return $_COOKIE[ $this->key ];
+		if ( ! isset( $_COOKIE[ $this->key ] ) ) {
+			return '';
+		}
+
+		return sanitize_text_field( wp_unslash( $_COOKIE[ $this->key ] ) );
 
 	}
 
 	/**
-	 * Stores the given subscriber ID in the `ck_subscriber_id` cookie.
+	 * Stores the given subscriber ID in the `ck_subscriber_id` cookie
+	 * and a prefixed `wordpress_ck_subscriber_id` cookie.
 	 *
 	 * @since   2.0.0
 	 *
@@ -171,6 +178,7 @@ class ConvertKit_Subscriber {
 	public function set( $subscriber_id ) {
 
 		setcookie( $this->key, (string) $subscriber_id, time() + ( 365 * DAY_IN_SECONDS ), '/' );
+		setcookie( 'wordpress_' . $this->key, (string) $subscriber_id, time() + ( 365 * DAY_IN_SECONDS ), '/' );
 
 	}
 
@@ -182,6 +190,7 @@ class ConvertKit_Subscriber {
 	public function forget() {
 
 		setcookie( $this->key, '', time() - ( 365 * DAY_IN_SECONDS ), '/' );
+		setcookie( 'wordpress_' . $this->key, '', time() - ( 365 * DAY_IN_SECONDS ), '/' );
 
 	}
 

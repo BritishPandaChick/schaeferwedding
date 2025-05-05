@@ -71,7 +71,7 @@ class Test_WPMUDEV_Analytics extends WP_UnitTestCase {
 		$options   = array(
 			'time_function' => array( $this, 'time_function' ),
 		);
-		$analytics = new WPMUDEV_Analytics_V3( 'plugin_slug', 'plugin_name', $event_limit, 'project_token', $options );
+		$analytics = new WPMUDEV_Analytics_V4( 'plugin_slug', 'plugin_name', $event_limit, 'project_token', $options );
 		$analytics->set_mixpanel( new Testable_Mixpanel() );
 		return $analytics;
 	}

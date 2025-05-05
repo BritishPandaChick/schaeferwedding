@@ -3014,6 +3014,16 @@ class UpdraftPlus_Backup {
 				}
 			}
 			$this->stow("# Site info: sql_mode=".$this->wpdb_obj->get_var('SELECT @@SESSION.sql_mode')."\n");
+
+			add_filter('updraftplus_backup_db_header_site_info', array($this, 'backup_db_header_site_info_woocommerce'));
+
+			// This filter allows a user to add extra information about site info.
+			if (array() !== ($site_info = apply_filters('updraftplus_backup_db_header_site_info', array()))) {
+				foreach ($site_info as $info) {
+					$this->stow("# Site info: ".$info."\n");
+				}
+			}
+
 			$this->stow("# Site info: end\n");
 		} else {
 			$this->stow("# MySQL database backup (supplementary database ".$this->whichdb.")\n");
@@ -4371,7 +4381,7 @@ class UpdraftPlus_Backup {
 
 		// Always warn of this
 		if (is_string($msg) && strpos($msg, 'File Size Limit Exceeded') !== false && 'UpdraftPlus_BinZip' == $this->use_zip_object) {
-			$updraftplus->log(sprintf(__('The zip engine returned the message: %s.', 'updraftplus'), 'File Size Limit Exceeded'). __('Go here for more information.', 'updraftplus').' https://updraftplus.com/what-should-i-do-if-i-see-the-message-file-size-limit-exceeded/', 'warning', 'zipcloseerror-filesizelimit');
+			$updraftplus->log(sprintf(__('The zip engine returned the message: %s.', 'updraftplus'), 'File Size Limit Exceeded'). __('Go here for more information.', 'updraftplus').' https://teamupdraft.com/documentation/updraftplus/topics/backing-up/troubleshooting/what-should-i-do-if-i-see-the-message-file-size-limit-exceeded/?utm_source=udp-plugin&utm_medium=referral&utm_campaign=paac&utm_content=unknown&utm_creative_format=unknown', 'warning', 'zipcloseerror-filesizelimit');
 		} elseif ($warn) {
 			$warn_msg = __('A zip error occurred', 'updraftplus').' - ';
 			if (!empty($quota_low)) {
@@ -4657,6 +4667,31 @@ class UpdraftPlus_Backup {
 			if (0 === stripos($file, $pattern['directory']) && preg_match($pattern['regex'], $file)) return true;
 		}
 		return $filter;
+	}
+
+	/**
+	 * Adds WooCommerce-related information to the site info header for backup purposes.
+	 *
+	 * This method checks if WooCommerce is active and appends relevant information about
+	 * WooCommerce's state to the provided site info array. Specifically, it includes:
+	 * - Whether WooCommerce is active.
+	 * - Whether the High-Performance Order Storage (HPOS) feature is enabled.
+	 *
+	 * @param array $site_info The existing array of site information to which WooCommerce details will be appended.
+	 * @return array The updated site info array with WooCommerce-related details included.
+	 */
+	public function backup_db_header_site_info_woocommerce($site_info) {
+		if (class_exists('WooCommerce')) {
+			$wc_version = defined('WC_VERSION') ? WC_VERSION : get_option('woocommerce_version');
+			$info = 'WooCommerce='.$wc_version;
+
+			if (class_exists('Automattic\WooCommerce\Utilities\OrderUtil') && is_callable(array('Automattic\WooCommerce\Utilities\OrderUtil', 'custom_orders_table_usage_is_enabled')) && call_user_func(array('Automattic\WooCommerce\Utilities\OrderUtil', 'custom_orders_table_usage_is_enabled'))) {
+				$info .= ',HPOS=enabled';
+			}
+
+			$site_info[] = $info;
+		}
+		return $site_info;
 	}
 }
 
