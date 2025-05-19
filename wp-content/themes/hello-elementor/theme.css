@@ -85,12 +85,15 @@
   display: none !important;
 }
 
+.post-password-form {
+  max-width: 500px;
+  margin: 50px auto;
+}
 .post-password-form p {
   width: 100%;
   display: flex;
   align-items: flex-end;
 }
-
 .post-password-form [type=submit] {
   margin-inline-start: 3px;
 }
@@ -107,7 +110,7 @@
   word-wrap: normal !important; /* Many screen reader and browser combinations announce broken words as they would appear visually. */
 }
 .screen-reader-text:focus {
-  background-color: #eeeeee;
+  background-color: rgb(238.425, 238.425, 238.425);
   clip: auto !important;
   clip-path: none;
   color: #333333;

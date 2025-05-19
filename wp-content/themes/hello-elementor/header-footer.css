@@ -236,7 +236,7 @@
   top: 100%;
 }
 .site-navigation ul.menu li ul li {
-  border-block-end: #eeeeee 1px solid;
+  border-block-end: rgb(238.425, 238.425, 238.425) 1px solid;
 }
 .site-navigation ul.menu li ul li:last-child {
   border-block-end: none;
