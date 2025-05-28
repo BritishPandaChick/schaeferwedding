@@ -608,7 +608,8 @@ var _clamp = _interopRequireDefault(__webpack_require__(7755));
  * @returns {number} A number in the range [min, max]
  */
 function clampWrapper(value, min = 0, max = 1) {
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   return (0, _clamp.default)(value, min, max);
 }
 
@@ -690,7 +691,8 @@ const private_safeColorChannel = (color, warning) => {
   try {
     return colorChannel(color);
   } catch (error) {
-    if (warning && "production" !== 'production') {}
+    if (warning && "production" !== 'production') // removed by dead control flow
+{}
     return color;
   }
 };
@@ -828,7 +830,8 @@ function private_safeAlpha(color, value, warning) {
   try {
     return alpha(color, value);
   } catch (error) {
-    if (warning && "production" !== 'production') {}
+    if (warning && "production" !== 'production') // removed by dead control flow
+{}
     return color;
   }
 }
@@ -855,7 +858,8 @@ function private_safeDarken(color, coefficient, warning) {
   try {
     return darken(color, coefficient);
   } catch (error) {
-    if (warning && "production" !== 'production') {}
+    if (warning && "production" !== 'production') // removed by dead control flow
+{}
     return color;
   }
 }
@@ -886,7 +890,8 @@ function private_safeLighten(color, coefficient, warning) {
   try {
     return lighten(color, coefficient);
   } catch (error) {
-    if (warning && "production" !== 'production') {}
+    if (warning && "production" !== 'production') // removed by dead control flow
+{}
     return color;
   }
 }
@@ -905,7 +910,8 @@ function private_safeEmphasize(color, coefficient, warning) {
   try {
     return emphasize(color, coefficient);
   } catch (error) {
-    if (warning && "production" !== 'production') {}
+    if (warning && "production" !== 'production') // removed by dead control flow
+{}
     return color;
   }
 }
@@ -3972,7 +3978,8 @@ function capitalize(string) {
 
 if (true) {
   module.exports = __webpack_require__(3072);
-} else {}
+} else // removed by dead control flow
+{}
 
 
 /***/ }),
@@ -4792,14 +4799,16 @@ function useMediaQuery(queryInput, options = {}) {
     props: options,
     theme
   });
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   let query = typeof queryInput === 'function' ? queryInput(theme) : queryInput;
   query = query.replace(/^@media( ?)/m, '');
 
   // TODO: Drop `useMediaQueryOld` and use  `use-sync-external-store` shim in `useMediaQueryNew` once the package is stable
   const useMediaQueryImplementation = maybeReactUseSyncExternalStore !== undefined ? useMediaQueryNew : useMediaQueryOld;
   const match = useMediaQueryImplementation(query, defaultMatches, matchMedia, ssrMatchMedia, noSsr);
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   return match;
 }
 ;// ./node_modules/@mui/material/useMediaQuery/index.js
@@ -6000,7 +6009,8 @@ const Paper = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.forwardRef(functio
     variant
   });
   const classes = useUtilityClasses(ownerState);
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(PaperRoot, (0,_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .A)({
     as: component,
     ownerState: ownerState,
@@ -6265,7 +6275,8 @@ module.exports = _extends, module.exports.__esModule = true, module.exports["def
 
 function useTheme() {
   const theme = (0,_mui_system__WEBPACK_IMPORTED_MODULE_1__/* ["default"] */ .A)(_defaultTheme__WEBPACK_IMPORTED_MODULE_2__/* ["default"] */ .A);
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   return theme[_identifier__WEBPACK_IMPORTED_MODULE_3__/* ["default"] */ .A] || theme;
 }
 
@@ -6316,7 +6327,8 @@ function createTypography(palette, typography) {
       pxToRem: pxToRem2
     } = _ref,
     other = (0,_babel_runtime_helpers_esm_objectWithoutPropertiesLoose__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .A)(_ref, _excluded);
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   const coef = fontSize / 14;
   const pxToRem = pxToRem2 || (size => `${size / htmlFontSize * coef}rem`);
   const buildVariant = (fontWeight, size, lineHeight, letterSpacing, casing) => (0,_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_1__/* ["default"] */ .A)({
@@ -6417,7 +6429,8 @@ __webpack_require__.r(__webpack_exports__);
 
 if (true) {
   module.exports = __webpack_require__(1020);
-} else {}
+} else // removed by dead control flow
+{}
 
 
 /***/ }),
@@ -6866,7 +6879,8 @@ exports.MuiInput = MuiInput;
  * @ignore - internal component.
  */
 const ButtonGroupButtonContext = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createContext(undefined);
-if (false) {}
+if (false) // removed by dead control flow
+{}
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ButtonGroupButtonContext);
 
 /***/ }),
@@ -7092,7 +7106,8 @@ var m = __webpack_require__(5795);
 if (true) {
   exports.createRoot = m.createRoot;
   exports.hydrateRoot = m.hydrateRoot;
-} else { var i; }
+} else // removed by dead control flow
+{ var i; }
 
 
 /***/ }),
@@ -8076,7 +8091,8 @@ function createStyled(input = {}) {
     componentSlot && componentSlot !== 'Root' && componentSlot !== 'root' || false;
     const skipSx = inputSkipSx || false;
     let label;
-    if (false) {}
+    if (false) // removed by dead control flow
+{}
     let shouldForwardPropOption = shouldForwardProp;
 
     // TODO v6: remove `Root` in the next major release
@@ -8158,7 +8174,8 @@ function createStyled(input = {}) {
         transformedStyleArg.raw = [...styleArg.raw, ...placeholders];
       }
       const Component = defaultStyledResolver(transformedStyleArg, ...expressionsWithDefaultTheme);
-      if (false) {}
+      if (false) // removed by dead control flow
+{}
       if (tag.muiName) {
         Component.muiName = tag.muiName;
       }
@@ -8773,7 +8790,8 @@ function createSpacing(spacingInput = 8) {
     spacing: spacingInput
   });
   const spacing = (...argsInput) => {
-    if (false) {}
+    if (false) // removed by dead control flow
+{}
     const args = argsInput.length === 0 ? [1] : argsInput;
     return args.map(argument => {
       const output = transform(argument);
@@ -9157,7 +9175,8 @@ function createPalette(palette) {
   // and material-components-web https://github.com/material-components/material-components-web/blob/ac46b8863c4dab9fc22c4c662dc6bd1b65dd652f/packages/mdc-theme/_functions.scss#L54
   function getContrastText(background) {
     const contrastText = (0,colorManipulator/* getContrastRatio */.eM)(background, dark.text.primary) >= contrastThreshold ? dark.text.primary : light.text.primary;
-    if (false) {}
+    if (false) // removed by dead control flow
+{}
     return contrastText;
   }
   const augmentColor = ({
@@ -9188,7 +9207,8 @@ function createPalette(palette) {
     dark,
     light
   };
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   const paletteOutput = (0,deepmerge/* default */.A)((0,esm_extends/* default */.A)({
     // A collection of common colors.
     common: (0,esm_extends/* default */.A)({}, colors_common),
@@ -9312,7 +9332,8 @@ function createTheme_createTheme(options = {}, ...args) {
   });
   muiTheme = (0,deepmerge/* default */.A)(muiTheme, other);
   muiTheme = args.reduce((acc, argument) => (0,deepmerge/* default */.A)(acc, argument), muiTheme);
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   muiTheme.unstable_sxConfig = (0,esm_extends/* default */.A)({}, defaultSxConfig/* default */.A, other == null ? void 0 : other.unstable_sxConfig);
   muiTheme.unstable_sx = function sx(props) {
     return (0,styleFunctionSx/* default */.A)({
@@ -9324,7 +9345,8 @@ function createTheme_createTheme(options = {}, ...args) {
 }
 let warnedOnce = false;
 function createMuiTheme(...args) {
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   return createTheme_createTheme(...args);
 }
 /* harmony default export */ const styles_createTheme = (createTheme_createTheme);
@@ -9396,7 +9418,8 @@ function createTransitions(inputTransitions) {
         delay = 0
       } = options,
       other = (0,_babel_runtime_helpers_esm_objectWithoutPropertiesLoose__WEBPACK_IMPORTED_MODULE_1__/* ["default"] */ .A)(options, _excluded);
-    if (false) {}
+    if (false) // removed by dead control flow
+{}
     return (Array.isArray(props) ? props : [props]).map(animatedProp => `${animatedProp} ${typeof durationOption === 'string' ? durationOption : formatMs(durationOption)} ${easingOption} ${typeof delay === 'string' ? delay : formatMs(delay)}`).join(',');
   };
   return (0,_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .A)({
@@ -9548,7 +9571,8 @@ const _excluded = ["defaultProps", "mixins", "overrides", "palette", "props", "s
   _excluded2 = ["type", "mode"];
 
 function adaptV4Theme(inputTheme) {
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   const {
       defaultProps = {},
       mixins = {},
@@ -9637,7 +9661,8 @@ var clamp = __webpack_require__(6972);
  * @returns {number} A number in the range [min, max]
  */
 function clampWrapper(value, min = 0, max = 1) {
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   return (0,clamp/* default */.A)(value, min, max);
 }
 
@@ -9718,7 +9743,8 @@ const private_safeColorChannel = (color, warning) => {
   try {
     return colorChannel(color);
   } catch (error) {
-    if (warning && "production" !== 'production') {}
+    if (warning && "production" !== 'production') // removed by dead control flow
+{}
     return color;
   }
 };
@@ -9855,7 +9881,8 @@ function private_safeAlpha(color, value, warning) {
   try {
     return alpha(color, value);
   } catch (error) {
-    if (warning && "production" !== 'production') {}
+    if (warning && "production" !== 'production') // removed by dead control flow
+{}
     return color;
   }
 }
@@ -9882,7 +9909,8 @@ function private_safeDarken(color, coefficient, warning) {
   try {
     return darken(color, coefficient);
   } catch (error) {
-    if (warning && "production" !== 'production') {}
+    if (warning && "production" !== 'production') // removed by dead control flow
+{}
     return color;
   }
 }
@@ -9913,7 +9941,8 @@ function private_safeLighten(color, coefficient, warning) {
   try {
     return lighten(color, coefficient);
   } catch (error) {
-    if (warning && "production" !== 'production') {}
+    if (warning && "production" !== 'production') // removed by dead control flow
+{}
     return color;
   }
 }
@@ -9932,7 +9961,8 @@ function private_safeEmphasize(color, coefficient, warning) {
   try {
     return emphasize(color, coefficient);
   } catch (error) {
-    if (warning && "production" !== 'production') {}
+    if (warning && "production" !== 'production') // removed by dead control flow
+{}
     return color;
   }
 }
@@ -10178,14 +10208,16 @@ var external_React_ = __webpack_require__(1609);
 ;// ./node_modules/@mui/private-theming/useTheme/ThemeContext.js
 
 const ThemeContext = /*#__PURE__*/external_React_.createContext(null);
-if (false) {}
+if (false) // removed by dead control flow
+{}
 /* harmony default export */ const useTheme_ThemeContext = (ThemeContext);
 ;// ./node_modules/@mui/private-theming/useTheme/useTheme.js
 
 
 function useTheme_useTheme() {
   const theme = external_React_.useContext(useTheme_ThemeContext);
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   return theme;
 }
 ;// ./node_modules/@mui/private-theming/ThemeProvider/nested.js
@@ -10207,7 +10239,8 @@ var jsx_runtime = __webpack_require__(4848);
 function mergeOuterLocalTheme(outerTheme, localTheme) {
   if (typeof localTheme === 'function') {
     const mergedTheme = localTheme(outerTheme);
-    if (false) {}
+    if (false) // removed by dead control flow
+{}
     return mergedTheme;
   }
   return (0,esm_extends/* default */.A)({}, outerTheme, localTheme);
@@ -10224,7 +10257,8 @@ function ThemeProvider(props) {
     theme: localTheme
   } = props;
   const outerTheme = useTheme_useTheme();
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   const theme = external_React_.useMemo(() => {
     const output = outerTheme === null ? localTheme : mergeOuterLocalTheme(outerTheme, localTheme);
     if (output != null) {
@@ -10238,7 +10272,8 @@ function ThemeProvider(props) {
   });
 }
  false ? 0 : void 0;
-if (false) {}
+if (false) // removed by dead control flow
+{}
 /* harmony default export */ const ThemeProvider_ThemeProvider = (ThemeProvider);
 // EXTERNAL MODULE: ./node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js
 var emotion_element_5486c51c_browser_esm = __webpack_require__(9214);
@@ -10348,7 +10383,8 @@ function ThemeProvider_ThemeProvider_ThemeProvider(props) {
   } = props;
   const upperTheme = (0,useThemeWithoutDefault/* default */.A)(EMPTY_THEME);
   const upperPrivateTheme = useTheme_useTheme() || EMPTY_THEME;
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   const engineTheme = useThemeScoping(themeId, upperTheme, localTheme);
   const privateTheme = useThemeScoping(themeId, upperPrivateTheme, localTheme, true);
   const rtlValue = engineTheme.direction === 'rtl';
@@ -10367,7 +10403,8 @@ function ThemeProvider_ThemeProvider_ThemeProvider(props) {
   });
 }
  false ? 0 : void 0;
-if (false) {}
+if (false) // removed by dead control flow
+{}
 /* harmony default export */ const esm_ThemeProvider_ThemeProvider = (ThemeProvider_ThemeProvider_ThemeProvider);
 ;// ./node_modules/@mui/material/styles/ThemeProvider.js
 'use client';
@@ -10735,7 +10772,8 @@ function createCssVarsProvider(options) {
     console.error(`MUI: \`${designSystemColorScheme}\` does not exist in \`theme.colorSchemes\`.`);
   }
   const ColorSchemeContext = /*#__PURE__*/external_React_.createContext(undefined);
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   const useColorScheme = () => {
     const value = external_React_.useContext(ColorSchemeContext);
     if (!value) {
@@ -13109,7 +13147,8 @@ function createUnaryUnit(theme, themeKey, defaultValue, propName) {
       if (typeof abs === 'string') {
         return abs;
       }
-      if (false) {}
+      if (false) // removed by dead control flow
+{}
       return themeSpacing * abs;
     };
   }
@@ -13118,14 +13157,16 @@ function createUnaryUnit(theme, themeKey, defaultValue, propName) {
       if (typeof abs === 'string') {
         return abs;
       }
-      if (false) {}
+      if (false) // removed by dead control flow
+{}
       return themeSpacing[abs];
     };
   }
   if (typeof themeSpacing === 'function') {
     return themeSpacing;
   }
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   return () => undefined;
 }
 function createUnarySpacing(theme) {
@@ -13711,7 +13752,8 @@ function createStyled(input = {}) {
     componentSlot && componentSlot !== 'Root' && componentSlot !== 'root' || false;
     const skipSx = inputSkipSx || false;
     let label;
-    if (false) {}
+    if (false) // removed by dead control flow
+{}
     let shouldForwardPropOption = shouldForwardProp;
 
     // TODO v6: remove `Root` in the next major release
@@ -13793,7 +13835,8 @@ function createStyled(input = {}) {
         transformedStyleArg.raw = [...styleArg.raw, ...placeholders];
       }
       const Component = defaultStyledResolver(transformedStyleArg, ...expressionsWithDefaultTheme);
-      if (false) {}
+      if (false) // removed by dead control flow
+{}
       if (tag.muiName) {
         Component.muiName = tag.muiName;
       }
@@ -14691,7 +14734,8 @@ var GlobalStyles = __webpack_require__(9940);
 
 function styled(tag, options) {
   const stylesFactory = newStyled(tag, options);
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   return stylesFactory;
 }
 
@@ -15000,7 +15044,8 @@ function formatMuiErrorMessage(code) {
  * @ignore - internal component.
  */
 const ButtonGroupContext = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createContext({});
-if (false) {}
+if (false) // removed by dead control flow
+{}
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ButtonGroupContext);
 
 /***/ }),
@@ -17528,7 +17573,8 @@ const ButtonBase = /*#__PURE__*/external_React_.forwardRef(function ButtonBase(i
     }
   }
   const handleRef = (0,useForkRef/* default */.A)(ref, focusVisibleRef, buttonRef);
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   const ownerState = (0,esm_extends/* default */.A)({}, props, {
     centerRipple,
     component,

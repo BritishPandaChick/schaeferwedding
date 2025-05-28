@@ -6,6 +6,8 @@
 
 /*! @elementor/editor-current-user */
 
+/*! @elementor/editor-documents */
+
 /*! @elementor/editor-elements */
 
 /*! @elementor/editor-panels */
@@ -107,6 +109,10 @@
 /*!*************************************************!*\
   !*** external ["elementorV2","editorElements"] ***!
   \*************************************************/
+
+/*!**************************************************!*\
+  !*** external ["elementorV2","editorDocuments"] ***!
+  \**************************************************/
 
 /*!***************************************************!*\
   !*** external ["elementorV2","editorResponsive"] ***!

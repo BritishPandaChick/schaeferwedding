@@ -12,6 +12,7 @@ return [
 		'elementor-v2-editor-canvas',
 		'elementor-v2-editor-controls',
 		'elementor-v2-editor-current-user',
+		'elementor-v2-editor-documents',
 		'elementor-v2-editor-elements',
 		'elementor-v2-editor-panels',
 		'elementor-v2-editor-props',

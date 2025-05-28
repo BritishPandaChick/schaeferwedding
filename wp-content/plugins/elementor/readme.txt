@@ -4,7 +4,7 @@ Tags: page builder, editor, landing page, drag-and-drop, elementor,
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.29.0
+Stable tag: 3.29.1
 Beta tag: 3.29.0-beta4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -348,6 +348,14 @@ You can also add a new language via [translate.wordpress.org](https://go.element
 6. **Motion Effects** - Add entrance animations and transitions to any element in your website to captivate visitors.
 
 == Changelog ==
+
+= 3.29.1 - 2025-05-28 =
+
+* Tweak: Disabled the ability to use elements caching shortcode via the interface
+* Security Fix: Improved code security enforcement in Shortcode widget
+* Fix: Information modals are not showing as expected in the Editor - Editor V4
+* Fix: Error on the frontend when background overlay is set to hidden - Editor V4
+* Fix: Editor load issue when a widget does not register the "Advanced" tab
 
 = 3.29.0 - 2025-05-19 =
 

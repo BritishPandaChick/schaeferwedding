@@ -1,3 +1,5 @@
+/*! @elementor/editor-current-user */
+
 /*! @elementor/editor-elements */
 
 /*! @elementor/editor-v1-adapters */
@@ -33,6 +35,10 @@
 /*!***************************************************!*\
   !*** external ["elementorV2","editorV1Adapters"] ***!
   \***************************************************/
+
+/*!****************************************************!*\
+  !*** external ["elementorV2","editorCurrentUser"] ***!
+  \****************************************************/
 
 /*!*************************************************************************!*\
   !*** ./node_modules/@elementor/editor-styles-repository/dist/index.mjs ***!

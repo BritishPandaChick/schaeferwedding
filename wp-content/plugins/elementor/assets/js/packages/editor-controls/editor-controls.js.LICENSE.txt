@@ -8,6 +8,8 @@
 
 /*! @elementor/editor-ui */
 
+/*! @elementor/editor-v1-adapters */
+
 /*! @elementor/env */
 
 /*! @elementor/http-client */
@@ -95,6 +97,10 @@
 /*!*************************************************!*\
   !*** external ["elementorV2","editorElements"] ***!
   \*************************************************/
+
+/*!***************************************************!*\
+  !*** external ["elementorV2","editorV1Adapters"] ***!
+  \***************************************************/
 
 /*!****************************************************!*\
   !*** external ["elementorV2","editorCurrentUser"] ***!
