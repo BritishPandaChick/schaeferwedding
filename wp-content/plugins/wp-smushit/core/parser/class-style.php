@@ -2,7 +2,7 @@
 
 namespace Smush\Core\Parser;
 
-class Style {
+class Style implements Replaceable {
 	/**
 	 * @var string
 	 */
@@ -11,10 +11,15 @@ class Style {
 	 * @var Image_URL[]
 	 */
 	private $image_urls;
+	/**
+	 * @var int
+	 */
+	private $position;
 
-	public function __construct( $css, $image_urls ) {
+	public function __construct( $css, $image_urls, $position = - 1 ) {
 		$this->css        = $css;
 		$this->image_urls = $image_urls;
+		$this->position   = $position;
 	}
 
 	/**
@@ -51,5 +56,13 @@ class Style {
 		}
 
 		return $updated;
+	}
+
+	public function get_original() {
+		return $this->get_css();
+	}
+
+	public function get_position() {
+		return $this->position;
 	}
 }

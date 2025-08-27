@@ -453,11 +453,12 @@ abstract class Abstract_Page {
 		$whitelabel_hide_doc_link = apply_filters( 'wpmudev_branding_hide_doc_link', false );
 		$hide_upgrade_modal       = empty( get_site_option( 'wp-smush-show_upgrade_modal' ) );
 		$is_on_subsite_screen     = ! is_network_admin();
+		$has_lazy_preload_page    = $this->settings->has_lazy_preload_page();
 		if (
 			$this->has_onload_modal()
 			|| $hide_upgrade_modal
 			|| $whitelabel_hide_doc_link
-			|| ( $is_on_subsite_screen && ! $this->settings->has_next_gen_page() )
+			|| ( $is_on_subsite_screen && ! $has_lazy_preload_page )
 		) {
 			$should_ignore_upgrade_modal = $whitelabel_hide_doc_link || $this->has_onload_modal( 'onboarding' );
 			if ( $should_ignore_upgrade_modal ) {
@@ -466,9 +467,12 @@ abstract class Abstract_Page {
 			return;
 		}
 
-		$cta_url = WP_Smush::is_pro()
-					? Helper::get_page_url( 'smush-next-gen' )
-					: $this->get_utm_link( array( 'utm_campaign' => 'smush_welcome_modal_avif' ) );
+		if ( $has_lazy_preload_page ) {
+			$cta_url = Helper::get_page_url( 'smush-lazy-preload' );
+		} else {
+			$cta_url = '';
+		}
+
 		// Load new feature modal.
 		$this->modals['updated'] = array(
 			'cta_url' => $cta_url,
@@ -631,8 +635,9 @@ abstract class Abstract_Page {
 				$doc .= '#directory-smush';
 				break;
 
-			case 'smush-lazy-load':
-				$doc .= '#lazy-loading';
+			case 'smush-lazy-preload':
+				$current_tag = $this->get_current_tab();
+				$doc        .= 'preload' === $current_tag ? '#preload' : '#lazy-load';
 				break;
 
 			case 'smush-cdn':
@@ -653,6 +658,10 @@ abstract class Abstract_Page {
 
 			case 'smush-settings':
 				$doc .= '#settings';
+				break;
+
+			case 'smush':
+				$doc .= '#dashboard';
 				break;
 		}
 
@@ -912,34 +921,6 @@ abstract class Abstract_Page {
 	}
 
 	/**
-	 * Enqueue scripts.
-	 * Used by the Tutorials and Dashboard pages.
-	 */
-	protected function enqueue_tutorials_scripts() {
-		wp_enqueue_script(
-			'smush-tutorials',
-			WP_SMUSH_URL . 'app/assets/js/smush-tutorials.min.js',
-			array( 'wp-i18n' ),
-			WP_SMUSH_VERSION,
-			true
-		);
-
-		$strings = array(
-			'tutorials'         => esc_html__( 'Tutorials', 'wp-smushit' ),
-			'tutorials_link'    => $this->get_utm_link( array( 'utm_campaign' => 'smush_tutorials_page' ), 'https://wpmudev.com/blog/tutorials/tutorial-category/smush-pro/' ),
-			'tutorials_strings' => array(
-				array(
-					'loading'      => esc_html__( 'Loading tutorials...', 'wp-smushit' ),
-					'min_read'     => esc_html__( 'min read', 'wp-smushit' ),
-					'read_article' => esc_html__( 'Read article', 'wp-smushit' ),
-				),
-			),
-		);
-
-		wp_localize_script( 'smush-tutorials', 'smush_tutorials', $strings );
-	}
-
-	/**
 	 * Enqueue the scripts for configs.
 	 * Used in the Settings and Dashboard pages.
 	 *
@@ -1062,5 +1043,14 @@ abstract class Abstract_Page {
 		if ( is_super_admin() ) {
 			return network_admin_url( $dashboard_path );
 		}
+	}
+
+	public static function should_show_new_feature_hotspot() {
+		return (bool) get_site_option( 'wp-smush-show-new-feature-hotspot' );
+	}
+
+	public static function hide_new_feature_hotspot() {
+		// Hide the new feature hotspot.
+		delete_site_option( 'wp-smush-show-new-feature-hotspot' );
 	}
 }

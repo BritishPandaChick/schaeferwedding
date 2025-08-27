@@ -52,9 +52,6 @@ class Ajax {
 		// Ajax request for quick setup.
 		add_action( 'wp_ajax_smush_setup', array( $this, 'smush_setup' ) );
 
-		// Hide tutorials.
-		add_action( 'wp_ajax_smush_hide_tutorials', array( $this, 'hide_tutorials' ) );
-
 		/**
 		 * NOTICES
 		 */
@@ -160,7 +157,7 @@ class Ajax {
 		$settings = $this->settings->get();
 
 		// Available settings for free/pro version.
-		$available           = array( 'auto', 'lossy', 'strip_exif', 'original', 'lazy_load', 'usage' );
+		$available           = array( 'auto', 'lossy', 'strip_exif', 'original', 'preload_images', 'lazy_load', 'usage' );
 		$highest_lossy_level = $this->settings->get_highest_lossy_level();
 
 		foreach ( $settings as $name => $values ) {
@@ -197,24 +194,6 @@ class Ajax {
 		$this->settings->set_setting( 'wp-smush-settings', $settings );
 
 		update_option( 'skip-smush-setup', true );
-
-		wp_send_json_success();
-	}
-
-	/**
-	 * Hide tutorials.
-	 *
-	 * @sinde 3.8.6
-	 */
-	public function hide_tutorials() {
-		check_ajax_referer( 'wp-smush-ajax' );
-
-		// Check capability.
-		if ( ! Helper::is_user_allowed( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'wp-smushit' ), 403 );
-		}
-
-		update_option( 'wp-smush-hide-tutorials', true, false );
 
 		wp_send_json_success();
 	}

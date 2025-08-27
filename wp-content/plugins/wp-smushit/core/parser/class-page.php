@@ -33,6 +33,11 @@ class Page {
 	private $composite_elements;
 
 	/**
+	 * @var Composite_Element|Element|null
+	 */
+	private $lcp_element;
+
+	/**
 	 * @param $page_url string
 	 * @param $page_markup string
 	 * @param $styles Style[]
@@ -104,69 +109,78 @@ class Page {
 		return $this->page_markup;
 	}
 
+	/**
+	 * ASSUMPTIONS:
+	 * - All elements handled by this method have correct positions, not the default -1
+	 * - The same element is not included in the elements array as well as a composite element
+	 *
+	 * @return string
+	 */
 	public function get_updated_markup() {
-		$updated = $this->page_markup;
+		$updated     = $this->page_markup;
+		$replaceable = $this->get_sorted_items();
 
-		$placeholders = new Placeholder_Replacement();
-		$updated      = $placeholders->add_placeholders( $updated, $this->parser->get_tags( $updated, array(
-			'script',
-			'noscript',
-		) ) );
-
-		foreach ( $this->styles as $style ) {
-			$updated = str_replace( $style->get_css(), $style->get_updated(), $updated );
-		}
-
-		foreach ( $this->composite_elements as $composite_element ) {
-			if ( $composite_element->has_updates() ) {
-				$composite_markup = $composite_element->get_markup();
-				if ( $this->parser->markup_contains_noscript( $composite_markup ) ) {
-					$composite_markup = $placeholders->add_placeholders( $composite_markup, $this->parser->get_tags( $composite_markup, array(
-						'noscript',
-					) ) );
-				}
-
-				$updated = str_replace(
-					$composite_markup,
-					$composite_element->get_updated(),
-					$updated
-				);
+		foreach ( $replaceable as $replaceable_item ) {
+			if ( $replaceable_item->has_updates() ) {
+				$before  = substr( $updated, 0, $replaceable_item->get_position() );
+				$after   = substr( $updated, $replaceable_item->get_position() + strlen( $replaceable_item->get_original() ) );
+				$updated = $before . $replaceable_item->get_updated() . $after;
 			}
 		}
-
-		// Maybe replace noscript that added by composite elements to placeholders.
-		if ( ! empty( $this->composite_elements ) && $this->parser->markup_contains_noscript( $updated ) ) {
-			$updated = $placeholders->add_placeholders( $updated, $this->parser->get_tags( $updated, array(
-				'noscript',
-			) ) );
-		}
-
-		foreach ( $this->elements as $element ) {
-			if ( $element->has_updates() ) {
-				$updated = str_replace(
-					$element->get_markup(),
-					$element->get_updated_markup(),
-					$updated
-				);
-			}
-		}
-
-		foreach ( $this->iframe_elements as $iframe_element ) {
-			if ( $iframe_element->has_updates() ) {
-				$updated = str_replace(
-					$iframe_element->get_markup(),
-					$iframe_element->get_updated_markup(),
-					$updated
-				);
-			}
-		}
-
-		$updated = $placeholders->remove_placeholders( $updated );
 
 		return $updated;
 	}
 
 	public function get_iframe_elements() {
 		return $this->iframe_elements;
+	}
+
+	public function get_lcp_element() {
+		if ( is_null( $this->lcp_element ) ) {
+			$this->lcp_element = $this->find_lcp_element();
+		}
+
+		return $this->lcp_element;
+	}
+
+	/**
+	 * @return Composite_Element|Element|null
+	 */
+	private function find_lcp_element() {
+		foreach ( $this->get_composite_elements() as $composite_element ) {
+			if ( $composite_element->has_lcp() ) {
+				return $composite_element;
+			}
+		}
+
+		foreach ( $this->get_elements() as $element ) {
+			if ( $element->is_lcp() ) {
+				return $element;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @return Replaceable[]
+	 */
+	private function get_sorted_items(): array {
+		/**
+		 * @var Replaceable[] $replaceable
+		 */
+		$replaceable = array_merge(
+			$this->styles,
+			$this->composite_elements,
+			$this->elements,
+			$this->iframe_elements
+		);
+
+		// Replace elements starting from the end of the markup so that positions don't change
+
+		usort( $replaceable, function ( $a, $b ) {
+			return $b->get_position() <=> $a->get_position();
+		} );
+		return $replaceable;
 	}
 }

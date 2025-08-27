@@ -112,6 +112,11 @@ class Server_Utils {
 		return '';
 	}
 
+	public function browser_supports_nextgen_format( $format ) {
+		$http_accept = $this->get_http_accept_header();
+		return ! empty( $http_accept ) && false !== strpos( $http_accept, $format );
+	}
+
 	public function browser_supports_webp() {
 		$http_accept = $this->get_http_accept_header();
 		if ( ! empty( $http_accept ) && false !== strpos( $http_accept, 'webp' ) ) {

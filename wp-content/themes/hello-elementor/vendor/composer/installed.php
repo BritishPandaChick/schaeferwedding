@@ -3,7 +3,7 @@
         'name' => 'elementor/hello-theme',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'e62f2c9e8540244daa514a4bf4fcceee885d356f',
+        'reference' => 'c39d9f25619b465d7dd58f732f659675e5e801a2',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'elementor/hello-theme' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'e62f2c9e8540244daa514a4bf4fcceee885d356f',
+            'reference' => 'c39d9f25619b465d7dd58f732f659675e5e801a2',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

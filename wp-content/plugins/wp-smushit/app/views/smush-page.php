@@ -12,20 +12,12 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 // Some pages don't need to have wrapped in a form.
-$page_without_forms = array( 'smush-tutorials' );
+$page_without_forms = array();
 $page_has_form      = ! in_array( $this->get_slug(), $page_without_forms, true );
 
 $this->do_meta_boxes( 'summary' );
 
 ?>
-
-<?php if ( 'smush' === $this->get_slug() && ! apply_filters( 'wpmudev_branding_hide_doc_link', false ) && ! get_option( 'wp-smush-hide-tutorials' ) ) : ?>
-	<div id="smush-dash-tutorials"></div>
-<?php endif; ?>
-
-<?php if ( 'smush-tutorials' === $this->get_slug() ) : ?>
-	<div id="smush-box-tutorials"></div>
-<?php endif; ?>
 
 <?php if ( ! $this->get_current_tab() ) : ?>
 	<?php if ( $page_has_form ) : ?>
@@ -43,6 +35,7 @@ $this->do_meta_boxes( 'summary' );
 	<?php if ( 'configs' !== $this->get_current_tab() ) : ?>
 		<form id="<?php echo esc_attr( $this->get_slug() ); ?>-form" method="post">
 	<?php endif; ?>
+		<?php do_action( 'wp_smush_admin_page_before_sidenav', $this->get_slug(), $this->get_current_tab() ); ?>
 		<div class="sui-row-with-sidenav">
 			<?php $this->show_tabs(); ?>
 			<?php $this->do_meta_boxes( $this->get_current_tab() ); ?>
@@ -72,8 +65,4 @@ $this->do_meta_boxes( 'summary' );
 <?php endif; ?>
 
 <?php
-if ( ! WP_Smush::is_pro() && 'smush' === $this->get_slug() ) {
-	$this->view( 'footer-plugins-upsell', array(), 'common' );
-}
-
 $this->view( 'footer-links', array(), 'common' );

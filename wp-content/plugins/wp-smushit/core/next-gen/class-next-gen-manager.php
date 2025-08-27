@@ -46,6 +46,10 @@ class Next_Gen_Manager {
 		return $this->get_active_format_configuration()->direct_conversion_enabled();
 	}
 
+	public function is_fallback_activated() {
+		return $this->get_active_format_configuration()->is_fallback_activated();
+	}
+
 	public function get_active_format_configuration() {
 		return $this->get_format_configuration( $this->get_preferred_format() );
 	}
@@ -77,6 +81,10 @@ class Next_Gen_Manager {
 		}
 
 		$this->switch_to_format( $format_key );
+	}
+
+	public function is_active_format( $format_key ) {
+		return $this->get_active_format_key() === $format_key;
 	}
 
 	/**
@@ -147,6 +155,15 @@ class Next_Gen_Manager {
 			do_action( 'wp_smush_next_gen_after_format_switch', $new_format_key, $old_format_key );
 		} else {
 			$toggle_format_configuration->toggle_module( true );
+		}
+	}
+
+	public function deactivate() {
+		$configuration_objects = $this->get_configuration_objects();
+		foreach ( $configuration_objects as $configuration ) {
+			if ( $configuration->is_activated() ) {
+				$configuration->toggle_module( false );
+			}
 		}
 	}
 

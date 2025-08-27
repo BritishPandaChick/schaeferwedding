@@ -56,12 +56,12 @@ class ConvertKit_Admin_Section_OAuth extends ConvertKit_Admin_Section_Base {
 		}
 
 		// Bail if no authorization code is included in the request.
-		if ( ! array_key_exists( 'code', $_REQUEST ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! filter_has_var( INPUT_GET, 'code' ) ) {
 			return;
 		}
 
 		// Sanitize token.
-		$authorization_code = sanitize_text_field( wp_unslash( $_REQUEST['code'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		$authorization_code = filter_input( INPUT_GET, 'code', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		// Exchange the authorization code and verifier for an access token.
 		$api    = new ConvertKit_API_V4( CONVERTKIT_OAUTH_CLIENT_ID, CONVERTKIT_OAUTH_CLIENT_REDIRECT_URI );
@@ -86,7 +86,7 @@ class ConvertKit_Admin_Section_OAuth extends ConvertKit_Admin_Section_Base {
 			array(
 				'access_token'  => $result['access_token'],
 				'refresh_token' => $result['refresh_token'],
-				'token_expires' => ( $result['created_at'] + $result['expires_in'] ),
+				'token_expires' => ( time() + $result['expires_in'] ),
 			)
 		);
 

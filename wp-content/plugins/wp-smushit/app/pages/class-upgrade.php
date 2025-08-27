@@ -45,7 +45,10 @@ class Upgrade extends Abstract_Page {
 		</style>
 		<script>
 			window.addEventListener( 'load', function() {
-				document.querySelector( '<?php echo esc_html( $submenu_selector ); ?>' ).target="_blank";
+				const submenu = document.querySelector( '<?php echo esc_html( $submenu_selector ); ?>' );
+				if ( submenu ) {
+					submenu.target = "_blank";
+				}
 			} );
 		</script>
 		<?php

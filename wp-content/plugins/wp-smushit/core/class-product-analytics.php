@@ -42,6 +42,10 @@ class Product_Analytics {
 	 * @var Time_Utils
 	 */
 	private $time_utils;
+	/**
+	 * @var Url_Utils
+	 */
+	private $url_utils;
 
 	/**
 	 * Static instance getter
@@ -59,6 +63,7 @@ class Product_Analytics {
 		$this->format_utils = new Format_Utils();
 		$this->array_utils  = new Array_Utils();
 		$this->time_utils   = new Time_Utils();
+		$this->url_utils    = new Url_Utils();
 		$this->settings     = Settings::get_instance();
 	}
 
@@ -122,9 +127,7 @@ class Product_Analytics {
 	}
 
 	private function normalize_url( $url ) {
-		$url = str_replace( array( 'http://', 'https://', 'www.' ), '', $url );
-
-		return untrailingslashit( $url );
+		return $this->url_utils->normalize_url( $url );
 	}
 
 	private function get_super_properties() {

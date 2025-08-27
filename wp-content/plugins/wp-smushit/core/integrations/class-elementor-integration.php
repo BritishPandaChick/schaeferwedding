@@ -77,7 +77,7 @@ class Elementor_Integration extends Controller {
 		return preg_replace_callback(
 			"#(?:https?:)?{$content_url}[^'|,;\"]*\.(?:jpe?g|png|gif|webp)#m",
 			function ( $matches ) {
-				return addcslashes( $this->transform_url( stripslashes( $matches[0] ) ), '/' );
+				return addcslashes( $this->transform_url( $this->sanitize_json_url( $matches[0] ) ), '/' );
 			},
 			$element_data
 		);
@@ -109,5 +109,27 @@ class Elementor_Integration extends Controller {
 	private function prepare_url( $url ) {
 		$url = untrailingslashit( preg_replace( '/https?:/', '', $url ) );
 		return addcslashes( preg_quote( $url, '/' ), '/' );
+	}
+
+	/**
+	 * Cleans JSON-encoded URLs by removing extra slashes.
+	 * Returns original string if decoding fails.
+	 *
+	 * @param string $url The JSON-encoded URL string to process
+	 * @return string The decoded URL with slashes normalized, or original string on failure
+	 * @since 3.8.0
+	 */
+	private function sanitize_json_url( $url ) {
+		try {
+			$decoded = json_decode( '"' . str_replace( '"', '\"', $url ) . '"' );
+
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				throw new Exception( 'Invalid JSON' );
+			}
+
+			return str_replace( '\/', '/', $decoded );
+		} catch ( Exception $e ) {
+			return $url;
+		}
 	}
 }

@@ -331,8 +331,9 @@ class Admin {
 				$this->pages['directory'] = new Pages\Directory( 'smush-directory', __( 'Directory Smush', 'wp-smushit' ), 'smush' );
 			}
 
-			if ( Abstract_Page::should_render( 'lazy_load' ) ) {
-				$this->pages['lazy-load'] = new Pages\Lazy( 'smush-lazy-load', __( 'Lazy Load', 'wp-smushit' ), 'smush' );
+			if ( Abstract_Page::should_render( Settings::LAZY_PRELOAD_MODULE_NAME ) ) {
+				$pro_feature_ripple_effect   = Abstract_Page::should_show_new_feature_hotspot() ? '<span class="smush-new-feature-dot"></span>' : '';
+				$this->pages['lazy-preload'] = new Pages\Lazy_Preload( 'smush-lazy-preload', __( 'Lazy Load & Preload', 'wp-smushit' ) . $pro_feature_ripple_effect, 'smush' );
 			}
 
 			if ( Abstract_Page::should_render( 'cdn' ) ) {
@@ -349,10 +350,6 @@ class Admin {
 
 			if ( ! is_multisite() || is_network_admin() ) {
 				$this->pages['settings'] = new Pages\Settings( 'smush-settings', __( 'Settings', 'wp-smushit' ), 'smush' );
-			}
-
-			if ( ! apply_filters( 'wpmudev_branding_hide_doc_link', false ) && Abstract_Page::should_render( 'tutorials' ) ) {
-				$this->pages['tutorials'] = new Pages\Tutorials( 'smush-tutorials', __( 'Tutorials', 'wp-smushit' ), 'smush' );
 			}
 
 			if ( ! WP_Smush::is_pro() ) {
@@ -492,7 +489,8 @@ class Admin {
 	 */
 	public function show_plugin_conflict_notice() {
 		// Do not show on lazy load module, there we show an inline notice.
-		if ( false !== strpos( get_current_screen()->id, 'page_smush-lazy-load' ) ) {
+		$is_lazy_preload_page = false !== strpos( get_current_screen()->id, 'page_smush-lazy-preload' );
+		if ( $is_lazy_preload_page ) {
 			return;
 		}
 

@@ -3,6 +3,8 @@
 namespace Smush\Core\Lazy_Load;
 
 use Smush\Core\Array_Utils;
+use Smush\Core\Keyword_Exclusions;
+use Smush\Core\LCP\LCP_Transform;
 use Smush\Core\Parser\Composite_Element;
 use Smush\Core\Parser\Element;
 use Smush\Core\Parser\Element_Attribute;
@@ -11,11 +13,11 @@ use Smush\Core\Settings;
 use Smush\Core\Transform\Transform;
 use Smush\Core\Upload_Dir;
 use Smush\Core\Url_Utils;
-use Smush\Core\Keyword_Exclusions;
 
 class Lazy_Load_Transform implements Transform {
 	const LAZYLOAD_CLASS = 'lazyload';
-	const TEMP_SRC = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+	const TEMP_SRC = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==';
+
 	/**
 	 * @var Settings
 	 */
@@ -104,20 +106,38 @@ class Lazy_Load_Transform implements Transform {
 			return;
 		}
 
+		if ( $this->helper->should_lazy_load_embed_video() ) {
+			$lazy_load_video = new Lazy_Load_Video_Embed( $original_src_url, $iframe_element );
+			if ( $lazy_load_video->can_lazy_load() ) {
+				$lazy_load_video->transform();
+				if ( $this->helper->is_noscript_fallback_enabled() ) {
+					$iframe_element->set_postfix( "<noscript>$original_iframe_markup</noscript>" );
+				}
+
+				return;
+			}
+		}
+
 		if ( $this->helper->is_native_lazy_loading_enabled() ) {
 			if ( ! $this->element_has_native_lazy_load_attribute( $iframe_element ) ) {
 				$this->add_native_lazy_loading_attribute( $iframe_element );
 			}
-		} else {
-			$this->remove_native_lazy_loading_attribute( $iframe_element );
-			$this->update_element_attributes_for_lazy_load( $iframe_element, array( 'src' ) );
-			$iframe_element->add_attribute( new Element_Attribute( 'data-load-mode', '1' ) );
+
+			return;
 		}
+
+		$this->update_iframe_element_attributes_for_lazy_load( $iframe_element );
+	}
+
+	private function update_iframe_element_attributes_for_lazy_load( Element $iframe_element ) {
+		$this->remove_native_lazy_loading_attribute( $iframe_element );
+		$this->update_element_attributes_for_lazy_load( $iframe_element, array( 'src' ) );
+		$iframe_element->add_attribute( new Element_Attribute( 'data-load-mode', '1' ) );
 	}
 
 	private function update_element_attributes_for_lazy_load( Element $element, $replace_attributes ) {
 		$this->replace_attributes_with_data_attributes( $element, $replace_attributes );
-		// We are adding a new src below, the original src is gone because we replaced it
+		// We are adding a new src below, the original src is gone because we replaced it.
 		$element->add_attribute( new Element_Attribute( 'src', self::TEMP_SRC ) );
 		$this->add_lazy_load_class( $element );
 	}
@@ -128,6 +148,7 @@ class Lazy_Load_Transform implements Transform {
 
 	private function is_element_excluded( Element $element ) {
 		return $this->is_high_priority_element( $element )
+		       || $element->is_lcp()
 		       || $this->element_has_excluded_keywords( $element );
 	}
 
@@ -138,8 +159,8 @@ class Lazy_Load_Transform implements Transform {
 		}
 
 		return $keyword_exclusions->is_markup_excluded( $element->get_markup() )
-			|| $keyword_exclusions->is_id_attribute_excluded( $element->get_attribute_value( 'id' ) )
-			|| $keyword_exclusions->is_class_attribute_excluded( $element->get_attribute_value( 'class' ) );
+		       || $keyword_exclusions->is_id_attribute_excluded( $element->get_attribute_value( 'id' ) )
+		       || $keyword_exclusions->is_class_attribute_excluded( $element->get_attribute_value( 'class' ) );
 	}
 
 	private function is_iframe_skipped_through_filter( $src, $iframe ) {
@@ -254,6 +275,15 @@ class Lazy_Load_Transform implements Transform {
 	}
 
 	private function transform_image_elements( Page $page ) {
+		/**
+		 * The following is being done in addition to the separate LCP_Transform just to save an extra re-parse in the transformer {@see Transformer::transform_content()}.
+		 * TODO: Remove this when re-parsing after every transform is not necessary.
+		 */
+		if ( $this->settings->is_lcp_preload_enabled() ) {
+			$lcp_transform = new LCP_Transform();
+			$lcp_transform->transform_page( $page );
+		}
+
 		foreach ( $page->get_composite_elements() as $composite_element ) {
 			if ( ! $this->is_composite_element_excluded( $composite_element ) ) {
 				$this->transform_elements( $composite_element->get_elements() );

@@ -156,10 +156,15 @@ class Installer {
 				self::regenerate_preset_configs_for_3_18_0();
 			}
 
-			$hide_new_feature_highlight_modal = apply_filters( 'wpmudev_branding_hide_doc_link', false );
-			if ( ! $hide_new_feature_highlight_modal && version_compare( $version, '3.18.0', '<' ) ) {
-				// Add the flag to display the new feature background process modal.
-				add_site_option( 'wp-smush-show_upgrade_modal', true );
+			if ( version_compare( $version, '3.20.0', '<' ) ) {
+				$hide_new_feature_highlight_modal = apply_filters( 'wpmudev_branding_hide_doc_link', false );
+				if ( ! $hide_new_feature_highlight_modal ) {
+					// Add the flag to display the new feature background process modal.
+					add_site_option( 'wp-smush-show_upgrade_modal', true );
+				}
+
+				// Show new feature hotspot.
+				add_site_option( 'wp-smush-show-new-feature-hotspot', true );
 			}
 
 			// Create/upgrade directory smush table.

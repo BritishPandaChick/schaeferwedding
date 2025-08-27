@@ -27,9 +27,6 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 		// Register this as a Gutenberg block in the ConvertKit Plugin.
 		add_filter( 'convertkit_blocks', array( $this, 'register' ) );
 
-		// Enqueue scripts and styles for this Gutenberg Block in the editor view.
-		add_action( 'convertkit_gutenberg_enqueue_scripts', array( $this, 'enqueue_scripts_editor' ) );
-
 		// Enqueue scripts and styles for this Gutenberg Block in the editor and frontend views.
 		add_action( 'convertkit_gutenberg_enqueue_scripts_editor_and_frontend', array( $this, 'enqueue_scripts' ) );
 		add_action( 'convertkit_gutenberg_enqueue_styles_editor_and_frontend', array( $this, 'enqueue_styles' ) );
@@ -37,17 +34,6 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 		// Render Broadcasts block via AJAX.
 		add_action( 'wp_ajax_nopriv_convertkit_broadcasts_render', array( $this, 'render_ajax' ) );
 		add_action( 'wp_ajax_convertkit_broadcasts_render', array( $this, 'render_ajax' ) );
-
-	}
-
-	/**
-	 * Enqueues scripts for this Gutenberg Block in the editor view.
-	 *
-	 * @since   2.0.1
-	 */
-	public function enqueue_scripts_editor() {
-
-		wp_enqueue_script( 'convertkit-gutenberg-block-broadcasts', CONVERTKIT_PLUGIN_URL . 'resources/backend/js/gutenberg-block-broadcasts.js', array( 'convertkit-gutenberg' ), CONVERTKIT_PLUGIN_VERSION, true );
 
 	}
 
@@ -117,11 +103,11 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 		$settings = new ConvertKit_Settings();
 
 		return array(
-			'title'                             => __( 'Kit Broadcasts', 'convertkit' ),
-			'description'                       => __( 'Displays a list of your Kit broadcasts.', 'convertkit' ),
-			'icon'                              => 'resources/backend/images/block-icon-broadcasts.svg',
-			'category'                          => 'convertkit',
-			'keywords'                          => array(
+			'title'                         => __( 'Kit Broadcasts', 'convertkit' ),
+			'description'                   => __( 'Displays a list of your Kit broadcasts.', 'convertkit' ),
+			'icon'                          => 'resources/backend/images/block-icon-broadcasts.svg',
+			'category'                      => 'convertkit',
+			'keywords'                      => array(
 				__( 'ConvertKit', 'convertkit' ),
 				__( 'Kit', 'convertkit' ),
 				__( 'Broadcasts', 'convertkit' ),
@@ -129,45 +115,41 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 			),
 
 			// Function to call when rendering as a block or a shortcode on the frontend web site.
-			'render_callback'                   => array( $this, 'render' ),
+			'render_callback'               => array( $this, 'render' ),
 
 			// Shortcode: TinyMCE / QuickTags Modal Width and Height.
-			'modal'                             => array(
+			'modal'                         => array(
 				'width'  => 650,
-				'height' => 405,
+				'height' => 455,
 			),
 
 			// Shortcode: Include a closing [/shortcode] tag when using TinyMCE or QuickTag Modals.
-			'shortcode_include_closing_tag'     => false,
+			'shortcode_include_closing_tag' => false,
 
 			// Gutenberg: Block Icon in Editor.
-			'gutenberg_icon'                    => convertkit_get_file_contents( CONVERTKIT_PLUGIN_PATH . '/resources/backend/images/block-icon-broadcasts.svg' ),
+			'gutenberg_icon'                => convertkit_get_file_contents( CONVERTKIT_PLUGIN_PATH . '/resources/backend/images/block-icon-broadcasts.svg' ),
 
 			// Gutenberg: Example image showing how this block looks when choosing it in Gutenberg.
-			'gutenberg_example_image'           => CONVERTKIT_PLUGIN_URL . 'resources/backend/images/block-example-broadcasts.png',
+			'gutenberg_example_image'       => CONVERTKIT_PLUGIN_URL . 'resources/backend/images/block-example-broadcasts.png',
 
 			// Help descriptions, displayed when no Access Token / resources exist and this block/shortcode is added.
-			'no_access_token'                   => array(
+			'no_access_token'               => array(
 				'notice'           => __( 'Not connected to Kit.', 'convertkit' ),
 				'link'             => convertkit_get_setup_wizard_plugin_link(),
 				'link_text'        => __( 'Click here to connect your Kit account.', 'convertkit' ),
 				'instruction_text' => __( 'Connect your Kit account at Settings > Kit, and then refresh this page to configure broadcasts to display.', 'convertkit' ),
 			),
-			'no_resources'                      => array(
+			'no_resources'                  => array(
 				'notice'           => __( 'No broadcasts exist in Kit.', 'convertkit' ),
 				'link'             => convertkit_get_new_broadcast_url(),
 				'link_text'        => __( 'Click here to send your first broadcast.', 'convertkit' ),
 				'instruction_text' => __( 'Add a broadcast to your Kit account, and then refresh this page to configure broadcasts to display.', 'convertkit' ),
 			),
 
-			// Gutenberg: JS function to call when rendering the block preview in the Gutenberg editor.
-			// If not defined, render_callback above will be used.
-			'gutenberg_preview_render_callback' => 'convertKitGutenbergBroadcastsBlockRenderPreview',
-
 			// Whether an API Key exists in the Plugin, and are the required resources (broadcasts) available.
 			// If no API Key is specified in the Plugin's settings, render the "No API Key" output.
-			'has_access_token'                  => $settings->has_access_and_refresh_token(),
-			'has_resources'                     => $posts->exist(),
+			'has_access_token'              => $settings->has_access_and_refresh_token(),
+			'has_resources'                 => $posts->exist(),
 		);
 
 	}
@@ -184,6 +166,10 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 			'display_grid'         => array(
 				'type'    => 'boolean',
 				'default' => $this->get_default_value( 'display_grid' ),
+			),
+			'display_order'        => array(
+				'type'    => 'string',
+				'default' => $this->get_default_value( 'display_order' ),
 			),
 			'date_format'          => array(
 				'type'    => 'string',
@@ -226,7 +212,7 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 				'default' => $this->get_default_value( 'paginate_label_next' ),
 			),
 
-			// get_supports() color attribute.
+			// get_supports() style, color and typography attributes.
 			'style'                => array(
 				'type' => 'object',
 			),
@@ -234,6 +220,9 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 				'type' => 'string',
 			),
 			'textColor'            => array(
+				'type' => 'string',
+			),
+			'fontSize'             => array(
 				'type' => 'string',
 			),
 
@@ -256,11 +245,19 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 	public function get_supports() {
 
 		return array(
-			'className' => true,
-			'color'     => array(
+			'className'  => true,
+			'color'      => array(
 				'link'       => true,
 				'background' => true,
 				'text'       => true,
+			),
+			'typography' => array(
+				'fontSize'   => true,
+				'lineHeight' => true,
+			),
+			'spacing'    => array(
+				'margin'  => true,
+				'padding' => true,
 			),
 		);
 
@@ -285,6 +282,14 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 				'label'       => __( 'Display as grid', 'convertkit' ),
 				'type'        => 'toggle',
 				'description' => __( 'If enabled, displays broadcasts in a grid, instead of a list.', 'convertkit' ),
+			),
+			'display_order'       => array(
+				'label'  => __( 'Display order', 'convertkit' ),
+				'type'   => 'select',
+				'values' => array(
+					'date-broadcast' => __( 'Date, Broadcast', 'convertkit' ),
+					'broadcast-date' => __( 'Broadcast, Date', 'convertkit' ),
+				),
 			),
 			'date_format'         => array(
 				'label'  => __( 'Date format', 'convertkit' ),
@@ -373,6 +378,7 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 				'label'  => __( 'General', 'convertkit' ),
 				'fields' => array(
 					'display_grid',
+					'display_order',
 					'date_format',
 					'display_image',
 					'display_description',
@@ -412,6 +418,7 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 
 		return array(
 			'display_grid'        => false,
+			'display_order'       => 'date-broadcast',
 			'date_format'         => 'F j, Y',
 			'display_image'       => false,
 			'display_description' => false,
@@ -441,8 +448,8 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 	 *
 	 * @since   1.9.7.4
 	 *
-	 * @param   array $atts   Block / Shortcode Attributes.
-	 * @return  string          Output
+	 * @param   array $atts                 Block / Shortcode / Page Builder Module Attributes.
+	 * @return  string
 	 */
 	public function render( $atts ) {
 
@@ -473,15 +480,35 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 		}
 
 		// Build HTML.
-		$html = $this->build_html( $posts, $atts );
+		if ( $this->is_block_editor_request() ) {
+			// For the block editor, don't include compiled CSS classes and styles,
+			// as the block editor will add these to the parent container.
+			// Otherwise the block will render incorrectly with double padding, double margins etc.
+			$html = $this->build_html(
+				$posts,
+				$atts,
+				true,
+				array(
+					'convertkit-' . $this->get_name(),
+				)
+			);
+		} else {
+			$html = $this->build_html(
+				$posts,
+				$atts,
+				true,
+				$this->get_css_classes(),
+				$this->get_css_styles( $atts )
+			);
+		}
 
 		/**
 		 * Filter the block's content immediately before it is output.
 		 *
 		 * @since   1.9.7.4
 		 *
-		 * @param   string  $html   ConvertKit Broadcasts HTML.
-		 * @param   array   $atts   Block Attributes.
+		 * @param   string  $html       ConvertKit Broadcasts HTML.
+		 * @param   array   $atts       Block Attributes.
 		 */
 		$html = apply_filters( 'convertkit_block_broadcasts_render', $html, $atts );
 
@@ -550,9 +577,11 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 	 * @param   ConvertKit_Resource_Posts $posts              ConvertKit Posts Resource class.
 	 * @param   array                     $atts               Block attributes.
 	 * @param   bool                      $include_container  Include container div in HTML.
-	 * @return  string                                          HTML
+	 * @param   array                     $css_classes        CSS classes to apply to block.
+	 * @param   array                     $css_styles         CSS inline styles to apply to block.
+	 * @return  string
 	 */
-	private function build_html( $posts, $atts, $include_container = true ) {
+	private function build_html( $posts, $atts, $include_container = true, $css_classes = array(), $css_styles = array() ) {
 
 		// Get paginated subset of Posts.
 		$broadcasts = $posts->get_paginated_subset( $atts['page'], $atts['limit'] );
@@ -565,7 +594,7 @@ class ConvertKit_Block_Broadcasts extends ConvertKit_Block {
 
 		// Include container, if required.
 		if ( $include_container ) {
-			$html .= '<div class="' . implode( ' ', map_deep( $atts['_css_classes'], 'sanitize_html_class' ) ) . '" style="' . implode( ';', map_deep( $atts['_css_styles'], 'esc_attr' ) ) . '" ' . $this->get_atts_as_html_data_attributes( $atts ) . '>';
+			$html .= '<div class="' . implode( ' ', map_deep( $css_classes, 'sanitize_html_class' ) ) . '" style="' . implode( ';', map_deep( $css_styles, 'esc_attr' ) ) . '" ' . $this->get_atts_as_html_data_attributes( $atts ) . '>';
 		}
 
 		// Start list.

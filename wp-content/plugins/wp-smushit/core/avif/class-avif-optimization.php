@@ -84,6 +84,7 @@ class Avif_Optimization extends Media_Item_Optimization {
 			$this->media_item->is_skipped()
 			|| $this->media_item->has_errors()
 			|| ! $this->settings->is_avif_module_active()
+			|| empty( $this->get_sizes_to_convert() )
 		) {
 			return false;
 		}

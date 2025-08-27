@@ -24,7 +24,7 @@
 		.sui-dashboard-upsell-upsell .sui-box-title { @include icon(before, 'smush'); }
 		.sui-dashboard-directory .sui-box-title { @include icon(before, 'folder'); }
 		.sui-dashboard-integrations .sui-box-title { @include icon(before, 'plugin-2'); }
-		.sui-dashboard-lazy-load .sui-box-title { @include icon(before, 'update'); }
+		.sui-dashboard-lazy-preload .sui-box-title { @include icon(before, 'update'); }
 		.sui-dashboard-cdn .sui-box-title { @include icon(before, 'web-globe-world'); }
 		.sui-dashboard-webp .sui-box-title { @include icon(before, 'photo-picture'); }
 		.sui-dashboard-tools .sui-box-title { @include icon(before, 'wrench-tool'); }
@@ -41,15 +41,7 @@
 				}
 				a > .sui-tag { cursor: pointer; }
 			}
-			.smush-upgrade-text {
-				color: $purple;
-				margin-right: 10px;
-			}
 		}
-
-		// Dashboard tutorials.
-		#smush-dash-tutorials,
-		#smush-dash-tutorials > .sui-notice { margin-bottom: 30px; }
 
 		// Dashboard lazy load meta box.
 		#smush-box-dashboard-lazy-load {
@@ -76,8 +68,8 @@
 			.sui-table.sui-table-flushed tbody tr td:last-of-type { text-align: right; }
 		}
 
-		// Dashboard integrations meta box.
-		#smush-box-dashboard-integrations {
+		// Dashboard integrations + Lazy Preload meta box.
+		#smush-box-dashboard-integrations, #smush-box-dashboard-lazy-preload {
 			.smush-disabled-table-row {
 				opacity: 0.5;
 				pointer-events: none;
@@ -376,6 +368,22 @@
 					}
 				}
 			}
+
+			.lazyload-embed-videos {
+				margin-top:10px;
+				padding:15px 18px;
+				border: 1px solid #E6E6E6;
+				border-radius: 4px;
+				label {
+					margin-bottom: 5px;
+				}
+				.sui-description {
+					margin-left: 27px;
+				}
+				span {
+					font-size: 13px;
+				}
+			}
 		}
 
 		/**
@@ -409,6 +417,7 @@
 			.sui-box { background-color: transparent; }
 
 			#smush-onboarding-content {
+				border-radius: 4px;
 				opacity: 0;
 				background-color: #fff;
 				animation-duration: 0.7s;
@@ -1142,6 +1151,10 @@
 
 		.sui-summary-segment {
 			overflow: visible;
+			.smush-upgrade-text {
+				color: $purple;
+				margin-right: 10px;
+			}
 		}
 
 		.sui-summary-details {
@@ -1462,6 +1475,46 @@
 			}
 		}
 	}
+
+	/* Breathing effect */
+	.smush-new-feature-dot {
+		background: #1abc9c;
+		border-radius: 50%;
+		height: 8px;
+		margin-left: 8px;
+		margin-top: 6px;
+		position: absolute;
+		right: 10px;
+		width: 8px;
+		&:before, &:after {
+			animation: smush-breathing-animation 1.5s infinite;
+			background: #1abc9c;
+			border-radius: 50%;
+			content: "";
+			height: 10px;
+			left: 0;
+			margin-left: -1px;
+			margin-top: -5px;
+			position: absolute;
+			top: 50%;
+			width: 10px;
+		}
+
+		&::after {
+			animation-delay: -.4s;
+		}
+	}
+	
+	@keyframes smush-breathing-animation {
+		0% {
+			opacity: 1;
+			transform: scale(1);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(2);
+		}
+	}
   
 	/* Ripple effect */
 	.smush-btn-ripple {
@@ -1491,6 +1544,12 @@
 		100% {
 			transform: scale(3);
 			opacity: 0;
+		}
+	}
+
+	.sui-notice-message {
+		a {
+			pointer-events: initial;
 		}
 	}
 }

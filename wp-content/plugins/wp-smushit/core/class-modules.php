@@ -12,10 +12,13 @@ namespace Smush\Core;
 
 use Smush\Core\Avif\Avif_Controller;
 use Smush\Core\Backups\Backups_Controller;
+use Smush\Core\Cache\Cache_Controller;
 use Smush\Core\CDN\CDN_Controller;
 use Smush\Core\CDN\CDN_Settings_Ui_Controller;
 use Smush\Core\CDN\CDN_Srcset_Controller;
 use Smush\Core\Lazy_Load\Lazy_Load_Controller;
+use Smush\Core\Lazy_Load\Video_Embed\Video_Thumbnail_Controller;
+use Smush\Core\LCP\LCP_Controller;
 use Smush\Core\Media\Attachment_Url_Cache_Controller;
 use Smush\Core\Media\Media_Item_Controller;
 use Smush\Core\Media_Library\Ajax_Media_Library_Scanner;
@@ -213,6 +216,8 @@ class Modules {
 		$lazy_load_controller = Lazy_Load_Controller::get_instance();
 		$lazy_load_controller->init();
 
+		( new Video_Thumbnail_Controller() )->init();
+
 		$background_health = Background_Pre_Flight_Controller::get_instance();
 		$background_health->init();
 
@@ -236,6 +241,9 @@ class Modules {
 
 		$attachment_url_cache_controller = new Attachment_Url_Cache_Controller();
 		$attachment_url_cache_controller->init();
+
+		$lcp_controller = new LCP_Controller();
+		$lcp_controller->init();
 	}
 
 }

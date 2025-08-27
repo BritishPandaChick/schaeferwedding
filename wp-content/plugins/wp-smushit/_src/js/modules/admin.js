@@ -492,6 +492,38 @@ jQuery(function ($) {
 			location.reload();
 		});
 	});
+	
+	/**
+	 * Handle clear LCP data button click (Settings)
+	 *
+	 * @since 3.20.0
+	 */
+	$( '#smush-clear-lcp-data' ).on( 'click', function ( e ) {
+		e.preventDefault();
+		
+		const $button = $( this );
+		$button.addClass( 'sui-button-onload' );
+		
+		$.post(
+			 ajaxurl,
+			 {
+				 action: 'clear_all_lcp_data',
+				 _ajax_nonce: wp_smush_msgs.nonce
+			 }
+		 )
+		 .done( function ( response ) {
+			 WP_Smush.helpers.showNotice( 'LCP data cleared successfully.', {
+				 type: 'success',
+				 autoclose: true,
+			 } );
+		 } )
+		 .fail( function () {
+			 WP_Smush.helpers.showErrorNotice( 'Failed to clear LCP data. Please try again.' );
+		 } )
+		 .always( function () {
+			 $button.removeClass( 'sui-button-onload' );
+		 } );
+	} );
 
 	/** Handle smush button click **/
 	$('body').on(
@@ -864,4 +896,20 @@ jQuery(function ($) {
 		} );
 	}
 	toggleNoscriptFallbackOnNativeLazyloadChange();
+	
+	const togglePreloadChange = () => {
+		const preloadInput = document.querySelector( '#preload-images-settings-row #preload-images' );
+		const excludeRow   = document.getElementById( 'preload-exclude-settings-row' );
+		
+		if ( ! preloadInput || ! excludeRow ) {
+			return;
+		}
+		
+		preloadInput.addEventListener( 'change', ( e ) => {
+			const isChecked = e.target.checked;
+			excludeRow.style.display = isChecked ? 'flex' : 'none';
+		} );
+	};
+	
+	togglePreloadChange();
 });

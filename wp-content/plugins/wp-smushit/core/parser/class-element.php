@@ -2,11 +2,10 @@
 
 namespace Smush\Core\Parser;
 
-class Element {
+class Element implements Replaceable {
 	private $markup;
 
 	private $tag;
-
 	/**
 	 * @var Element_Attribute[]
 	 */
@@ -43,13 +42,32 @@ class Element {
 	 * @var Element_Attribute[]
 	 */
 	private $image_attributes;
+	/**
+	 * @var bool
+	 */
+	private $is_lcp;
+	/**
+	 * @var int
+	 */
+	private $position;
 
-	public function __construct( $markup, $tag, $attributes, $css_properties ) {
+	/**
+	 * @var string
+	 */
+	private $wrapper_markup_before;
+	/**
+	 * @var string
+	 */
+	private $wrapper_markup_after;
+
+	public function __construct( $markup, $tag, $attributes, $css_properties, $position = - 1, $is_lcp = false ) {
 		$this->markup         = $markup;
 		$this->tag            = $tag;
 		$this->attributes     = $attributes;
 		$this->css_properties = $css_properties;
 		$this->parser         = new Parser();
+		$this->is_lcp         = $is_lcp;
+		$this->position       = $position;
 	}
 
 	/**
@@ -117,6 +135,7 @@ class Element {
 				// We need the following to support webp *after* lazy load.
 				'data-bg',
 				'data-bg-image',
+				'poster',
 			)
 		);
 
@@ -139,6 +158,11 @@ class Element {
 		$this->set_has_updates( true );
 	}
 
+	/**
+	 * @param $name
+	 *
+	 * @return Element_Attribute
+	 */
 	public function get_attribute( $name ) {
 		foreach ( $this->attributes as $attribute ) {
 			if ( $attribute->get_name() === $name ) {
@@ -247,6 +271,10 @@ class Element {
 		$updated = $this->add_new_attributes( $updated );
 		$updated = $this->add_postfix( $updated );
 
+		if ( $this->has_wrapper_markup() && $this->can_wrap_element() ) {
+			$updated = $this->wrapper_markup_before . $updated . $this->wrapper_markup_after;
+		}
+
 		// TODO: this is a temporary way to support the old filters, remove this in the release that comes after 3.16.0
 		$updated = apply_filters_deprecated( 'smush_cdn_image_tag', array( $updated ), '3.16.0', 'wp_smush_updated_element_markup' );
 		$updated = apply_filters_deprecated( 'smush_cdn_bg_image_tag', array( $updated ), '3.16.0', 'wp_smush_updated_element_markup' );
@@ -342,7 +370,7 @@ class Element {
 			$attribute_name = $added_attribute->get_name();
 			// Remove the attribute first, important for removing any empty or invalid values before adding again
 			$markup = $this->parser->remove_element_attribute( $markup, $attribute_name );
-			$markup = $this->parser->add_element_attribute( $markup, $attribute_name, esc_attr( $added_attribute->get_value() ) );
+			$markup = $this->parser->add_attribute_to_element( $markup, $this->get_tag(), $attribute_name, esc_attr( $added_attribute->get_value() ) );
 		}
 
 		return $markup;
@@ -370,5 +398,45 @@ class Element {
 
 	public function has_attribute( $name ) {
 		return ! empty( $this->get_attribute( $name ) );
+	}
+
+	private function has_wrapper_markup() {
+		return ! empty( $this->wrapper_markup_before ) && ! empty( $this->wrapper_markup_after );
+	}
+
+	public function set_wrapper_markup( $wrapper_markup_before, $wrapper_markup_after ) {
+		$this->wrapper_markup_before = $wrapper_markup_before;
+		$this->wrapper_markup_after  = $wrapper_markup_after;
+	}
+
+	private function can_wrap_element() {
+		// Only wrap if the markup of the element is fully, included closing tag.
+		$allowed_tags = array( 'iframe' );
+
+		return in_array( $this->get_tag(), $allowed_tags, true );
+	}
+
+	public function is_lcp() {
+		return $this->is_lcp;
+	}
+
+	public function set_lcp( $is_lcp ) {
+		$this->is_lcp = $is_lcp;
+	}
+
+	public function get_position() {
+		return $this->position;
+	}
+
+	public function set_position( $position ) {
+		$this->position = $position;
+	}
+
+	public function get_original() {
+		return $this->get_markup();
+	}
+
+	public function get_updated() {
+		return $this->get_updated_markup();
 	}
 }

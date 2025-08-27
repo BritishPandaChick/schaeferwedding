@@ -2,15 +2,41 @@
 
 namespace Smush\Core\Integrations;
 
-use Smush\Core\Controller;
-use Smush\Core\Settings;
+use Hummingbird\Core\Utils;
 use Smush\Core\CDN\CDN_Helper;
+use Smush\Core\Controller;
+use Smush\Core\LCP\LCP_Data;
+use Smush\Core\LCP\LCP_Data_Store;
+use Smush\Core\LCP\LCP_Data_Store_Home;
+use Smush\Core\LCP\LCP_Data_Store_Post_Meta;
+use Smush\Core\Settings;
 
 class Hummingbird_Integration extends Controller {
 	public function __construct() {
 		$this->register_action( 'init', array( $this, 'ensure_hb_compatibility' ) );
 
 		$this->register_filter( 'wphb_tracking_active_features', array( $this, 'get_smush_active_features' ) );
+
+		$this->register_action( 'wp_smush_post_cache_flush_required', array( $this, 'clear_post_cache' ) );
+
+		$this->register_action( 'wp_smush_home_cache_flush_required', array( $this, 'clear_url_cache' ) );
+	}
+
+	public function clear_post_cache( $post_id ) {
+		if ( $this->is_hb_active() ) {
+			// Clear HB page cache.
+			do_action( 'wphb_clear_page_cache', $post_id );
+		}
+	}
+
+	public function clear_url_cache( $url ) {
+		if ( $this->is_hb_active() && class_exists( '\Hummingbird\Core\Utils' ) ) {
+			$path              = str_replace( untrailingslashit( home_url() ), '', $url );
+			$page_cache_module = Utils::get_module( 'page_cache' );
+			if ( method_exists( $page_cache_module, 'clear_cache' ) ) {
+				$page_cache_module->clear_cache( $path );
+			}
+		}
 	}
 
 	public function ensure_hb_compatibility() {

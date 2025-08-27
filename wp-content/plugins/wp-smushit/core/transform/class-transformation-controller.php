@@ -3,6 +3,7 @@
 namespace Smush\Core\Transform;
 
 use Smush\Core\Controller;
+use Smush\Core\LCP\LCP_Helper;
 use Smush\Core\Server_Utils;
 use Smush\Core\Url_Utils;
 
@@ -16,10 +17,15 @@ class Transformation_Controller extends Controller {
 	 * @var Server_Utils
 	 */
 	private $server_utils;
+	/**
+	 * @var LCP_Helper
+	 */
+	private $lcp_helper;
 
 	public function __construct() {
 		$this->transformer  = new Transformer();
 		$this->server_utils = new Server_Utils();
+		$this->lcp_helper   = new LCP_Helper();
 
 		$this->register_action( 'template_redirect', array( $this, 'hook_transformation_method' ), 1 );
 		$this->register_filter( 'rest_pre_echo_response', array( $this, 'transform_rest_response' ), 10, 3 );
@@ -28,8 +34,8 @@ class Transformation_Controller extends Controller {
 
 	public function should_run() {
 		return ! is_admin() &&
-				! wp_doing_ajax() &&
-				! wp_doing_cron();
+		       ! wp_doing_ajax() &&
+		       ! wp_doing_cron();
 	}
 
 	public function hook_transformation_method() {
@@ -42,8 +48,8 @@ class Transformation_Controller extends Controller {
 
 	private function should_transform_page() {
 		$should_transform = ! is_customize_preview() &&
-							$this->is_allowed_request_method() &&
-							! $this->is_file_404();
+		                    $this->is_allowed_request_method() &&
+		                    ! $this->is_file_404();
 		return apply_filters( 'wp_smush_should_transform_page', $should_transform );
 	}
 
@@ -78,10 +84,10 @@ class Transformation_Controller extends Controller {
 			return $content;
 		}
 
-		return $this->transformer->transform_content(
-			$content,
-			$this->server_utils->get_current_url()
-		);
+		$page_url = $this->server_utils->get_current_url();
+		$lcp_data = $this->lcp_helper->get_lcp_data_for_current_page();
+
+		return $this->transformer->transform_content( $content, $page_url, $lcp_data );
 	}
 
 	private function should_parse_content( $content ) {

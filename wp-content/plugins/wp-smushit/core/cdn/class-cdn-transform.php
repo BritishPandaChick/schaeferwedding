@@ -60,8 +60,10 @@ class CDN_Transform implements Transform {
 
 		$this->transform_elements( $page->get_elements() );
 
-		foreach ( $page->get_styles() as $style ) {
-			$this->transform_style( $style );
+		if ( $this->settings->get( 'background_images' ) ) {
+			foreach ( $page->get_styles() as $style ) {
+				$this->transform_style( $style );
+			}
 		}
 	}
 

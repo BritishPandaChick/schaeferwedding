@@ -135,16 +135,17 @@ class Product_Analytics_Controller {
 	}
 
 	private function maybe_track_feature_toggle( array $settings ) {
+		$has_tracked = false;
 		foreach ( $settings as $setting_key => $setting_value ) {
 			$handler = "track_{$setting_key}_feature_toggle";
 			if ( method_exists( $this, $handler ) ) {
 				call_user_func( array( $this, $handler ), $setting_value );
 
-				return true;
+				$has_tracked = true;
 			}
 		}
 
-		return false;
+		return $has_tracked;
 	}
 
 	private function remove_unchanged_settings( $old_settings, $settings ) {
@@ -253,6 +254,10 @@ class Product_Analytics_Controller {
 		return $this->track_feature_toggle( $setting_value, 'Lazy Load' );
 	}
 
+	protected function track_preload_images_feature_toggle( $setting_value ) {
+		return $this->track_feature_toggle( $setting_value, 'Preload Critical Images' );
+	}
+
 	private function track_lazy_load_feature_updated_on_toggle( $activate ) {
 		$this->track_lazy_load_updated(
 			array(
@@ -301,7 +306,7 @@ class Product_Analytics_Controller {
 			'smush'              => 'Dashboard',
 			'smush-bulk'         => 'Bulk Smush',
 			'smush-directory'    => 'Directory Smush',
-			'smush-lazy-load'    => 'Lazy Load',
+			'smush-lazy-preload' => 'Lazy Load',
 			'smush-cdn'          => 'CDN',
 			'smush-next-gen'     => 'Next-Gen Formats',
 			'smush-integrations' => 'Integrations',
@@ -1136,6 +1141,7 @@ class Product_Analytics_Controller {
 			'gravity_forms'    => $this->settings->get( 'gform' ),
 			'nextgen_gallery'  => $this->settings->get( 'nextgen' ),
 			'gutenberg_blocks' => $this->settings->get( 'gutenberg' ),
+			'preload_images'   => $this->settings->is_lcp_preload_enabled(),
 		);
 
 		return array_keys( array_filter( $features ) );

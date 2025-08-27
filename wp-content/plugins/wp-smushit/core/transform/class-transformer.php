@@ -3,6 +3,9 @@
 namespace Smush\Core\Transform;
 
 use Smush\Core\Array_Utils;
+use Smush\Core\LCP\LCP_Data;
+use Smush\Core\LCP\LCP_Helper;
+use Smush\Core\Parser\Page;
 use Smush\Core\Parser\Page_Parser;
 use Smush\Core\Parser\Parser;
 use Smush\Core\Settings;
@@ -16,48 +19,64 @@ class Transformer {
 	 * @var Transform[]
 	 */
 	private $transforms;
-	/**
-	 * @var Parser
-	 */
-	private $parser;
-	/**
-	 * @var Settings|null
-	 */
-	private $settings;
 
 	public function __construct() {
 		$this->array_utils = new Array_Utils();
-		$this->parser      = new Parser();
-		$this->settings    = Settings::get_instance();
 	}
 
-	public function transform_content( $page_markup, $page_url ) {
-		if ( empty( $page_markup ) || ! is_string( $page_markup ) ) {
-			return $page_markup;
-		}
-		$transforms = $this->get_transforms();
-		if ( empty( $transforms ) ) {
-			// Nothing to do
-			return $page_markup;
-		}
+	/**
+	 * @param $page_markup
+	 * @param $page_url
+	 * @param $lcp_data LCP_Data|null
+	 *
+	 * @return string
+	 */
+	public function transform_content( $page_markup, $page_url, $lcp_data = null ) {
+		if ( ! empty( $page_markup ) && is_string( $page_markup ) ) {
+			$transforms       = $this->get_transforms();
+			$transforms_exist = ! empty( $transforms );
+			$has_filter       = has_filter( 'wp_smush_transformed_page_markup' );
 
-		$this->do_pre_transform_action( $page_url, $page_markup );
+			if ( $transforms_exist || $has_filter ) {
+				$parsed_page = $this->parse_page( $page_url, $page_markup, $lcp_data );
+			}
 
-		foreach ( $transforms as $transform ) {
-			$page_markup = $this->apply_transform_to_content( $transform, $page_markup, $page_url );
+			if ( $transforms_exist ) {
+				$this->do_pre_transform_action( $parsed_page );
+
+				foreach ( $transforms as $transform ) {
+					$transform->transform_page( $parsed_page );
+
+					if ( $parsed_page->has_updates() ) {
+						// If there are updates, reparse the new markup
+						// TODO: This could be optimized to avoid re-parsing the entire page
+						$parsed_page = $this->parse_page( $page_url, $parsed_page->get_updated_markup(), $lcp_data );
+					}
+				}
+
+				$page_markup = $parsed_page->has_updates()
+					? $parsed_page->get_updated_markup()
+					: $parsed_page->get_page_markup();
+			}
+
+			if ( $has_filter ) {
+				$page_markup = apply_filters( 'wp_smush_transformed_page_markup', $page_markup, $parsed_page );
+			}
 		}
 
 		return $page_markup;
 	}
 
-	private function apply_transform_to_content( $transform, $page_markup, $page_url ) {
-		$parser      = new Page_Parser( $page_url, $page_markup );
-		$parsed_page = $parser->parse_page();
-		$transform->transform_page( $parsed_page );
-
-		return $parsed_page->has_updates()
-			? $parsed_page->get_updated_markup()
-			: $parsed_page->get_page_markup();
+	/**
+	 * @param $page_url
+	 * @param $page_markup
+	 * @param $lcp_data LCP_Data|null
+	 *
+	 * @return Page
+	 */
+	private function parse_page( $page_url, $page_markup, $lcp_data ) {
+		$parser = new Page_Parser( $page_url, $page_markup, $lcp_data );
+		return $parser->parse_page();
 	}
 
 	/**
@@ -199,14 +218,11 @@ class Transformer {
 	}
 
 	/**
-	 * @param $page_url
-	 * @param string $page_markup
+	 * @param Page $parsed_page
 	 *
 	 * @return void
 	 */
-	public function do_pre_transform_action( $page_url, string $page_markup ) {
-		$parser      = new Page_Parser( $page_url, $page_markup );
-		$parsed_page = $parser->parse_page();
+	public function do_pre_transform_action( $parsed_page ) {
 		do_action( 'wp_smush_pre_transform_page', $parsed_page );
 	}
 }

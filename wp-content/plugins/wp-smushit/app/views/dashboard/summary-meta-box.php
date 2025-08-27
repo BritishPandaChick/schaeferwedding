@@ -147,11 +147,11 @@ $this->view(
 			</span>
 			<span class="sui-list-detail">
 				<?php if ( $is_lazy_load ) : ?>
-					<a href="<?php echo esc_url( $this->get_url( 'smush-lazy-load' ) ); ?>">
+					<a href="<?php echo esc_url( $this->get_url( 'smush-lazy-preload' ) ); ?>">
 						<span class="sui-tag sui-tag-green"><?php esc_html_e( 'Active', 'wp-smushit' ); ?></span>
 					</a>
 				<?php else : ?>
-					<a href="<?php echo esc_url( $this->get_url( 'smush-lazy-load' ) ); ?>">
+					<a href="<?php echo esc_url( $this->get_url( 'smush-lazy-preload' ) ); ?>">
 						<span class="sui-tag"><?php esc_html_e( 'Inactive', 'wp-smushit' ); ?></span>
 					</a>
 				<?php endif; ?>

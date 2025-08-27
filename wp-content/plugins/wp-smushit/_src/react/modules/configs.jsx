@@ -145,7 +145,8 @@ export const Configs = ({ isWidget }) => {
 		settingsLabels: {
 			bulk_smush: __('Bulk Smush', 'wp-smushit'),
 			integrations: __('Integrations', 'wp-smushit'),
-			lazy_load: __('Lazy Load', 'wp-smushit'),
+			// Settings::LAZY_PRELOAD_MODULE_NAME.
+			lazy_load: __('Lazy Load & Preload', 'wp-smushit'),
 			cdn: __('CDN', 'wp-smushit'),
 			next_gen: __('Next-Gen Formats', 'wp-smushit'),
 			settings: __('Settings', 'wp-smushit'),
@@ -168,6 +169,7 @@ export const Configs = ({ isWidget }) => {
 				'Next-Gen Formats',
 				'Amazon S3',
 				'NextGen Gallery',
+				'Preload Critical Images',
 			] }
 		/>
 	);

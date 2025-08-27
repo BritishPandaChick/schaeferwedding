@@ -6,6 +6,7 @@
  * @package Smush
  */
 
+use Smush\Core\LCP\LCP_Helper;
 use Smush\Core\Settings;
 
 // If uninstall not called from WordPress exit.
@@ -40,6 +41,7 @@ $smushit_keys = array(
 	'wp-smush-version',
 	'wp-smush-scan',
 	'wp-smush-settings',
+	'wp-smush-cdn-advanced-settings',
 	'wp-smush-cdn_status',
 	'wp-smush-lazy_load',
 	'wp-smush-last_run_sync',
@@ -65,10 +67,17 @@ $smushit_keys = array(
 	'wp_smush_run_optimize_on_scan_completed',
 	'wp-smush-nextgen-reoptimize-list',
 	'wp-smush-nextgen-super-smushed-list',
+	'wp-smush-webp-global-stats',
+	'wp-smush-avif-global-stats',
 	'wp_smush_scan_slice_size',
 	'wp_smush_media_library_last_process',
 	'wp_smush_expected_public_nonces',
 	'wp_smush_expected_nonces',
+	'wp_smush_background_pre_flight',
+	'wp_smush_background_scan_process_status',
+	'wp_smush_bulk_smush_background_process_status',
+	'wp_smush_event_times',
+	'wp-smush-show-new-feature-hotspot',
 );
 
 $db_keys = array(
@@ -97,6 +106,11 @@ $cache_nextgen_group = array(
 	'wp_smush_stats_nextgen',
 );
 
+if ( ! class_exists( '\Smush\Core\LCP\LCP_Helper' ) ) {
+	/* @noinspection PhpIncludeInspection */
+	include_once plugin_dir_path( __FILE__ ) . '/core/lcp/class-lcp-helper.php';
+}
+
 if ( ! is_multisite() ) {
 	// Delete Options.
 	foreach ( $smushit_keys as $key ) {
@@ -121,6 +135,8 @@ if ( ! is_multisite() ) {
 	wp_cache_delete( 'get_image_sizes', 'smush_image_sizes' );
 
 	delete_transient( 'wp-smush-conflict_check' );
+
+	LCP_Helper::delete_all_lcp_data();
 }
 
 // Delete Directory Smush stats.
@@ -168,6 +184,7 @@ if ( is_multisite() ) {
 				}
 
 				wp_cache_delete( 'get_image_sizes', 'smush_image_sizes' );
+				LCP_Helper::delete_all_lcp_data();
 			}
 			restore_current_blog();
 		}

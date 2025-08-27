@@ -12,8 +12,12 @@ class Timer {
 		$this->time_start = microtime( true );
 	}
 
-	public function end() {
+	public function end( $round = true ) {
 		$time_end = microtime( true );
-		return round( $time_end - $this->time_start, 2 );
+		$time     = $time_end - $this->time_start;
+		if ( $round ) {
+			$time = round( $time, 2 );
+		}
+		return $time;
 	}
 }

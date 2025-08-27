@@ -545,7 +545,8 @@ class Media_Library_Row {
 		return array_filter(
 			$applied_ordered_optimizations,
 			function ( $optimization ) {
-				return $optimization && $optimization->is_optimized() && ! $optimization->get_stats()->is_empty();
+				return $optimization && $optimization->is_optimized()
+						&& $optimization->get_stats()->get_bytes() > 0;
 			}
 		);
 	}

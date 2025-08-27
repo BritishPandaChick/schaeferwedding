@@ -10,7 +10,6 @@
  * @var array $settings   Lazy loading settings.
  */
 
-use Smush\App\Pages\Lazy;
 use Smush\Core\Lazy_Load\Lazy_Load_Helper;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -96,14 +95,70 @@ wp_enqueue_style( 'wp-color-picker' );
 			<span aria-hidden="true"></span>
 			<span><?php esc_html_e( '.svg', 'wp-smushit' ); ?></span>
 		</label>
-		<label for="format-iframe" class="sui-checkbox sui-checkbox-stacked">
-			<input type='hidden' value='0' name='format[iframe]' />
-			<input type="checkbox" name="format[iframe]" id="format-iframe" <?php checked( ! isset( $settings['format']['iframe'] ) || $settings['format']['iframe'] ); ?> />
-			<span aria-hidden="true"></span>
-			<span><?php esc_html_e( 'iframe', 'wp-smushit' ); ?></span>
-		</label>
 	</div>
 </div>
+
+<!-- Embedded Content -->
+<?php $iframe_format_enabled = ! isset( $settings['format']['iframe'] ) || $settings['format']['iframe']; ?>
+<div class="sui-box-settings-row" id="lazyload-embed-content-settings-row">
+	<div class="sui-box-settings-col-1">
+		<span class="sui-settings-label">
+			<?php esc_html_e( 'Embedded Content', 'wp-smushit' ); ?>
+			<?php if ( self::should_show_new_feature_hotspot() ) : ?>
+			<?php
+				// Hide the new feature hotspot if the user has already seen it.
+				self::hide_new_feature_hotspot();
+			?>
+				<span class="smush-new-feature-dot" style="position:relative; margin-left: 20px;"></span>
+			<?php endif; ?>
+		</span>
+		<span class="sui-description">
+			<?php esc_html_e( 'Choose lazy load options for videos and iframes.', 'wp-smushit' ); ?>
+		</span>
+	</div>
+	<div class="sui-box-settings-col-2">
+		<div class="sui-form-field">
+			<label for="format-iframe" class="sui-toggle">
+				<input type='hidden' value='0' name='format[iframe]' />
+				<input
+					type="checkbox"
+					id="format-iframe"
+					name="format[iframe]"
+					aria-labelledby="format-iframe-label"
+					aria-describedby="format-iframe-description"
+					<?php checked( $iframe_format_enabled ); ?>
+				/>
+				<span class="sui-toggle-slider" aria-hidden="true"></span>
+				<span id="format-iframe-label" class="sui-toggle-label">
+					<?php esc_html_e( 'Enable lazy loading for iframes', 'wp-smushit' ); ?>
+				</span>
+				<?php
+					$class_names = array(
+						'sui-form-field',
+						'lazyload-embed-videos',
+					);
+
+					if ( ! $iframe_format_enabled ) {
+						$class_names[] = 'sui-hidden';
+					}
+				?>
+				<div id="format-iframe-description" class="<?php echo esc_attr( join( ' ', $class_names ) ); ?>" style="margin-left:0;">
+					<label for="embed_video" class="sui-checkbox sui-checkbox-stacked">
+						<input type='hidden' value='0' name='format[embed_video]' />
+						<input type="checkbox" name="format[embed_video]" id="embed_video" <?php checked( ! empty( $settings['format']['embed_video'] ) ); ?> />
+						<span aria-hidden="true"></span>
+						<span><?php esc_html_e( 'Replace YouTube or Vimeo iframes with preview images', 'wp-smushit' ); ?></span>
+						<span style="margin-left:10px; font-size: 9px; line-height: 12px; padding: 2px 6px 1px; border-radius: 12px;" class="sui-tag smush-sui-tag-new"><?php esc_html_e( 'New', 'wp-smushit' ); ?></span>
+					</label>
+					<span class="sui-description">
+						<?php esc_html_e( 'This can significantly improve loading time if there are a lot of embedded videos on a page.', 'wp-smushit' ); ?>
+					</span>
+				</div>
+			</label>
+		</div>
+	</div>
+</div>
+<!-- End Embedded Content -->
 
 <div class="sui-box-settings-row" id="lazyload-output-locations-settings-row">
 	<div class="sui-box-settings-col-1">
@@ -649,6 +704,11 @@ wp_enqueue_style( 'wp-color-picker' );
 						'<a href="https://caniuse.com/#feat=loading-lazy-attr" target="_blank">',
 						'</a>'
 					);
+					?>
+					<br/>
+					<?php
+						/* translators: %1$s - opening strong tag, %2$s - closing strong tag */
+						printf( esc_html__( '%1$sNote:%2$s Video iframes will continue using JavaScript lazy loading even when this is enabled.', 'wp-smushit' ), '<strong>', '</strong>' );
 					?>
 				</span>
 			</label>

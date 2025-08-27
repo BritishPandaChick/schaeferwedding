@@ -11,6 +11,7 @@
 namespace Google\Site_Kit\Core\Conversion_Tracking;
 
 use Google\Site_Kit\Context;
+use Google\Site_Kit\Core\Assets\Script;
 use Google\Site_Kit\Core\Conversion_Tracking\Conversion_Event_Providers\Contact_Form_7;
 use Google\Site_Kit\Core\Conversion_Tracking\Conversion_Event_Providers\Easy_Digital_Downloads;
 use Google\Site_Kit\Core\Conversion_Tracking\Conversion_Event_Providers\Mailchimp;
@@ -81,7 +82,7 @@ class Conversion_Tracking {
 	 * @param Context $context Plugin context.
 	 * @param Options $options Optional. Option API instance. Default is a new instance.
 	 */
-	public function __construct( Context $context, Options $options = null ) {
+	public function __construct( Context $context, ?Options $options = null ) {
 		$this->context                             = $context;
 		$options                                   = $options ?: new Options( $context );
 		$this->conversion_tracking_settings        = new Conversion_Tracking_Settings( $options );
@@ -127,7 +128,9 @@ class Conversion_Tracking {
 			$active_providers,
 			function ( Conversion_Events_Provider $active_provider ) {
 				$script_asset = $active_provider->register_script();
-				$script_asset->enqueue();
+				if ( $script_asset instanceof Script ) {
+					$script_asset->enqueue();
+				}
 			}
 		);
 

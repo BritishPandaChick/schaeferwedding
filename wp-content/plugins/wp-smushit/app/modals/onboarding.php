@@ -50,6 +50,10 @@ $pro_features        = array(
 		'title'       => __( 'Next-Gen Conversions', 'wp-smushit' ),
 		'description' => __( '1-click WebP and AVIF Conversion for superior performance.', 'wp-smushit' ),
 	),
+	'preload_images'          => array(
+		'title'       => __( 'Preload Critical Images', 'wp-smushit' ),
+		'description' => __( 'Identifies and immediately preloads important above-the-fold images.', 'wp-smushit' ),
+	),
 	'background_optimization' => array(
 		'title'       => __( 'Continuous Background Optimization', 'wp-smushit' ),
 		'description' => __( 'Bulk Smush continues even when you leave the page.', 'wp-smushit' ),
@@ -83,6 +87,9 @@ $pro_features        = array(
 			<?php esc_html_e( 'EXIF Metadata', 'wp-smushit' ); ?>
 			<# } else if ( 'original' === data.slide ) { #>
 			<?php esc_html_e( 'Full Size Images', 'wp-smushit' ); ?>
+			<# } else if ( 'preload_images' === data.slide ) { #>
+			<?php esc_html_e( 'Preload Critical Images', 'wp-smushit' ); ?>
+			<span class="sui-tag sui-tag-sm sui-tag-green" style="margin-left:6px; padding:0px 8px;min-height:0;" aria-hidden="true"><?php esc_html_e( 'New', 'wp-smushit' ); ?></span>
 			<# } else if ( 'lazy_load' === data.slide ) { #>
 			<?php esc_html_e( 'Lazy Load', 'wp-smushit' ); ?>
 			<# } else if ( 'pro_upsell' === data.slide ) { #>
@@ -101,6 +108,8 @@ $pro_features        = array(
 			<?php esc_html_e( 'Photos often store camera settings in the file, i.e., focal length, date, time and location. Removing EXIF data reduces the file size. Note: it does not strip SEO metadata.', 'wp-smushit' ); ?>
 			<# } else if ( 'original' === data.slide ) { #>
 			<?php esc_html_e( 'You can also have Smush compress your original images - this is helpful if your theme serves full size images.', 'wp-smushit' ); ?>
+			<# } else if ( 'preload_images' === data.slide ) { #>
+			<?php esc_html_e( 'Automatically identify and immediately preload important above-the-fold images, like your Largest Contentful Paint element. This ensures your key visuals appear instantly, which can significantly improve perceived page load speed and your Google PageSpeed LCP score.', 'wp-smushit' ); ?>
 			<# } else if ( 'lazy_load' === data.slide ) { #>
 			<?php esc_html_e( 'This feature stops offscreen images from loading until a visitor scrolls to them. Make your page load faster, use less bandwidth and fix the “defer offscreen images” recommendation from a Google PageSpeed test.', 'wp-smushit' ); ?>
 			<# } else if ( 'pro_upsell' === data.slide ) { #>
@@ -151,6 +160,8 @@ $pro_features        = array(
 						<?php esc_html_e( 'Strip my image metadata', 'wp-smushit' ); ?>
 						<# } else if ( 'original' === data.slide ) { #>
 						<?php esc_html_e( 'Compress my full size images', 'wp-smushit' ); ?>
+						<# } else if ( 'preload_images' === data.slide ) { #>
+						<?php esc_html_e( 'Enable Preload Critical Images', 'wp-smushit' ); ?>
 						<# } else if ( 'lazy_load' === data.slide ) { #>
 						<?php esc_html_e( 'Enable Lazy Loading', 'wp-smushit' ); ?>
 						<# } #>
@@ -240,6 +251,9 @@ $pro_features        = array(
 			</button>
 			<button onclick="WP_Smush.onboarding.goTo('original')" class="<# if ( 'original' === data.slide ) { #>sui-current<# } #>" <# if ( 'original' === data.slide ) { #>disabled<# } #>>
 				<?php esc_html_e( 'Full Size Images', 'wp-smushit' ); ?>
+			</button>
+			<button onclick="WP_Smush.onboarding.goTo('preload_images')" class="<# if ( 'preload_images' === data.slide ) { #>sui-current<# } #>" <# if ( 'preload_images' === data.slide ) { #>disabled<# } #>>
+				<?php esc_html_e( 'Preload Critical Images', 'wp-smushit' ); ?>
 			</button>
 			<button onclick="WP_Smush.onboarding.goTo('lazy_load')" class="<# if ( 'lazy_load' === data.slide ) { #>sui-current<# } #>" <# if ( 'lazy_load' === data.slide ) { #>disabled<# } #>>
 				<?php esc_html_e( 'Lazy Load', 'wp-smushit' ); ?>

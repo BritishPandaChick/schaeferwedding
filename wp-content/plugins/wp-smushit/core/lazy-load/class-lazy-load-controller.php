@@ -142,6 +142,8 @@ class Lazy_Load_Controller extends Controller {
 		if ( $this->helper->should_skip_lazyload() ) {
 			return;
 		}
+		// Lazy load embed video styles.
+		$this->add_inline_embed_video_css();
 		// Fix for poorly coded themes that do not remove the no-js in the HTML class.
 		?>
 		<script>
@@ -197,6 +199,14 @@ class Lazy_Load_Controller extends Controller {
 				min-width: 150px;
 			}
 
+			.lazyload,
+			.lazyloading {
+				--smush-placeholder-width: 100px;
+				--smush-placeholder-aspect-ratio: 1/1;
+				width: var(--smush-placeholder-width) !important;
+				aspect-ratio: var(--smush-placeholder-aspect-ratio) !important;
+			}
+
 			<?php if ( 'fadein' === $this->options['animation']['selected'] ) : ?>
 			.lazyload, .lazyloading {
 				opacity: 0;
@@ -221,14 +231,35 @@ class Lazy_Load_Controller extends Controller {
 				min-width: 16px;
 			}
 
-			.lazyload,
-			.lazyloading {
-				--smush-placeholder-width: 100px;
-				--smush-placeholder-aspect-ratio: 1/1;
-				width: var(--smush-placeholder-width) !important;
-				aspect-ratio: var(--smush-placeholder-aspect-ratio) !important;
-			}
+			<?php endif; ?>
+		</style>
+		<?php
+	}
 
+	private function add_inline_embed_video_css() {
+		if ( ! $this->helper->should_lazy_load_embed_video() ) {
+			return;
+		}
+		?>
+		<style>
+			/* Thanks to https://github.com/paulirish/lite-youtube-embed and https://css-tricks.com/responsive-iframes/ */
+			.smush-lazyload-video {
+				--smush-video-aspect-ratio: 16/9;background-color: #000;position: relative;display: block;contain: content;background-position: center center;background-size: cover;cursor: pointer;
+			}
+			.smush-lazyload-video.loading{cursor:progress}
+			.smush-lazyload-video::before{content:'';display:block;position:absolute;top:0;background-image:linear-gradient(rgba(0,0,0,0.6),transparent);background-position:top;background-repeat:repeat-x;height:60px;width:100%;transition:all .2s cubic-bezier(0,0,0.2,1)}
+			.smush-lazyload-video::after{content:"";display:block;padding-bottom:calc(100% / (var(--smush-video-aspect-ratio)))}
+			.smush-lazyload-video > iframe{width:100%;height:100%;position:absolute;top:0;left:0;border:0;opacity:0;transition:opacity .5s ease-in}
+			.smush-lazyload-video.smush-lazyloaded-video > iframe{opacity:1}
+			.smush-lazyload-video > .smush-play-btn{z-index:10;position: absolute;top:0;left:0;bottom:0;right:0;}
+			.smush-lazyload-video > .smush-play-btn > .smush-play-btn-inner{opacity:0.75;display:flex;align-items: center;width:68px;height:48px;position:absolute;cursor:pointer;transform:translate3d(-50%,-50%,0);top:50%;left:50%;z-index:1;background-repeat:no-repeat;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/><path d="M45 24 27 14v20" fill="white"/></svg>');filter:grayscale(100%);transition:filter .5s cubic-bezier(0,0,0.2,1), opacity .5s cubic-bezier(0,0,0.2,1);border:none}
+			.smush-lazyload-video:hover .smush-play-btn-inner,.smush-lazyload-video .smush-play-btn-inner:focus{filter:none;opacity:1}
+			.smush-lazyload-video > .smush-play-btn > .smush-play-btn-inner span{display:none;width:100%;text-align:center;}
+			.smush-lazyload-video.smush-lazyloaded-video{cursor:unset}
+			.smush-lazyload-video.video-loaded::before,.smush-lazyload-video.smush-lazyloaded-video > .smush-play-btn,.smush-lazyload-video.loading > .smush-play-btn{display:none;opacity:0;pointer-events:none}
+			.smush-lazyload-video.smush-lazyload-vimeo > .smush-play-btn > .smush-play-btn-inner{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 203 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m0.25116 9.0474c0-4.9968 4.0507-9.0474 9.0474-9.0474h184.4c4.997 0 9.048 4.0507 9.048 9.0474v101.91c0 4.996-4.051 9.047-9.048 9.047h-184.4c-4.9968 0-9.0474-4.051-9.0474-9.047v-101.91z' fill='%2317d5ff' fill-opacity='.7'/%3E%3Cpath d='m131.1 59.05c0.731 0.4223 0.731 1.4783 0 1.9006l-45.206 26.099c-0.7316 0.4223-1.646-0.1056-1.646-0.9504v-52.199c0-0.8448 0.9144-1.3727 1.646-0.9504l45.206 26.099z' fill='%23fff'/%3E%3C/svg%3E%0A");width:81px}
+			<?php if ( get_theme_support( 'responsive-embeds' ) ) : ?>
+				.wp-embed-responsive .wp-has-aspect-ratio .smush-lazyload-video{position:absolute;width:100%;height:100%;top:0;left:0}.wp-embed-responsive .wp-has-aspect-ratio .smush-lazyload-video::after{padding-bottom:0}
 			<?php endif; ?>
 		</style>
 		<?php
@@ -240,7 +271,10 @@ class Lazy_Load_Controller extends Controller {
 	 * @since 3.2.0
 	 */
 	public function enqueue_assets() {
-		if ( $this->helper->should_skip_lazyload() || $this->helper->is_native_lazy_loading_enabled() ) {
+		if (
+			$this->helper->should_skip_lazyload()
+			|| ( $this->helper->is_native_lazy_loading_enabled() && ! $this->helper->should_lazy_load_embed_video() )
+		) {
 			return;
 		}
 
@@ -397,15 +431,21 @@ class Lazy_Load_Controller extends Controller {
 	 *
 	 */
 	public function exclude_from_lazy_loading( $content ) {
-		$server_utils = new Server_Utils();
-		$page         = new Page_Parser( $server_utils->get_request_uri(), $content );
-		$images       = $page->parse_page()->get_elements();
+		$server_utils       = new Server_Utils();
+		$page               = new Page_Parser( $server_utils->get_request_uri(), $content );
+		$parsed_page        = $page->parse_page();
+		$images             = $parsed_page->get_elements();
+		$composite_images   = $parsed_page->get_composite_elements();
+		$all_image_elements = ! empty( $composite_images )
+			? array_merge( $images, $this->extract_images_from_composite_elements( $composite_images ) )
+			: $images;
 
-		if ( empty( $images ) ) {
+		if ( empty( $all_image_elements ) ) {
 			return $content;
 		}
 
-		foreach ( $images as $image ) {
+		// Process all images.
+		foreach ( $all_image_elements as $image ) {
 			// Add .no-lazyload class.
 			$image->append_attribute_value( 'class', 'no-lazyload' );
 
@@ -423,6 +463,28 @@ class Lazy_Load_Controller extends Controller {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Extracts individual image elements from composite elements.
+	 *
+	 * @param array $composite_elements Array of composite elements.
+	 *
+	 * @return array Array of individual image elements.
+     * @since 3.18.0
+     *
+	 */
+	private function extract_images_from_composite_elements( $composite_elements ) {
+		$individual_images = [];
+
+		foreach ( $composite_elements as $composite_element ) {
+			$element_images = $composite_element->get_elements();
+			if ( ! empty( $element_images ) ) {
+				$individual_images = array_merge( $individual_images, $element_images );
+			}
+		}
+
+		return $individual_images;
 	}
 
 	/**

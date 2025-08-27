@@ -49,7 +49,7 @@ $can_use_background = $bg_optimization->can_use_background();
 	</li>
 	<li>
 		<span class="sui-icon-check sui-md" aria-hidden="true"></span>
-		<?php esc_html_e( 'Get faster sites with Hummingbird Pro', 'wp-smushit' ); ?>
+		<?php esc_html_e( 'Optimize Largest Contentful Paint (LCP) images', 'wp-smushit' ); ?>
 	</li>
 	<li>
 		<span class="sui-icon-check sui-md" aria-hidden="true"></span>

@@ -2,7 +2,7 @@
 
 namespace Smush\Core\Parser;
 
-class Composite_Element {
+class Composite_Element implements Replaceable {
 	/**
 	 * @var string
 	 */
@@ -15,11 +15,21 @@ class Composite_Element {
 	 * @var Element[]
 	 */
 	private $elements;
+	/**
+	 * @var int
+	 */
+	private $position;
+	/**
+	 * @var bool
+	 */
+	private $has_lcp;
 
-	public function __construct( $markup, $tag, $elements ) {
+	public function __construct( $markup, $tag, $elements, $position = - 1, $has_lcp = false ) {
 		$this->markup   = $markup;
 		$this->tag      = $tag;
 		$this->elements = $elements;
+		$this->position = $position;
+		$this->has_lcp  = $has_lcp;
 	}
 
 	/**
@@ -65,5 +75,25 @@ class Composite_Element {
 		}
 
 		return $updated;
+	}
+
+	public function has_lcp() {
+		return $this->has_lcp;
+	}
+
+	public function set_has_lcp( $is_lcp ) {
+		$this->has_lcp = $is_lcp;
+	}
+
+	public function get_position() {
+		return $this->position;
+	}
+
+	public function set_position( $position ) {
+		$this->position = $position;
+	}
+
+	public function get_original() {
+		return $this->get_markup();
 	}
 }

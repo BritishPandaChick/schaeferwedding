@@ -186,6 +186,21 @@ class Lazy_Load_Helper {
 	public function is_format_excluded( $needle ) {
 		$supported_formats = $this->array_utils->get_array_value( $this->get_lazy_load_options(), 'format' );
 		$supported_formats = $this->array_utils->ensure_array( $supported_formats );
+
+		// Ensure 'jpeg' and 'jpg' are treated as the same format.
+		if ( isset( $supported_formats['jpeg'] ) ) {
+			$supported_formats['jpg'] = $supported_formats['jpeg'];
+		}
 		return in_array( false, $supported_formats, true ) && isset( $supported_formats[ $needle ] ) && ! $supported_formats[ $needle ];
+	}
+
+	public function should_lazy_load_embed_video() {
+		if ( $this->is_format_excluded( 'iframe' ) ) {
+			return false;
+		}
+
+		$supported_formats = $this->array_utils->get_array_value( $this->get_lazy_load_options(), 'format' );
+
+		return ! empty( $supported_formats['embed_video'] );
 	}
 }

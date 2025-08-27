@@ -2,7 +2,18 @@
 
 namespace Smush\Core\Parser;
 
+use Smush\Core\Array_Utils;
+
 class Parser {
+	/**
+	 * @var Array_Utils
+	 */
+	private $array_utils;
+
+	public function __construct() {
+		$this->array_utils = new Array_Utils();
+	}
+
 	public function get_base_url( $markup ) {
 		$pattern = "/<base[^>]*?href\s*=\s*['\"](.*?)['\"]\s*\/\s*>/is";
 		if ( preg_match( $pattern, $markup, $matches ) && ! empty( $matches[1] ) ) {
@@ -14,7 +25,7 @@ class Parser {
 
 	public function get_inline_style_blocks( $markup ) {
 		$pattern = '/<style\b[^>]*>(.*?)<\/style>/msi';
-		if ( ! preg_match_all( $pattern, $markup, $matches ) ) {
+		if ( ! preg_match_all( $pattern, $markup, $matches, PREG_OFFSET_CAPTURE ) ) {
 			return array();
 		}
 		return $matches[1];
@@ -29,9 +40,15 @@ class Parser {
 	public function get_inline_styles( $markup, $base_url ) {
 		$styles              = array();
 		$inline_style_blocks = $this->get_inline_style_blocks( $markup );
-		foreach ( $inline_style_blocks as $inline_style_block ) {
+		foreach ( $inline_style_blocks as $style_block ) {
+			if ( empty( $style_block ) || ! is_array( $style_block ) || count( $style_block ) < 2 ) {
+				continue;
+			}
+
+			list( $inline_style_block, $inline_style_block_position ) = $style_block;
+
 			$image_urls = $this->get_image_urls( $inline_style_block, $base_url );
-			$style      = new Style( $inline_style_block, $image_urls );
+			$style      = new Style( $inline_style_block, $image_urls, $inline_style_block_position );
 			$styles[]   = $style;
 		}
 		return $styles;
@@ -44,7 +61,8 @@ class Parser {
 	 * @return Image_URL[]
 	 */
 	public function get_image_urls( $markup, $base_url ) {
-		$pattern = '@(?<src>(?:https?:/|\.+)?/[^\'",\s\(\)]+\.(?<ext>jpe?g|png|gif|webp|svg))\b@is';
+		// IMPORTANT: the following regex is a copy of the one in the JS function SmushLCPDetector.getBackgroundDataForPropertyValue(). Remember to keep them synced.
+		$pattern = '@(?<src>(?:https?:/|\.+)?/[^\'",\s\(\)]+\.(?<ext>jpe?g|png|gif|webp|svg|avif)(?:\?[^\s\'",?)]+)?)\b@is';
 		$pattern = apply_filters( 'wp_smush_image_urls_regex', $pattern );
 		if ( ! preg_match_all( $pattern, $markup, $matches, PREG_SET_ORDER ) ) {
 			return array();
@@ -86,15 +104,41 @@ class Parser {
 		return $matches[1];
 	}
 
-	public function get_composite_elements( $markup, $base_url ) {
+	/**
+	 * @param $markup
+	 * @param $base_url
+	 * @param $tag_names
+	 * @param $lcp_location
+	 *
+	 * @return Composite_Element[]
+	 */
+	public function get_composite_elements( $markup, $base_url, $tag_names, $lcp_location = - 1 ) {
 		$composite_elements = array();
-		$tag_names          = array( 'picture' );
 		foreach ( $tag_names as $tag_name ) {
-			$html_elements = $this->get_tags( $markup, array( $tag_name ) );
+			$match_found = preg_match_all( '/<(' . $tag_name . ').*?\/\1>/s', $markup, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE );
+			if ( ! $match_found ) {
+				continue;
+			}
+
+			$html_elements = empty( $matches[0] ) ? array() : $matches[0];
 			foreach ( $html_elements as $html_element ) {
-				$elements = $this->get_elements_with_image_attributes( $html_element, $base_url );
+				$composite_element_markup   = $html_element[0];
+				$composite_element_position = $html_element[1];
+				$elements                   = $this->get_elements_with_image_attributes( $composite_element_markup, $base_url );
+
 				if ( ! empty( $elements ) ) {
-					$composite_elements[] = new Composite_Element( $html_element, $tag_name, $elements );
+					$has_lcp_element = false;
+					foreach ( $elements as $element ) {
+						$actual_position = $composite_element_position + $element->get_position();
+						$element->set_position( $actual_position );
+						$element->set_lcp( $lcp_location === $actual_position );
+
+						if ( $element->is_lcp() ) {
+							$has_lcp_element = true;
+						}
+					}
+
+					$composite_elements[] = new Composite_Element( $composite_element_markup, $tag_name, $elements, $composite_element_position, $has_lcp_element );
 				}
 			}
 		}
@@ -104,24 +148,58 @@ class Parser {
 	/**
 	 * @param $markup
 	 * @param $base_url
+	 * @param int $lcp_position
 	 *
 	 * @return Element[]
 	 */
-	public function get_elements_with_image_attributes( $markup, $base_url ) {
-		$pattern = '@(?<element><(?:(?<img>img)\b[^>]+|(?<tag>[a-zA-Z]+)\b[^>]+\.(?:jpe?g|png|gif|webp|svg)[^>]+)>)@is';
+	public function get_elements_with_image_attributes( $markup, $base_url, $lcp_position = - 1 ) {
+		$pattern = '@(?<element><(?:(?<img>img)\b[^>]+|(?<tag>[a-zA-Z]+)\b[^>]+\.(?:jpe?g|png|gif|webp|svg|avif)[^>]+)>)@is';
 		$pattern = apply_filters( 'wp_smush_images_from_content_regex', $pattern );
-		if ( ! preg_match_all( $pattern, $markup, $matches, PREG_SET_ORDER ) ) {
+
+		return $this->get_elements_matching_pattern( $pattern, $markup, $base_url, $lcp_position );
+	}
+
+	public function get_elements_with_id_attribute( $markup, $id, $base_url ) {
+		$pattern = '@(?<element><(?<tag>[a-zA-Z]+)\b[^>]+(?<!\S)id=(["\'])' . preg_quote( $id ) . '\3[^>]+>)@is';
+
+		return $this->get_elements_matching_pattern( $pattern, $markup, $base_url );
+	}
+
+	public function get_elements_with_class_attribute( $markup, $class, $base_url ) {
+		$pattern = '@(?<element><(?<tag>[a-zA-Z]+)\b[^>]+(?<!\S)class=(["\'])' . preg_quote( $class ) . '\3[^>]+>)@is';
+
+		return $this->get_elements_matching_pattern( $pattern, $markup, $base_url );
+	}
+
+	/**
+	 * @param $markup
+	 * @param $image_url
+	 * @param $base_url
+	 *
+	 * @return Element[]
+	 */
+	public function get_elements_with_image_url( $markup, $image_url, $base_url ) {
+		$pattern = '@(?<element><(?<tag>[a-zA-Z]+)\b[^>]+' . preg_quote( $image_url ) . '[^>]+>)@is';
+
+		return $this->get_elements_matching_pattern( $pattern, $markup, $base_url );
+	}
+
+	private function get_elements_matching_pattern( $pattern, $markup, $base_url, $lcp_position = - 1 ) {
+		if ( ! preg_match_all( $pattern, $markup, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE ) ) {
 			return array();
 		}
 
 		$elements = array();
 		foreach ( $matches as $item ) {
-			if ( empty( $item['element'] ) ) {
+			$element          = (string) $this->array_utils->get_array_value( $item, [ 'element', 0 ] );
+			$element_position = (int) $this->array_utils->get_array_value( $item, [ 'element', 1 ] );
+			if ( empty( $element ) ) {
 				continue;
 			}
 
-			$element        = $item['element'];
-			$tag_name       = ! empty( $item['img'] ) ? $item['img'] : $item['tag'];
+			$img_tag_name   = (string) $this->array_utils->get_array_value( $item, [ 'img', 0 ] );
+			$tag_name       = (string) $this->array_utils->get_array_value( $item, [ 'tag', 0 ] );
+			$tag_name       = ! empty( $img_tag_name ) ? $img_tag_name : $tag_name;
 			$attributes     = $this->get_element_attributes( $element, $base_url );
 			$background     = $this->get_element_background_image( $element, $base_url );
 			$css_properties = $background ? array( $background ) : array();
@@ -131,7 +209,8 @@ class Parser {
 				continue;
 			}
 
-			$elements[ $element ] = new Element( $element, $tag_name, $attributes, $css_properties );
+			$is_lcp_element = $lcp_position === $element_position;
+			$elements[]     = new Element( $element, $tag_name, $attributes, $css_properties, $element_position, $is_lcp_element );
 		}
 
 		return array_values( $elements );
@@ -292,7 +371,29 @@ class Parser {
 		return $image;
 	}
 
+	public function add_attribute_to_element( $element_markup, $tag_name, $attribute_name, $attribute_value = null ) {
+		$pattern = '~<' . $tag_name . '\b[^>]*>~';
+		if ( preg_match_all( $pattern, $element_markup, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE ) ) {
+			$starting_tag          = $this->array_utils->get_array_value( $matches, [ 0, 0, 0 ] );
+			$starting_tag_position = $this->array_utils->get_array_value( $matches, [ 0, 0, 1 ] );
+			$updated_starting_tag  = $this->add_attribute_to_self_closing_element( $starting_tag, $attribute_name, $attribute_value );
+			if ( $starting_tag !== $updated_starting_tag ) {
+				$before         = substr( $element_markup, 0, $starting_tag_position );
+				$after          = substr( $element_markup, $starting_tag_position + strlen( $starting_tag ) );
+				$element_markup = $before . $updated_starting_tag . $after;
+			}
+		}
+
+		return $element_markup;
+	}
+
 	public function add_element_attribute( $element, $name, $value = null ) {
+		_deprecated_function( __METHOD__, '3.19.1', '\Smush\Core\Parser\Parser::add_attribute_to_element()' );
+
+		return $this->add_attribute_to_self_closing_element( $element, $name, $value );
+	}
+
+	private function add_attribute_to_self_closing_element( $element, $name, $value = null ) {
 		$closing = false === strpos( $element, '/>' ) ? '>' : ' />';
 		$quotes  = false === strpos( $element, '"' ) ? '\'' : '"';
 
@@ -321,21 +422,23 @@ class Parser {
 		}
 
 		// Iframe tag has srcdocs attribute which might contains HTML code.
-		$pattern = '#<iframe\b[^>]*\s(?<attr>src\s*=\s*(\'|")(?<src>[^\'"]+)\2)[^>]*>#is';
+		$pattern = '#<iframe\b[^>]*\s(?<attr>src\s*=\s*(\'|")(?<src>[^\'"]+)\2)[^>]*>(.*?)</iframe>#is';
 		$pattern = apply_filters( 'wp_smush_iframes_regex', $pattern );
 		$iframes = array();
 
-		if ( ! preg_match_all( $pattern, $markup, $matches, PREG_SET_ORDER ) ) {
+		if ( ! preg_match_all( $pattern, $markup, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE ) ) {
 			return $iframes;
 		}
 
 		foreach ( $matches as $iframe_data ) {
-			if ( empty( $iframe_data['attr'] ) || empty( $iframe_data['src'] ) ) {
+			if ( empty( $iframe_data[0][0] ) || ! isset( $iframe_data[0][1] ) || empty( $iframe_data['attr'] ) || empty( $iframe_data['src'] ) ) {
 				continue;
 			}
 
-			$attributes     = $this->get_element_attributes( $iframe_data[0], $base_url );
-			$iframe_element = new Element( $iframe_data[0], 'iframe', $attributes, array() );
+			$iframe_markup   = $iframe_data[0][0];
+			$iframe_position = $iframe_data[0][1];
+			$attributes      = $this->get_element_attributes( $iframe_markup, $base_url );
+			$iframe_element  = new Element( $iframe_markup, 'iframe', $attributes, array(), $iframe_position );
 
 			$iframes[] = $iframe_element;
 		}
@@ -394,5 +497,38 @@ class Parser {
 		 * Skip removal of percent encoded values {@see _sanitize_text_fields}
 		 */
 		return trim( $filtered );
+	}
+
+	public function get_self_closing_element_and_position( $tag, $markup, $index ) {
+		$html_element_markup   = null;
+		$html_element_position = null;
+		$pattern               = '/<(' . $tag . ')[^>]+>/is';
+		$tags_found            = preg_match_all( $pattern, $markup, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE );
+		if ( $tags_found ) {
+			$html_element_markup   = $this->array_utils->get_array_value( $matches, [ 0, $index, 0 ] );
+			$html_element_position = $this->array_utils->get_array_value( $matches, [ 0, $index, 1 ] );
+		}
+		return [ $html_element_markup, $html_element_position ];
+	}
+
+	public function get_top_level_element_and_position( $tag, $markup, $index ) {
+		$html_element_markup         = null;
+		$html_element_position       = null;
+		$html_element_inner_markup   = null;
+		$html_element_inner_position = null;
+		if ( substr_count( $markup, '<' . $tag ) < 2 ) {
+			$pattern = '~<' . $tag . '\b[^>]*>(.*?)</' . $tag . '>~is';
+		} else {
+			$pattern = '~<' . $tag . '\b[^>]*>((?>(?:[^<]++|<(?!/?' . $tag . '\b[^>]*>))+|(?R))*)</' . $tag . '>~is';
+		}
+		$tags_found = preg_match_all( $pattern, $markup, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE );
+		if ( $tags_found ) {
+			$html_element_markup         = $this->array_utils->get_array_value( $matches, [ 0, $index, 0 ] );
+			$html_element_position       = $this->array_utils->get_array_value( $matches, [ 0, $index, 1 ] );
+			$html_element_inner_markup   = $this->array_utils->get_array_value( $matches, [ 1, $index, 0 ] );
+			$html_element_inner_position = $this->array_utils->get_array_value( $matches, [ 1, $index, 1 ] );
+		}
+
+		return [ $html_element_markup, $html_element_position, $html_element_inner_markup, $html_element_inner_position ];
 	}
 }

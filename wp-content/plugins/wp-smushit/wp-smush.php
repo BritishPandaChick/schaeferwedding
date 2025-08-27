@@ -11,13 +11,13 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Smush
- * Plugin URI:        http://wordpress.org/plugins/wp-smushit/
+ * Plugin URI:        https://wpmudev.com/project/wp-smush-pro/
  * Description:       Reduce image file sizes, improve performance and boost your SEO using the free <a href="https://wpmudev.com/">WPMU DEV</a> WordPress Smush API.
- * Version:           3.18.1
+ * Version:           3.20.0
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            WPMU DEV
- * Author URI:        https://profiles.wordpress.org/wpmudev/
+ * Author URI:        https://wpmudev.com/
  * License:           GPLv2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       wp-smushit
@@ -50,7 +50,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 if ( ! defined( 'WP_SMUSH_VERSION' ) ) {
-	define( 'WP_SMUSH_VERSION', '3.18.1' );
+	define( 'WP_SMUSH_VERSION', '3.20.0' );
 }
 // Used to define body class.
 if ( ! defined( 'WP_SHARED_UI_VERSION' ) ) {
@@ -516,6 +516,13 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 			);
 		}
 
+		/**
+		 * Appropriate menu position for cross-sell page based on multisite settings.
+		 *
+		 * For single sites, returns the default position (9).
+		 * For multisite installations, calculates position based on network access settings.
+		 *
+		 */
 		public function load_cross_sell_module() {
 			if ( self::is_pro() ) {
 				return;
@@ -539,7 +546,7 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 				'slug'            => 'wp-smushit', // Required.
 				'parent_slug'     => 'smush', // Required.
 				'menu_slug'       => 'smush-cross-sell', // Optional - Strongly recommended to set in order to avoid admin page conflicts with other WPMU DEV plugins.
-				'position'        => 9, // Optional – Usually a specific position will be required.
+				'position'        => $this->cross_sell_module_menu_position(), // Optional – Usually a specific position will be required.
 				'translation_dir' => WP_SMUSH_DIR . 'languages', // Optional – The directory where the translation files are located.
 			);
 
@@ -553,6 +560,36 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 			}
 
 			return $is_disabled;
+		}
+
+		/**
+		 * Determines the menu position for the Cross-Sell module based on multisite and network access settings.
+		 *
+		 * @return int Menu position for the admin menu.
+		 */
+		public function cross_sell_module_menu_position() {
+			$default_position = 8;
+
+			// Return default position if not multisite
+			if ( ! is_multisite() ) {
+				return $default_position;
+			}
+
+			// Get network access settings
+			$network_access = get_site_option( 'wp-smush-networkwide' );
+
+			// Return default position if networkwide access is disabled
+			if ( empty( $network_access ) || $network_access == 0 ) {
+				return $default_position;
+			}
+			// Determine base position: 4 if enabled for all sites, 3 if custom list.
+			$menu_position = ( 1 == $network_access ) ? 4 : 3;
+			// Adjust position based on number of sites with access
+			if ( is_array( $network_access ) ) {
+				$menu_position += max( 0, 5 - count( $network_access ) );
+			}
+
+			return $menu_position;
 		}
 
 		/**

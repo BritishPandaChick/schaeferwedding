@@ -40,6 +40,7 @@ class CDN_Controller extends Controller {
 
 		if ( $this->cdn_helper->is_cdn_active() ) {
 			$this->register_action( Cron_Controller::CRON_HOOK, array( $this, 'cron_update_stats' ) );
+			$this->register_filter( 'wp_smush_lcp_allowed_url_hostnames', array( $this, 'add_lcp_allowed_hostname' ), 10, 2 );
 		}
 	}
 
@@ -181,5 +182,17 @@ class CDN_Controller extends Controller {
 		}
 
 		return $urls;
+	}
+
+	public function add_lcp_allowed_hostname( $hostnames ) {
+		$cdn_base_url = $this->cdn_helper->get_cdn_base_url();
+		if ( ! empty( $cdn_base_url ) ) {
+			$cdn_hostname = parse_url( $cdn_base_url, PHP_URL_HOST );
+			if ( ! in_array( $cdn_hostname, $hostnames, true ) ) {
+				$hostnames[] = $cdn_hostname;
+			}
+		}
+
+		return $hostnames;
 	}
 }

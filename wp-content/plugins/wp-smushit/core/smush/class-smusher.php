@@ -21,6 +21,7 @@ class Smusher {
 	const IMAGE_NOT_SAVED_FROM_URL = 'image_not_saved_from_url';
 	const DEFAULT_CHUNK_SIZE = 5 * 1024 * 1024;
 	const ERROR_TIME_OUT = 'time_out';
+	const ERROR_GATEWAY_TIME_OUT = 'gateway_time_out';
 	const ERROR_POSTING_TO_API = 'error_posting_to_api';
 	const RESPONSE_CODE_NON_200 = 'response_code_non_200';
 	const OPTION_ID_SMUSH_ERROR_COUNTS = 'wp_smush_error_counts';
@@ -491,7 +492,18 @@ class Smusher {
 			if ( ! empty( $non_200_json->data ) ) {
 				// We got a pre-formatted error from the API
 				$error_message = $non_200_json->data;
-			} else {
+			} else if ( strpos( wp_remote_retrieve_response_message( $response ), 'Gateway Timeout' ) !== false ) {
+				$error->add(
+					self::ERROR_GATEWAY_TIME_OUT,
+					esc_html__( 'The request is taking longer than expected. Please check back in a few moments.', 'wp-smushit' ),
+					array(
+						'original_code'    => $response_code,
+						'original_message' => wp_remote_retrieve_response_message( $response ),
+					)
+				);
+
+				return $error;
+			}else {
 				// Make an error from the response message
 				$error_message = sprintf(
 				/* translators: 1: Error code, 2: Error message. */

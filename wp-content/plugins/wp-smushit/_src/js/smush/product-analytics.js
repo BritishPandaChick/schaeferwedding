@@ -47,7 +47,7 @@ class ProductAnalytics {
 				dashboard: 'dash_summary',
 				bulk: 'bulksmush_summary',
 				directory: 'directory_summary',
-				'lazy-load': 'lazy_summary',
+				'lazy-preload': 'lazy_summary',
 				cdn: 'cdn_summary',
 				webp: 'webp_summary',
 			};

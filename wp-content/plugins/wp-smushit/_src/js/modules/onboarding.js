@@ -30,6 +30,7 @@ import GlobalTracking from '../global-tracking';
 			lossy: true,
 			strip_exif: true,
 			original: false,
+			preload_images: true,
 			lazy_load: true,
 		},
 		contentContainer: document.getElementById( 'smush-onboarding-content' ),
@@ -39,6 +40,7 @@ import GlobalTracking from '../global-tracking';
 			'lossy',
 			'strip_exif',
 			'original',
+			'preload_images',
 			'lazy_load',
 		],
 		touchX: null,
@@ -484,6 +486,7 @@ import GlobalTracking from '../global-tracking';
 				original: 'full_size',
 				lazy_load: 'lazy_load',
 				pro_upsell: 'upgrade',
+				preload_images: 'preload_images',
 			};
 		},
 		maybeTrackProUpsell() {

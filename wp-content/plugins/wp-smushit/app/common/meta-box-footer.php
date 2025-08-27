@@ -23,7 +23,9 @@ $button_text = __( 'Save changes', 'wp-smushit' );
  *
  * @param bool $show_submit Should show submit?
  */
-$enabled = 'smush-integrations' === $current_tab ? apply_filters( 'wp_smush_integration_show_submit', false ) : true;
+if ( ! isset( $is_submit_enabled ) ) {
+	$is_submit_enabled = 'smush-integrations' === $current_tab ? apply_filters( 'wp_smush_integration_show_submit', false ) : true;
+}
 
 if ( 'smush-cdn' === $current_tab && ! CDN_Helper::get_instance()->is_cdn_active() ) {
 	$button_text = __( 'Save & Activate', 'wp-smushit' );
@@ -38,7 +40,7 @@ if ( 'smush-cdn' === $current_tab && ! CDN_Helper::get_instance()->is_cdn_active
 		</span>
 	<?php endif; ?>
 
-	<button type="submit" class="sui-button sui-button-blue" id="save-settings-button" aria-live="polite" <?php disabled( $enabled, false ); ?>>
+	<button type="submit" class="sui-button sui-button-blue" id="save-settings-button" aria-live="polite" <?php disabled( $is_submit_enabled, false ); ?>>
 		<span class="sui-button-text-default sui-loading-text">
 			<span class="sui-icon-save" aria-hidden="true"></span> <?php echo esc_html( $button_text ); ?>
 		</span>

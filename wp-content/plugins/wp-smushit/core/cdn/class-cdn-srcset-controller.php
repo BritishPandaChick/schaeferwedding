@@ -485,7 +485,7 @@ class CDN_Srcset_Controller extends Controller {
 		}
 
 		// Get maximum content width.
-		$content_width = $this->max_content_width();
+		$content_width = $this->settings->max_content_width();
 
 		if ( is_array( $size ) && $size[0] < $content_width ) {
 			return $sizes;
@@ -597,7 +597,6 @@ class CDN_Srcset_Controller extends Controller {
 	 * @see is_valid_url()
 	 * @see get_size_from_file_name()
 	 * @see get_url_without_dimensions()
-	 * @see max_content_width()
 	 * @see set_additional_srcset()
 	 * @see generate_srcset()
 	 * @see maybe_generate_srcset()
@@ -666,32 +665,6 @@ class CDN_Srcset_Controller extends Controller {
 	}
 
 	/**
-	 * Get $content_width global var value.
-	 *
-	 * @return bool|string
-	 * @since 3.0
-	 *
-	 */
-	private function max_content_width() {
-		// Get global content width (if content width is empty, set 1900).
-		$content_width = isset( $GLOBALS['content_width'] ) ? (int) $GLOBALS['content_width'] : 1920;
-
-		// Avoid situations, when themes misuse the global.
-		if ( 0 === $content_width ) {
-			$content_width = 1920;
-		}
-
-		// Check to see if we are resizing the images (can not go over that value).
-		$resize_sizes = $this->settings->get_setting( 'wp-smush-resize_sizes' );
-
-		if ( isset( $resize_sizes['width'] ) && $resize_sizes['width'] < $content_width ) {
-			return $resize_sizes['width'];
-		}
-
-		return $content_width;
-	}
-
-	/**
 	 * Filters an array of image srcset values, and add additional values.
 	 *
 	 * @param array $sources An array of image urls and widths.
@@ -705,7 +678,7 @@ class CDN_Srcset_Controller extends Controller {
 	 *
 	 */
 	private function set_additional_srcset( $sources, $size_array, $url, $image_meta, $image_src = '' ) {
-		$content_width = $this->max_content_width();
+		$content_width = $this->settings->max_content_width();
 
 		// If url is empty, try to get from src.
 		if ( empty( $url ) ) {

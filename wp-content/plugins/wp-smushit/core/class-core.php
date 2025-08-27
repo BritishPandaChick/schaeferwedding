@@ -231,6 +231,27 @@ class Core extends Stats {
 		$elementor = new Integrations\Elementor_Integration();
 		$elementor->init();
 
+		$wp_rocket_integration = new Integrations\WP_Rocket_Integration();
+		$wp_rocket_integration->init();
+
+		$w3tc_integration = new Integrations\W3_Total_Cache_Integration();
+		$w3tc_integration->init();
+
+		$litespeed_integration = new Integrations\Litespeed_Cache_Integration();
+		$litespeed_integration->init();
+
+		$wp_fastest_cache_integration = new Integrations\WP_Fastest_Cache_Integration();
+		$wp_fastest_cache_integration->init();
+
+		$wp_optimize_integration = new Integrations\WP_Optimize_Integration();
+		$wp_optimize_integration->init();
+
+		$wp_super_cache_integration = new Integrations\WP_Super_Cache_Integration();
+		$wp_super_cache_integration->init();
+
+		$oxygen_builder = new Integrations\Oxygen_Builder_Integration();
+		$oxygen_builder->init();
+
 		// Register logger to schedule cronjob.
 		Helper::logger();
 	}
@@ -283,60 +304,60 @@ class Core extends Stats {
 		);
 
 		$wp_smush_msgs = array(
-			'nonce'                   => wp_create_nonce( 'wp-smush-ajax' ),
-			'webp_nonce'              => wp_create_nonce( 'wp-smush-webp-nonce' ),
-			'settingsUpdated'         => esc_html__( 'Your settings have been updated', 'wp-smushit' ),
-			'resmush'                 => esc_html__( 'Super-Smush', 'wp-smushit' ),
-			'smush_now'               => esc_html__( 'Smush Now', 'wp-smushit' ),
-			'error_in_bulk'           => esc_html__( '{{smushed}}/{{total}} images smushed successfully, {{errors}} images were not optimized, find out why and how to resolve the issue(s) below.', 'wp-smushit' ),
-			'all_failed'              => esc_html__( 'All of your images failed to smush. Find out why and how to resolve the issue(s) below.', 'wp-smushit' ),
-			'all_resmushed'           => esc_html__( 'All images are fully optimized.', 'wp-smushit' ),
-			'all_smushed'             => esc_html__( 'All attachments have been smushed. Awesome!', 'wp-smushit' ),
-			'error_size_limit'        => WP_Smush::is_pro() ? '' : sprintf(
-				/* translators: %1$s - opening a link <a>, %2$s - Close the link </a> */
+			'nonce'                       => wp_create_nonce( 'wp-smush-ajax' ),
+			'webp_nonce'                  => wp_create_nonce( 'wp-smush-webp-nonce' ),
+			'settingsUpdated'             => esc_html__( 'Your settings have been updated', 'wp-smushit' ),
+			'resmush'                     => esc_html__( 'Super-Smush', 'wp-smushit' ),
+			'smush_now'                   => esc_html__( 'Smush Now', 'wp-smushit' ),
+			'error_in_bulk'               => esc_html__( '{{smushed}}/{{total}} images smushed successfully, {{errors}} images were not optimized, find out why and how to resolve the issue(s) below.', 'wp-smushit' ),
+			'all_failed'                  => esc_html__( 'All of your images failed to smush. Find out why and how to resolve the issue(s) below.', 'wp-smushit' ),
+			'all_resmushed'               => esc_html__( 'All images are fully optimized.', 'wp-smushit' ),
+			'all_smushed'                 => esc_html__( 'All attachments have been smushed. Awesome!', 'wp-smushit' ),
+			'error_size_limit'            => WP_Smush::is_pro() ? '' : sprintf(
+			/* translators: %1$s - opening a link <a>, %2$s - Close the link </a> */
 				esc_html__( 'Are you hitting the 5MB "size limit exceeded" warning? %1$sUpgrade to Smush Pro%2$s to optimize unlimited image files up to 256Mb each.', 'wp-smushit' ),
 				'<a href="' . esc_url( $upgrade_url ) . '" target="_blank">',
 				'</a>'
 			),
-			'processing_cdn_for_free' => sprintf(
-				/* translators: %d: Number of CDN PoP locations */
+			'processing_cdn_for_free'     => sprintf(
+			/* translators: %d: Number of CDN PoP locations */
 				esc_html__( 'Want to serve images even faster? Get up to 2x more speed with Smush Pro’s CDN, which spans %d servers worldwide.', 'wp-smushit' ),
 				Admin::CDN_POP_LOCATIONS
 			),
-			'processed_cdn_for_free'  => sprintf(
-				/* translators: %d: Number of CDN PoP locations */
+			'processed_cdn_for_free'      => sprintf(
+			/* translators: %d: Number of CDN PoP locations */
 				esc_html__( 'Let images reach your audience faster no matter where your hosting servers are. Smush Pro’s global CDN serves images closer to site visitors via %d worldwide server locations.', 'wp-smushit' ),
 				Admin::CDN_POP_LOCATIONS
 			),
-			'restore'                 => esc_html__( 'Restoring image...', 'wp-smushit' ),
-			'smushing'                => esc_html__( 'Smushing image...', 'wp-smushit' ),
-			'btn_ignore'              => esc_html__( 'Ignore', 'wp-smushit' ),
-			'view_detail'             => esc_html__( 'View Details', 'wp-smushit' ),
-			'membership_valid'        => esc_html__( 'We successfully verified your membership, all the Pro features should work completely. ', 'wp-smushit' ),
-			'membership_invalid'      => esc_html__( "Your membership couldn't be verified.", 'wp-smushit' ),
-			'missing_path'            => esc_html__( 'Missing file path.', 'wp-smushit' ),
-			'failed_item_smushed'     => esc_html__( 'Images smushed successfully, No further action required', 'wp-smushit' ),
+			'restore'                     => esc_html__( 'Restoring image...', 'wp-smushit' ),
+			'smushing'                    => esc_html__( 'Smushing image...', 'wp-smushit' ),
+			'btn_ignore'                  => esc_html__( 'Ignore', 'wp-smushit' ),
+			'view_detail'                 => esc_html__( 'View Details', 'wp-smushit' ),
+			'membership_valid'            => esc_html__( 'We successfully verified your membership, all the Pro features should work completely. ', 'wp-smushit' ),
+			'membership_invalid'          => esc_html__( "Your membership couldn't be verified.", 'wp-smushit' ),
+			'missing_path'                => esc_html__( 'Missing file path.', 'wp-smushit' ),
+			'failed_item_smushed'         => esc_html__( 'Images smushed successfully, No further action required', 'wp-smushit' ),
 			// Used by Directory Smush.
-			'unfinished_smush_single' => esc_html__( 'image could not be smushed.', 'wp-smushit' ),
-			'unfinished_smush'        => esc_html__( 'images could not be smushed.', 'wp-smushit' ),
-			'already_optimised'       => esc_html__( 'Already Optimized', 'wp-smushit' ),
-			'ajax_error'              => esc_html__( 'Ajax Error', 'wp-smushit' ),
-			'generic_ajax_error'      => esc_html__( 'Something went wrong with the request. Please reload the page and try again.', 'wp-smushit' ),
-			'all_done'                => esc_html__( 'All Done!', 'wp-smushit' ),
-			'sync_stats'              => esc_html__( 'Give us a moment while we sync the stats.', 'wp-smushit' ),
+			'unfinished_smush_single'     => esc_html__( 'image could not be smushed.', 'wp-smushit' ),
+			'unfinished_smush'            => esc_html__( 'images could not be smushed.', 'wp-smushit' ),
+			'already_optimised'           => esc_html__( 'Already Optimized', 'wp-smushit' ),
+			'ajax_error'                  => esc_html__( 'Ajax Error', 'wp-smushit' ),
+			'generic_ajax_error'          => esc_html__( 'Something went wrong with the request. Please reload the page and try again.', 'wp-smushit' ),
+			'all_done'                    => esc_html__( 'All Done!', 'wp-smushit' ),
+			'sync_stats'                  => esc_html__( 'Give us a moment while we sync the stats.', 'wp-smushit' ),
 			// Progress bar text.
-			'progress_smushed'        => esc_html__( 'images optimized', 'wp-smushit' ),
-			'bulk_resume'             => esc_html__( 'Resume scan', 'wp-smushit' ),
-			'bulk_stop'               => esc_html__( 'Stop current bulk smush process.', 'wp-smushit' ),
+			'progress_smushed'            => esc_html__( 'images optimized', 'wp-smushit' ),
+			'bulk_resume'                 => esc_html__( 'Resume scan', 'wp-smushit' ),
+			'bulk_stop'                   => esc_html__( 'Stop current bulk smush process.', 'wp-smushit' ),
 			// Errors.
-			'error_ignore'            => esc_html__( 'Ignore this image from bulk smushing', 'wp-smushit' ),
+			'error_ignore'                => esc_html__( 'Ignore this image from bulk smushing', 'wp-smushit' ),
 			// Ignore text.
-			'ignored'                 => esc_html__( 'Ignored', 'wp-smushit' ),
-			'not_processed'           => esc_html__( 'Not processed', 'wp-smushit' ),
+			'ignored'                     => esc_html__( 'Ignored', 'wp-smushit' ),
+			'not_processed'               => esc_html__( 'Not processed', 'wp-smushit' ),
 			// Notices.
-			'noticeDismiss'           => esc_html__( 'Dismiss', 'wp-smushit' ),
-			'noticeDismissTooltip'    => esc_html__( 'Dismiss notice', 'wp-smushit' ),
-			'smush_cdn_activation_notice'  => WP_Smush::is_pro() && ! Settings::get_instance()->is_cdn_active() ?
+			'noticeDismiss'               => esc_html__( 'Dismiss', 'wp-smushit' ),
+			'noticeDismissTooltip'        => esc_html__( 'Dismiss notice', 'wp-smushit' ),
+			'smush_cdn_activation_notice' => WP_Smush::is_pro() && ! Settings::get_instance()->is_cdn_active() ?
 				$whiltelabel->whitelabel_string(
 					sprintf(
 					/* translators: 1 - Number of CDN PoP locations, 2 - opening a tag, 3 - closing a tag */
@@ -347,15 +368,15 @@ class Core extends Stats {
 					)
 				) : '',
 			// URLs.
-			'smush_url'               => network_admin_url( 'admin.php?page=smush' ),
-			'bulk_smush_url'          => network_admin_url( 'admin.php?page=smush-bulk' ),
-			'directory_url'           => network_admin_url( 'admin.php?page=smush-directory' ),
-			'nextGenURL'            => network_admin_url( 'admin.php?page=smush-next-gen' ),
-			'edit_link'               => Helper::get_image_media_link( '{{id}}', null, true ),
-			'debug_mode'              => defined( 'WP_DEBUG' ) && WP_DEBUG,
-			'cancel'                  => esc_html__( 'Cancel', 'wp-smushit' ),
-			'cancelling'              => esc_html__( 'Cancelling ...', 'wp-smushit' ),
-			'recheck_images_link'     => Helper::get_recheck_images_link(),
+			'smush_url'                   => network_admin_url( 'admin.php?page=smush' ),
+			'bulk_smush_url'              => network_admin_url( 'admin.php?page=smush-bulk' ),
+			'directory_url'               => network_admin_url( 'admin.php?page=smush-directory' ),
+			'nextGenURL'                  => network_admin_url( 'admin.php?page=smush-next-gen' ),
+			'edit_link'                   => Helper::get_image_media_link( '{{id}}', null, true ),
+			'debug_mode'                  => defined( 'WP_DEBUG' ) && WP_DEBUG,
+			'cancel'                      => esc_html__( 'Cancel', 'wp-smushit' ),
+			'cancelling'                  => esc_html__( 'Cancelling ...', 'wp-smushit' ),
+			'recheck_images_link'         => Helper::get_recheck_images_link(),
 		);
 
 		return apply_filters( 'wp_smush_localize_script_messages', $wp_smush_msgs );
@@ -368,7 +389,7 @@ class Core extends Stats {
 		global $current_screen;
 
 		$handle = 'smush-admin';
-		
+
 		wp_localize_script( $handle, 'wp_smush_msgs', $this->get_localize_strings() );
 
 		if ( 'toplevel_page_smush' === $current_screen->id ) {
@@ -430,8 +451,8 @@ class Core extends Stats {
 	/**
 	 * Check bulk sent count, whether to allow further smushing or not
 	 *
-	 * @param bool   $reset  To hard reset the transient.
-	 * @param string $key    Transient Key - bulk_sent_count/dir_sent_count.
+	 * @param bool $reset To hard reset the transient.
+	 * @param string $key Transient Key - bulk_sent_count/dir_sent_count.
 	 *
 	 * TODO: remove this (and all related code) because the limit has been lifted in 3.12.0
 	 *
@@ -537,7 +558,7 @@ class Core extends Stats {
 	/**
 	 * Update the image smushed count in transient
 	 *
-	 * @param string $key  Database key.
+	 * @param string $key Database key.
 	 */
 	public static function update_smush_count( $key = 'bulk_sent_count' ) {
 		$transient_name = 'wp-smush-' . $key;

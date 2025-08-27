@@ -15,7 +15,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 <img src="<?php echo esc_url( WP_SMUSH_URL . 'app/assets/images/graphic-smush-lazyload-default.png' ); ?>"
     srcset="<?php echo esc_url( WP_SMUSH_URL . 'app/assets/images/graphic-smush-lazyload-default@2x.png' ); ?> 2x"
-    alt="<?php esc_html_e( 'Graphic CDN', 'wp-smushit' ); ?>" class="sui-image">
+    alt="<?php esc_html_e( 'Lazy Load', 'wp-smushit' ); ?>" class="sui-image">
 
 <div class="sui-message-content">
 	<p>
