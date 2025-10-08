@@ -74,8 +74,12 @@ const DirectoryScanner = ( totalSteps, currentStep ) => {
 
 		onFinish() {
 			WP_Smush.directory.updateProgressBar( 100 );
-			window.location.href =
-				window.wp_smush_msgs.directory_url + '&scan=done';
+			const directorySmushUrl = `${ self.wp_smush_msgs.bulk_smush_url }&smush__directory-scan=done#directory_smush-settings-row`;
+			if ( window.location.href === directorySmushUrl ) {
+				window.location.reload();
+			} else {
+				window.location.href = directorySmushUrl;
+			}
 		},
 
 		/**

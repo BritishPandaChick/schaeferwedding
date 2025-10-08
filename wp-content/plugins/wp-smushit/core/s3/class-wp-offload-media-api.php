@@ -21,6 +21,11 @@ class WP_Offload_Media_Api {
 	 */
 	private $logger;
 
+	/**
+	 * @var null|string
+	 */
+	private $delivery_domain;
+
 	public function __construct() {
 		$this->logger = Helper::logger()->integrations();
 	}
@@ -117,5 +122,37 @@ class WP_Offload_Media_Api {
 		$attached_file = get_attached_file( $attachment_id );
 
 		return $this->get_stream_wrapper_file( $attached_file, null, $attachment_id, $as3cf_item );
+	}
+
+	/**
+	 * @return false|string
+	 */
+	public function get_delivery_domain() {
+		if ( is_null( $this->delivery_domain ) ) {
+			$this->delivery_domain = $this->prepare_delivery_domain();
+		}
+
+		return $this->delivery_domain;
+	}
+
+	private function prepare_delivery_domain() {
+		$delivery_provider = $this->get_delivery_provider();
+		if ( ! $delivery_provider || ! method_exists( $delivery_provider, 'delivery_domain_allowed' ) ) {
+			return false;
+		}
+
+		$enable_delivery_domain = $delivery_provider->delivery_domain_allowed() && $this->get_setting( 'enable-delivery-domain' );
+		$delivery_domain        = $this->get_setting( 'delivery-domain' );
+
+		if ( $enable_delivery_domain && ! empty( $delivery_domain ) ) {
+			return $delivery_domain;
+		}
+
+		$provider = $this->get_storage_provider();
+		if ( $provider && method_exists( $provider, 'get_domain' ) ) {
+			$delivery_domain = $provider->get_domain();
+		}
+
+		return $delivery_domain;
 	}
 }

@@ -4,11 +4,13 @@
 @import "~@wpmudev/shared-ui/scss/functions";
 @import "~@wpmudev/shared-ui/scss/colors";
 @import "~@wpmudev/shared-ui/scss/variables";
-// Override body class
-$sui-version: 'smush-media';
+
 $sui-wrap-class: false;
+
 @import "~@wpmudev/shared-ui/scss/mixins";
 @import "~@wpmudev/shared-ui/scss/tooltips";
+@import "~@wpmudev/shared-ui/scss/notifications";
+@import "~@wpmudev/shared-ui/scss/buttons";
 
 /* ****************************************************************************
  * MEDIA AREA STYLES
@@ -214,3 +216,36 @@ $sui-wrap-class: false;
 	position: relative;
 	z-index: 2;
 }
+
+.smush-hub-connect-media-notice {
+	.sui-notice {
+		&-content {
+
+			box-shadow: inset 2px 0 0 0 #17A8E3, inset 0 0 0 1px #E6E6E6 !important;
+			border-radius: unset !important;
+			h4 {
+				font-weight: 700;
+				margin-bottom: 5px;
+				margin-top: 0;
+			}
+			a {
+				font-size: 13px;
+				color: #007CBA;
+
+				&.sui-button {
+					background-color: #007CBA !important;
+					color: #ffffff;
+					text-transform: inherit;
+
+					&:hover {
+						background-color: darken(#007CBA, 6%) !important;
+					}
+				}
+			}
+			.smus-media-notification-skip {
+				text-decoration: none;
+			}
+		}
+	}
+}
+

@@ -11,6 +11,8 @@
  * @var Smush\App\Abstract_Page $this  Dashboard page.
  */
 
+use Smush\Core\Directory\Directory_UI_Controller;
+
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
@@ -22,50 +24,16 @@ if ( ! defined( 'WPINC' ) ) {
 </p>
 
 <?php if ( ! empty( $images ) ) : ?>
-	<div class="sui-notice sui-notice-warning">
-		<div class="sui-notice-content">
-			<div class="sui-notice-message">
-				<span class="sui-notice-icon sui-icon-warning-alert sui-md" aria-hidden="true"></span>
-				<p>
-					<?php
-					printf( /* translators: %d - number of failed images */
-						esc_html__( "%d images failed to be optimized. This is usually because they no longer exist, or we can't optimize the file format.", 'wp-smushit' ),
-						(int) $errors
-					);
-					?>
-				</p>
-			</div>
-		</div>
-	</div>
-	<div class="smush-final-log sui-margin-bottom">
-		<div class="smush-bulk-errors">
-			<?php foreach ( $images as $image ) : ?>
-				<div class="smush-bulk-error-row">
-					<div class="smush-bulk-image-data">
-						<i class="sui-icon-photo-picture" aria-hidden="true"></i>
-						<span class="smush-image-name"><?php echo esc_html( $image['path'] ); ?></span>
-						<span class="smush-image-error"><?php echo esc_html( $image['error'] ); ?></span>
-					</div>
-				</div>
-			<?php endforeach; ?>
-		</div>
-		<?php if ( $errors > 20 ) : ?>
-			<p class="sui-description">
-				<?php
-				printf( /* translators: %d: number of images with errors */
-					esc_html__( 'Showing 20 of %d failed optimizations. Fix or remove these images and run another Directory Smush.', 'wp-smushit' ),
-					absint( $errors )
-				);
-				?>
-			</p>
-		<?php endif; ?>
-	</div>
-	<a href="<?php echo esc_url( $this->get_url( 'smush-directory' ) ); ?>&scan=done" class="sui-button sui-button-ghost">
+	<?php
+	$directory_smush_ui_controller = new Directory_UI_Controller();
+	$directory_smush_ui_controller->render_scan_result( 20 );
+	?>
+	<a href="<?php echo esc_url( $this->get_url( 'smush-bulk' ) ); ?>&smush__directory-scan=done#directory_smush-settings-row" class="sui-button sui-button-ghost" style="margin-top: 30px;">
 		<span class="sui-icon-eye" aria-hidden="true"></span>
 		<?php esc_html_e( 'View All', 'wp-smushit' ); ?>
 	</a>
 <?php else : ?>
-	<a href="<?php echo esc_url( $this->get_url( 'smush-directory' ) ); ?>&start" class="sui-button sui-button-blue">
+	<a href="<?php echo esc_url( $this->get_url( 'smush-bulk' ) ); ?>&smush__directory-start#directory_smush-settings-row" class="sui-button sui-button-blue">
 		<?php esc_html_e( 'Choose Directory', 'wp-smushit' ); ?>
 	</a>
 <?php endif; ?>

@@ -13,6 +13,7 @@ use Smush\Core\Error_Handler;
 use Smush\Core\Helper;
 use Smush\Core\Media\Media_Item_Cache;
 use Smush\Core\Media\Media_Item_Optimizer;
+use Smush\Core\Membership\Membership;
 use Smush\Core\Smush\Smush_Request_WP_Multiple;
 use Smush\Core\Smush\Smusher;
 use Smush\Core\Webp\Webp_Converter;
@@ -1641,6 +1642,10 @@ class Smush extends Abstract_Module {
 	}
 
 	public function should_auto_smush( $attachment_id ) {
+		if ( Membership::get_instance()->is_api_hub_access_required() ) {
+			return false;
+		}
+
 		// TODO: We already verified in restoring status but better to disable auto smush while restoring.
 		if ( ! $this->settings->is_automatic_compression_active() ) {
 			return false;

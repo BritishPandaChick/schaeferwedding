@@ -8,6 +8,7 @@ use Smush\Core\Server_Utils;
 use Smush\Core\Url_Utils;
 
 class Transformation_Controller extends Controller {
+	const MIN_TRANSFORMABLE_IMAGE_DIMENSION = 32;
 
 	/**
 	 * @var Transformer

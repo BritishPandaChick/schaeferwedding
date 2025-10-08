@@ -48,7 +48,6 @@ class ConvertKit_Admin_Section_Broadcasts extends ConvertKit_Admin_Section_Base 
 		if ( $this->on_settings_screen( $this->name ) ) {
 			add_filter( 'convertkit_settings_base_register_notices', array( $this, 'register_notices' ) );
 			add_action( 'convertkit_settings_base_render_before', array( $this, 'maybe_output_notices' ) );
-			add_action( 'admin_footer', array( $this, 'output_intercom' ) );
 		}
 
 		// Enqueue scripts and CSS.
@@ -383,7 +382,7 @@ class ConvertKit_Admin_Section_Broadcasts extends ConvertKit_Admin_Section_Base 
 	 */
 	public function documentation_url() {
 
-		return 'https://help.kit.com/en/articles/2502591-the-convertkit-wordpress-plugin';
+		return 'https://help.kit.com/en/articles/9669096-publish-broadcasts-as-wordpress-posts-and-vice-versa';
 
 	}
 

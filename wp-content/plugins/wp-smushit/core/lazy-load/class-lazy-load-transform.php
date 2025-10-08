@@ -463,21 +463,19 @@ class Lazy_Load_Transform implements Transform {
 	 * @return void
 	 */
 	private function set_placeholder_width_and_height_in_style_attribute( Element $element, $src_image_url ) {
+		if ( strpos( $element->get_markup(), '--smush-image-aspect-ratio' ) ) {
+			return;
+		}
+
 		// We need explicit values for width and height. First try attribute values.
-		$width  = (int) $element->get_attribute_value( 'width' );
-		$height = (int) $element->get_attribute_value( 'height' );
+		$raw_width  = $element->get_attribute_value( 'width' );
+		$width      = false === strpos($raw_width, '%') ? (int) $raw_width : 0;
+		$raw_height = $element->get_attribute_value( 'height' );
+		$height     = false === strpos($raw_height, '%') ? (int) $raw_height : 0;
 
 		// If attributes are missing, check if the image file name has dimensions in it
 		if ( empty( $width ) || empty( $height ) ) {
-			list( $width, $height ) = $this->url_utils->guess_dimensions_from_image_url( $src_image_url );
-		}
-
-		// If all else fails, use getimagesize for local images
-		if ( empty( $width ) || empty( $height ) ) {
-			$image_dimensions = $this->get_image_dimensions( $src_image_url );
-			if ( ! empty( $image_dimensions ) ) {
-				list( $width, $height ) = $image_dimensions;
-			}
+			list( $width, $height ) = $this->url_utils->get_image_dimensions( $src_image_url );
 		}
 
 		if ( $width && $height ) {
@@ -486,21 +484,6 @@ class Lazy_Load_Transform implements Transform {
 
 			$element->add_or_update_attribute( new Element_Attribute( 'style', $new_style ) );
 		}
-	}
-
-	private function get_image_dimensions( $image_url ) {
-		$upload_url = $this->upload_dir->get_upload_url();
-		if ( ! str_starts_with( $image_url, $upload_url ) ) {
-			return array();
-		}
-
-		$upload_path = $this->upload_dir->get_upload_path();
-		$image_path  = str_replace( $upload_url, $upload_path, $image_url );
-		if ( ! file_exists( $image_path ) ) {
-			return array();
-		}
-
-		return getimagesize( $image_path );
 	}
 
 	/**

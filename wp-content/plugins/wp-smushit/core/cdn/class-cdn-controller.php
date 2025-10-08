@@ -5,7 +5,9 @@ namespace Smush\Core\CDN;
 use Smush\Core\Controller;
 use Smush\Core\Cron_Controller;
 use Smush\Core\Helper;
+use Smush\Core\Media\Attachment_Url_Cache;
 use Smush\Core\Settings;
+use Smush\Core\Url_Utils;
 use WP_Error;
 use WP_Smush;
 
@@ -25,10 +27,15 @@ class CDN_Controller extends Controller {
 	 * @var self
 	 */
 	private static $instance;
+	/**
+	 * @var Url_Utils
+	 */
+	private $url_utils;
 
 	public function __construct() {
 		$this->cdn_helper = CDN_Helper::get_instance();
 		$this->settings   = Settings::get_instance();
+		$this->url_utils  = new Url_Utils();
 
 		$this->register_filter( 'wp_smush_content_transforms', array(
 			$this,
@@ -41,6 +48,13 @@ class CDN_Controller extends Controller {
 		if ( $this->cdn_helper->is_cdn_active() ) {
 			$this->register_action( Cron_Controller::CRON_HOOK, array( $this, 'cron_update_stats' ) );
 			$this->register_filter( 'wp_smush_lcp_allowed_url_hostnames', array( $this, 'add_lcp_allowed_hostname' ), 10, 2 );
+			$this->register_filter( 'wp_smush_get_image_dimensions', array( $this, 'find_image_dimensions_for_cdn_url' ), 10, 2 );
+			$this->register_filter( 'wp_smush_get_image_dimensions_url', array( $this, 'return_original_url_from_image_dimensions' ) );
+		}
+
+		if ( $this->cdn_helper->is_dynamic_sizes_active() ) {
+			// Dynamic sizes feature needs the URL cache to be primed
+			Attachment_Url_Cache::get_instance()->set_fetch_in_advance( true );
 		}
 	}
 
@@ -194,5 +208,30 @@ class CDN_Controller extends Controller {
 		}
 
 		return $hostnames;
+	}
+
+	public function find_image_dimensions_for_cdn_url( $actual_dimensions, $maybe_cdn_url ) {
+		$dimensions = $actual_dimensions;
+		if ( $this->cdn_helper->is_cdn_url( $maybe_cdn_url ) ) {
+			$query_string = wp_parse_url( $maybe_cdn_url, PHP_URL_QUERY );
+			parse_str( $query_string, $query_params );
+			if ( ! empty( $query_params['size'] ) ) {
+				$size_parts = explode( 'x', $query_params['size'] );
+				if ( $size_parts && count( $size_parts ) === 2 ) {
+					$dimensions = array( (int) $size_parts[0], (int) $size_parts[1] );
+				}
+			}
+		}
+
+		return $dimensions;
+	}
+
+	public function return_original_url_from_image_dimensions( $image_url ) {
+		$original_url = false;
+		if ( $this->cdn_helper->is_cdn_url( $image_url ) ) {
+			$original_url = $this->cdn_helper->get_original_url( $image_url );
+		}
+
+		return $original_url ?: $image_url;
 	}
 }

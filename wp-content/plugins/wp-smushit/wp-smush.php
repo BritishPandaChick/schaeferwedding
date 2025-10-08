@@ -13,7 +13,7 @@
  * Plugin Name:       Smush
  * Plugin URI:        https://wpmudev.com/project/wp-smush-pro/
  * Description:       Reduce image file sizes, improve performance and boost your SEO using the free <a href="https://wpmudev.com/">WPMU DEV</a> WordPress Smush API.
- * Version:           3.20.0
+ * Version:           3.22.1
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            WPMU DEV
@@ -43,6 +43,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+use Smush\Core\Membership\Membership;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -50,7 +51,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 if ( ! defined( 'WP_SMUSH_VERSION' ) ) {
-	define( 'WP_SMUSH_VERSION', '3.20.0' );
+	define( 'WP_SMUSH_VERSION', '3.22.1' );
 }
 // Used to define body class.
 if ( ! defined( 'WP_SHARED_UI_VERSION' ) ) {
@@ -243,11 +244,9 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 		private $library;
 
 		/**
-		 * Stores the value of validate_install function.
-		 *
-		 * @var bool $is_pro
+		 * @var Membership
 		 */
-		private static $is_pro;
+		private static $membership;
 
 		/**
 		 * Return the plugin instance.
@@ -272,6 +271,8 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 			 * Include vendor dependencies
 			 */
 			require_once __DIR__ . '/vendor_prefixed/custom-autoload.php';
+			// Include the WP compatibility file.
+			require_once WP_SMUSH_DIR . 'core/wp-compat.php';
 
 			add_action( 'admin_init', array( '\\Smush\\Core\\Installer', 'upgrade_settings' ) );
 			add_action( 'current_screen', array( '\\Smush\\Core\\Installer', 'maybe_create_table' ) );
@@ -355,7 +356,7 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 		 */
 		private function init() {
 			try {
-				$this->api = new Smush\Core\Api\Smush_API( Smush\Core\Helper::get_wpmudev_apikey() );
+				$this->api = new Smush\Core\Api\Smush_API( self::get_membership()->get_apikey() );
 			} catch ( Exception $e ) {
 				$this->api = '';
 			}
@@ -363,7 +364,7 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 			// Handle failed items, load it before validate the install.
 			new Smush\Core\Error_Handler();
 
-			$this->validate_install();
+			self::get_membership()->validate_install();
 
 			$this->core    = new Smush\Core\Core();
 			$this->library = new Smush\App\Media_Library( $this->core() );
@@ -374,6 +375,19 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 			if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				WP_CLI::add_command( 'smush', '\\Smush\\Core\\CLI\\CLI' );
 			}
+		}
+
+		/**
+		 * Get membership instance.
+		 *
+		 * @return Membership
+		 */
+		private static function get_membership() {
+			if ( is_null( self::$membership ) ) {
+				self::$membership = Membership::get_instance();
+			}
+
+			return self::$membership;
 		}
 
 		/**
@@ -428,7 +442,7 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 		 * @return bool
 		 */
 		public static function is_pro() {
-			return self::$is_pro;
+			return self::get_membership()->is_pro();
 		}
 
 		public static function is_expired() {
@@ -568,7 +582,7 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 		 * @return int Menu position for the admin menu.
 		 */
 		public function cross_sell_module_menu_position() {
-			$default_position = 8;
+			$default_position = 7;
 
 			// Return default position if not multisite
 			if ( ! is_multisite() ) {
@@ -583,7 +597,7 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 				return $default_position;
 			}
 			// Determine base position: 4 if enabled for all sites, 3 if custom list.
-			$menu_position = ( 1 == $network_access ) ? 4 : 3;
+			$menu_position = ( 1 == $network_access ) ? 3 : 2;
 			// Adjust position based on number of sites with access
 			if ( is_array( $network_access ) ) {
 				$menu_position += max( 0, 5 - count( $network_access ) );
@@ -613,88 +627,6 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 
 			/* @noinspection PhpIncludeInspection */
 			require_once WP_SMUSH_DIR . 'core/external/dash-notice/wpmudev-dash-notification.php';
-		}
-
-		/**
-		 * Check if user is premium member, check for API key.
-		 *
-		 * @param bool $manual  Is it a manual check? Default: false.
-		 */
-		public function validate_install( $manual = false ) {
-			if ( isset( self::$is_pro ) && ! $manual ) {
-				return;
-			}
-
-			// No API key set, always false.
-			$api_key = Smush\Core\Helper::get_wpmudev_apikey();
-
-			if ( empty( $api_key ) ) {
-				return;
-			}
-
-			// Flag to check if we need to revalidate the key.
-			$revalidate = false;
-
-			$api_auth = get_site_option( 'wp_smush_api_auth' );
-
-			// Check if we need to revalidate.
-			if ( empty( $api_auth[ $api_key ] ) ) {
-				$api_auth   = array();
-				$revalidate = true;
-			} else {
-				$last_checked = $api_auth[ $api_key ]['timestamp'];
-				$valid        = $api_auth[ $api_key ]['validity'];
-
-				// Difference in hours.
-				$diff = ( time() - $last_checked ) / HOUR_IN_SECONDS;
-
-				if ( 24 < $diff ) {
-					$revalidate = true;
-				}
-			}
-
-			// If we are supposed to validate API, update the results in options table.
-			if ( $revalidate || $manual ) {
-				if ( empty( $api_auth[ $api_key ] ) ) {
-					// For api key resets.
-					$api_auth[ $api_key ] = array();
-
-					// Storing it as valid, unless we really get to know from API call.
-					$valid                            = 'valid';
-					$api_auth[ $api_key ]['validity'] = 'valid';
-				}
-
-				// This is the first check.
-				if ( ! isset( $api_auth[ $api_key ]['timestamp'] ) ) {
-					$api_auth[ $api_key ]['timestamp'] = time();
-				}
-
-				$request = $this->api()->check( $manual );
-
-				if ( ! is_wp_error( $request ) && 200 === wp_remote_retrieve_response_code( $request ) ) {
-					// Update the timestamp only on successful attempts.
-					$api_auth[ $api_key ]['timestamp'] = time();
-					update_site_option( 'wp_smush_api_auth', $api_auth );
-
-					$result = json_decode( wp_remote_retrieve_body( $request ) );
-					if ( ! empty( $result->success ) && $result->success ) {
-						$valid = 'valid';
-						update_site_option( 'wp-smush-cdn_status', $result->data );
-					} else {
-						$valid = 'invalid';
-					}
-				} elseif ( ! isset( $valid ) || 'valid' !== $valid ) {
-					// Invalidate only in case when it was not valid before.
-					$valid = 'invalid';
-				}
-
-				$api_auth[ $api_key ]['validity'] = $valid;
-
-				// Update API validity.
-				update_site_option( 'wp_smush_api_auth', $api_auth );
-			}
-
-			self::$is_pro = isset( $valid ) && 'valid' === $valid;
 		}
 	}
 }

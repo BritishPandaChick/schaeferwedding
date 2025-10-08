@@ -37,11 +37,17 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		);
 		xhr.onload = () => {
 			if (notice) {
-				notice.querySelector('button.notice-dismiss').dispatchEvent(new MouseEvent('click', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				}));
+				// Trigger WordPress notice dismissal.
+				const noticeDismissButton = notice.querySelector('button.notice-dismiss');
+				if (noticeDismissButton) {
+					noticeDismissButton.dispatchEvent(new MouseEvent('click', {
+						view: window,
+						bubbles: true,
+						cancelable: true
+					}));
+				} else {
+					notice.style.display = 'none';
+				}
 			}
 		};
 		xhr.send();

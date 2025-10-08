@@ -140,9 +140,14 @@ import Scanner from '../smush/directory-scanner';
 					self.scanner
 						.cancel()
 						.done(
-							() =>
-								( window.location.href =
-									self.wp_smush_msgs.directory_url )
+							() => {
+								const directorySmushUrl = `${ self.wp_smush_msgs.bulk_smush_url }&smush__directory-scan=done#directory_smush-settings-row`;
+								if ( window.location.href === directorySmushUrl ) {
+									window.location.reload();
+								} else {
+									window.location.href = directorySmushUrl;
+								}
+							}
 						);
 				}
 			);
@@ -167,7 +172,7 @@ import Scanner from '../smush/directory-scanner';
 			 */
 			const queryString = window.location.search;
 			const urlParams = new URLSearchParams( queryString );
-			if ( urlParams.has( 'start' ) && ! this.triggered ) {
+			if ( urlParams.has( 'smush__directory-start' ) && ! this.triggered ) {
 				this.triggered = true;
 				$( 'button.wp-smush-browse' ).trigger( 'click' );
 			}

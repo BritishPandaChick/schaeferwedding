@@ -18,11 +18,11 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-$custom_fields = array(
+$default_settings = Settings::get_instance()->get_defaults();
+$custom_fields     = array(
 	'lossy'                    => 'bulk/lossy-level',
 	Settings::NEXT_GEN_CDN_KEY => 'cdn/next-gen-conversion-setting',
 );
-
 ?>
 
 <div class="sui-box-settings-row <?php echo $upsell ? 'sui-box-upsell-row' : ''; ?> <?php echo $disable && ! $upsell ? 'sui-disabled' : ''; ?> <?php echo esc_attr( $name ); ?>-settings-row" id="<?php echo esc_attr( $name ); ?>-settings-row">
@@ -54,7 +54,7 @@ $custom_fields = array(
 				<?php do_action( 'smush_setting_column_right_inside', $name ); ?>
 			</div>
 			<?php do_action( 'smush_setting_column_right_additional', $name ); ?>
-		<?php elseif ( 'bulk' !== $name ) : ?>
+		<?php elseif ( isset( $default_settings[ $name ] ) ) : ?>
 			<div class="sui-form-field">
 				<label for="<?php echo esc_attr( $name ); ?>" class="sui-toggle">
 					<input

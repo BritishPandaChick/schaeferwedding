@@ -12,7 +12,7 @@ use Smush\Core\Stats\Media_Item_Optimization_Global_Stats_Persistable;
 
 class Webp_Controller extends Controller {
 	const WEBP_OPTIMIZATION_ORDER = 20;
-	const WEBP_TRANSFORM_PRIORITY = 30;
+	const WEBP_TRANSFORM_PRIORITY = 50;
 	const WEBP_CONFIGURATION_ORDER = 10;
 	const GLOBAL_STATS_OPTION_ID = 'wp-smush-webp-global-stats';
 	/**

@@ -8,6 +8,7 @@
 namespace Smush\App;
 
 use Smush\Core\Helper;
+use Smush\Core\Membership\Membership;
 use Smush\Core\Modules\Helpers\WhiteLabel;
 use Smush\Core\Settings;
 use WP_Smush;
@@ -362,17 +363,34 @@ abstract class Abstract_Page {
 	 * Render the page
 	 */
 	public function render() {
-		// Shared UI wrapper with accessible color option.
-		$classes = $this->settings->get( 'accessible_colors' ) ? 'sui-wrap sui-color-accessible' : 'sui-wrap';
-		echo '<div class="' . esc_attr( $classes ) . ' wrap-' . esc_attr( $this->slug ) . '">';
+		$this->open_page_wrapper();
 
 		$this->render_page_header();
 		$this->render_modals();
 		$this->render_inner_content();
 
+		$this->close_page_wrapper();
+	}
+
+	/**
+	 * Open the page wrapper.
+	 *
+	 * @return void
+	 */
+	protected function open_page_wrapper() {
+		// Shared UI wrapper with accessible color option.
+		$classes = $this->settings->get( 'accessible_colors' ) ? 'sui-wrap sui-color-accessible' : 'sui-wrap';
+		echo '<div class="' . esc_attr( $classes ) . ' wrap-' . esc_attr( $this->slug ) . '">';
+	}
+
+	/**
+	 * Close the page wrapper.
+	 *
+	 * @return void
+	 */
+	protected function close_page_wrapper() {
 		// Nonce field.
 		wp_nonce_field( 'save_wp_smush_options', 'wp_smush_options_nonce', '' );
-
 		// Close shared ui wrapper.
 		echo '</div>';
 	}
@@ -382,8 +400,9 @@ abstract class Abstract_Page {
 	 *
 	 * @since 3.7.0
 	 */
-	private function render_modals() {
+	protected function render_modals() {
 		$this->prepare_modals();
+		$this->modals = apply_filters( 'wp_smush_modals', $this->modals );
 
 		// Render all modals.
 		foreach ( $this->modals as $modal_file => $args ) {
@@ -422,7 +441,11 @@ abstract class Abstract_Page {
 			return;
 		}
 
-		$this->modals['onboarding'] = array(
+		$is_pre_3_22_site      = get_site_option( 'wp_smush_pre_3_22_site' );
+		$is_new_free_site      = ! Membership::get_instance()->is_pro() && ! $is_pre_3_22_site;
+		$onboarding_modal_name = $is_new_free_site ? 'onboarding-free' : 'onboarding';
+
+		$this->modals[ $onboarding_modal_name ] = array(
 			'cta_url' => Helper::get_recheck_images_link(),
 		);
 	}
@@ -453,12 +476,11 @@ abstract class Abstract_Page {
 		$whitelabel_hide_doc_link = apply_filters( 'wpmudev_branding_hide_doc_link', false );
 		$hide_upgrade_modal       = empty( get_site_option( 'wp-smush-show_upgrade_modal' ) );
 		$is_on_subsite_screen     = ! is_network_admin();
-		$has_lazy_preload_page    = $this->settings->has_lazy_preload_page();
 		if (
 			$this->has_onload_modal()
 			|| $hide_upgrade_modal
 			|| $whitelabel_hide_doc_link
-			|| ( $is_on_subsite_screen && ! $has_lazy_preload_page )
+            || ( $is_on_subsite_screen && ! $this->settings->has_lazy_preload_page() )
 		) {
 			$should_ignore_upgrade_modal = $whitelabel_hide_doc_link || $this->has_onload_modal( 'onboarding' );
 			if ( $should_ignore_upgrade_modal ) {
@@ -467,15 +489,14 @@ abstract class Abstract_Page {
 			return;
 		}
 
-		if ( $has_lazy_preload_page ) {
-			$cta_url = Helper::get_page_url( 'smush-lazy-preload' );
-		} else {
-			$cta_url = '';
-		}
+		$cta_url = WP_Smush::is_pro()
+			? Helper::get_page_url( 'smush-lazy-preload#lazyload-image-resizing-settings-row' )
+			: $this->get_utm_link( array( 'utm_campaign' => 'smush_welcome_modal_auto-resize' ), 'https://wpmudev.com/project/wp-smush-pro/' );
 
 		// Load new feature modal.
 		$this->modals['updated'] = array(
-			'cta_url' => $cta_url,
+			'cta_url'         => $cta_url,
+			'show_cta_button' => $this->settings->has_lazy_preload_page(),
 		);
 	}
 
@@ -631,10 +652,6 @@ abstract class Abstract_Page {
 				$doc .= '#bulk-smush';
 				break;
 
-			case 'smush-directory':
-				$doc .= '#directory-smush';
-				break;
-
 			case 'smush-lazy-preload':
 				$current_tag = $this->get_current_tab();
 				$doc        .= 'preload' === $current_tag ? '#preload' : '#lazy-load';
@@ -697,17 +714,19 @@ abstract class Abstract_Page {
 							$button_class_names[] = 'wp-smush-background-scan';
 						}
 					?>
-					<button class="<?php echo esc_attr( join( ' ', $button_class_names ) );?>" data-tooltip="<?php esc_attr_e( 'Lets you check if any images can be further optimized. Useful after changing settings.', 'wp-smushit' ); ?>" data-type="<?php echo esc_attr( $data_type ); ?>">
-						<span class="sui-loading-text wp-smush-default-text">
-							<i class="sui-icon-update" aria-hidden="true"></i>
-							<span class="wp-smush-inner-text"><?php esc_html_e( 'Re-Check Images', 'wp-smushit' ); ?></span>
-						</span>
-						<span class="sui-hidden wp-smush-completed-text">
-							<i class="sui-icon-check-tick" aria-hidden="true"></i>
-							<?php esc_html_e( 'Check Complete', 'wp-smushit' ); ?>
-						</span>
-						<i class="sui-icon-loader sui-loading" aria-hidden="true"></i>
-					</button>
+                    <?php if ( ! Membership::get_instance()->is_api_hub_access_required() ): ?>
+                        <button class="<?php echo esc_attr( join( ' ', $button_class_names ) );?>" data-tooltip="<?php esc_attr_e( 'Lets you check if any images can be further optimized. Useful after changing settings.', 'wp-smushit' ); ?>" data-type="<?php echo esc_attr( $data_type ); ?>">
+                            <span class="sui-loading-text wp-smush-default-text">
+                                <i class="sui-icon-update" aria-hidden="true"></i>
+                                <span class="wp-smush-inner-text"><?php esc_html_e( 'Re-Check Images', 'wp-smushit' ); ?></span>
+                            </span>
+                            <span class="sui-hidden wp-smush-completed-text">
+                                <i class="sui-icon-check-tick" aria-hidden="true"></i>
+                                <?php esc_html_e( 'Check Complete', 'wp-smushit' ); ?>
+                            </span>
+                            <i class="sui-icon-loader sui-loading" aria-hidden="true"></i>
+                        </button>
+				    <?php endif; ?>
 				<?php endif; ?>
 				<?php if ( ! apply_filters( 'wpmudev_branding_hide_doc_link', false ) ) : ?>
 					<a href="<?php echo esc_url( $this->get_doc_url() ); ?>" class="sui-button sui-button-ghost" target="_blank">
@@ -721,6 +740,7 @@ abstract class Abstract_Page {
 			<div role="alert" id="wp-smush-ajax-notice" class="sui-notice" aria-live="assertive"></div>
 			<?php do_action( 'wp_smush_header_notices', $this->get_current_tab() ); ?>
 		</div>
+		<?php do_action( 'wp_smush_after_page_header', $this->get_current_tab() ); ?>
 		<?php
 	}
 
@@ -912,7 +932,7 @@ abstract class Abstract_Page {
 	 * Render setting row.
 	 *
 	 * @param string $name     Setting name.
-	 * @param bool   $value    Setting value.
+	 * @param bool   $value    Setting value
 	 * @param bool   $disable  Disable row/option.
 	 * @param bool   $upsell   Is the row an upsell.
 	 */
@@ -1046,11 +1066,11 @@ abstract class Abstract_Page {
 	}
 
 	public static function should_show_new_feature_hotspot() {
-		return (bool) get_site_option( 'wp-smush-show-new-feature-hotspot' );
+		return (bool) get_option( 'wp-smush-show-new-feature-hotspot' );
 	}
 
 	public static function hide_new_feature_hotspot() {
 		// Hide the new feature hotspot.
-		delete_site_option( 'wp-smush-show-new-feature-hotspot' );
+		delete_option( 'wp-smush-show-new-feature-hotspot' );
 	}
 }

@@ -18,8 +18,11 @@ use Smush\Core\Media_Library\Media_Library_Row;
 use Smush\Core\Modules\Abstract_Module;
 use Smush\Core\Modules\Smush;
 use Smush\Core\Stats\Global_Stats;
+use Smush\Core\Membership\Membership;
+use Smush\Core\Hub_Connector;
 use WP_Post;
 use WP_Query;
+use WP_Smush;
 
 /**
  * Class Media_Library
@@ -48,6 +51,11 @@ class Media_Library extends Abstract_Module {
 	 * Init functionality that is related to the UI.
 	 */
 	public function init_ui() {
+		if ( Membership::get_instance()->is_api_hub_access_required() ) {
+			add_filter( 'admin_body_class', array( $this, 'smush_body_classes' ) );
+			add_action( 'all_admin_notices', array( $this, 'smush_media_hub_connect_notice' ), 5 );
+			return false;
+		}
 		// Media library columns.
 		add_filter( 'manage_media_columns', array( $this, 'columns' ) );
 		add_filter( 'manage_upload_sortable_columns', array( $this, 'sortable_column' ) );
@@ -434,6 +442,73 @@ class Media_Library extends Abstract_Module {
 	}
 
 	/**
+	 * Add custom body classes for the Media page.
+	 *
+	 *
+	 * @param string $classes Current body classes.
+	 * @return string Modified body classes.
+	 */
+	public function smush_body_classes( $classes ) {
+		if ( ! $this->should_display_media_notice() ) {
+			return $classes;
+		}
+
+		return $classes . ' ' . WP_SHARED_UI_VERSION;
+	}
+
+	/**
+	 * Display the Smush Hub Connect notice in Media Library.
+	 *
+	 * Callback for the 'admin_notices' action.
+	 *
+	 * @return void
+	 */
+	public function smush_media_hub_connect_notice() {
+		if ( ! $this->should_display_media_notice() ) {
+			return;
+		}
+
+		$notice_hidden = WP_Smush::get_instance()->admin()->is_notice_dismissed( 'media-hub-connect-notice' );
+
+		if ( $notice_hidden ) {
+			return;
+		}
+
+		$hub_connect_url = Hub_Connector::get_connect_site_url( 'smush-bulk', 'smush_wpadmin_media_library' );
+		if ( is_multisite() ) {
+			$hub_connect_url = str_replace( '/wp-admin/', '/wp-admin/network/', $hub_connect_url );
+		}
+
+		?>
+		<div id="smush-hub-connect-media-notice" class="smush-hub-connect-media-notice sui-wrap" style="display: none">
+			<div class="sui-notice sui-notice-blue" style="margin-top: 10px">
+				<div class="sui-notice-content">
+					<div class="sui-notice-message">
+						<h4><?php esc_html_e( 'Unlock Bulk Smush instantly!', 'wp-smushit' ); ?></h4>
+						<p>
+							<?php
+							printf(
+							/* translators: %s - strong tags */
+								esc_html__( 'Connect your site to WPMU DEV for %1$sfree%2$s and start smushing your images—takes just a few seconds, no credit card or API key needed.', 'wp-smushit' ),
+								'<strong>',
+								'</strong>'
+							);
+							?>
+						</p>
+						<p>
+							<a class="sui-button sui-button-blue" href="<?php echo esc_url( $hub_connect_url ); ?>">
+								<?php esc_html_e( 'Connect my site', 'wp-smushit' ); ?>
+							</a>
+							<a class="smus-media-notification-skip" href="#"><?php esc_html_e( 'Skip for now', 'wp-smushit' ); ?></a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Skip messages respective to their IDs.
 	 *
 	 * @param string $msg_id  Message ID.
@@ -517,6 +592,31 @@ class Media_Library extends Abstract_Module {
 		$html .= self::progress_bar();
 
 		return $html;
+	}
+
+
+	/**
+	 * Check whether the Smush media notice should be displayed.
+	 *
+	 * @return bool
+	 */
+	private function should_display_media_notice() {
+        if( ! Helper::is_user_allowed( 'manage_options' )  || ( is_multisite() && ! Helper::is_user_allowed( 'manage_network' ) ) ){
+	        return false;
+        }
+
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
+		$current_screen = get_current_screen();
+
+		// Show only on Media Library (upload) page.
+		if ( false === strpos( $current_screen->id, 'upload' ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

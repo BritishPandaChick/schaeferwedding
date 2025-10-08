@@ -40,6 +40,7 @@ require( './common/media-library-scanner' );
 require( './modules/media-library-scanner-on-bulk-smush' );
 require( './modules/media-library-scanner-on-dashboard' );
 require( './modules/onboarding' );
+require( './modules/onboarding-free' );
 require( './modules/directory-smush' );
 require( './smush/cdn' );
 require( './smush/webp' );

@@ -40,8 +40,8 @@ class Divi extends Controller {
 		$smush_settings = Settings::get_instance();
 		if (
 			'on' !== et_get_option( 'divi_enable_responsive_images' ) &&
-			$smush_settings->get( 'cdn' ) &&
-			$smush_settings->get( 'auto_resize' )
+			$smush_settings->is_lazyload_active() &&
+			$smush_settings->is_auto_resizing_active()
 		) {
 			remove_filter( 'wp_calculate_image_sizes', 'et_filter_wp_calculate_image_sizes' );
 		}

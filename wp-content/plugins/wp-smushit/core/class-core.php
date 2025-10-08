@@ -319,16 +319,6 @@ class Core extends Stats {
 				'<a href="' . esc_url( $upgrade_url ) . '" target="_blank">',
 				'</a>'
 			),
-			'processing_cdn_for_free'     => sprintf(
-			/* translators: %d: Number of CDN PoP locations */
-				esc_html__( 'Want to serve images even faster? Get up to 2x more speed with Smush Pro’s CDN, which spans %d servers worldwide.', 'wp-smushit' ),
-				Admin::CDN_POP_LOCATIONS
-			),
-			'processed_cdn_for_free'      => sprintf(
-			/* translators: %d: Number of CDN PoP locations */
-				esc_html__( 'Let images reach your audience faster no matter where your hosting servers are. Smush Pro’s global CDN serves images closer to site visitors via %d worldwide server locations.', 'wp-smushit' ),
-				Admin::CDN_POP_LOCATIONS
-			),
 			'restore'                     => esc_html__( 'Restoring image...', 'wp-smushit' ),
 			'smushing'                    => esc_html__( 'Smushing image...', 'wp-smushit' ),
 			'btn_ignore'                  => esc_html__( 'Ignore', 'wp-smushit' ),
@@ -369,8 +359,7 @@ class Core extends Stats {
 				) : '',
 			// URLs.
 			'smush_url'                   => network_admin_url( 'admin.php?page=smush' ),
-			'bulk_smush_url'              => network_admin_url( 'admin.php?page=smush-bulk' ),
-			'directory_url'               => network_admin_url( 'admin.php?page=smush-directory' ),
+			'bulk_smush_url'              => Helper::get_page_url( 'smush-bulk' ),
 			'nextGenURL'                  => network_admin_url( 'admin.php?page=smush-next-gen' ),
 			'edit_link'                   => Helper::get_image_media_link( '{{id}}', null, true ),
 			'debug_mode'                  => defined( 'WP_DEBUG' ) && WP_DEBUG,

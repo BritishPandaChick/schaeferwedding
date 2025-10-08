@@ -10,8 +10,8 @@ namespace Smush\Core;
 
 use Smush\Core\CDN\CDN_Helper;
 use Smush\Core\LCP\LCP_Helper;
-use Smush\Core\Stats\Global_Stats;
 use Smush\Core\Next_Gen\Next_Gen_Manager;
+use Smush\Core\Stats\Global_Stats;
 use WP_Smush;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -80,7 +80,8 @@ class Settings {
 		'js_builder'             => false,
 		'gform'                  => false,
 		'cdn'                    => false,
-		'auto_resize'            => false,
+		'auto_resizing'          => false,
+		'cdn_dynamic_sizes'      => false,
 		self::NEXT_GEN_CDN_KEY   => self::WEBP_CDN_MODE,
 		'usage'                  => false,
 		'accessible_colors'      => false,
@@ -95,6 +96,7 @@ class Settings {
 		'disable_streams'        => false,
 		'avif_mod'               => false,
 		'avif_fallback'          => false,
+		'image_dimensions'       => false,
 		'preload_images'         => false,
 	);
 
@@ -112,7 +114,7 @@ class Settings {
 	 *
 	 * @var array $basic_features
 	 */
-	public static $basic_features = array( 'bulk', 'auto', 'strip_exif', 'resize', 'original', 'gutenberg', 'js_builder', 'gform', 'lazy_load', 'lossy' );
+	public static $basic_features = array( 'bulk', 'auto', 'strip_exif', 'resize', 'original', 'directory_smush', 'gutenberg', 'js_builder', 'gform', 'lazy_load', 'lossy' );
 
 	/**
 	 * List of fields in bulk smush form.
@@ -121,7 +123,7 @@ class Settings {
 	 *
 	 * @var array
 	 */
-	private $bulk_fields = array( 'lossy', 'bulk', 'auto', 'strip_exif', 'resize', 'original', 'backup', 'png_to_jpg', 'no_scale', 'background_email' );
+	private $bulk_fields = array( 'lossy', 'bulk', 'auto', 'original', 'strip_exif', 'resize', 'backup', 'png_to_jpg', 'no_scale', 'background_email' );
 
 	/**
 	 * @since 3.12.6
@@ -146,7 +148,7 @@ class Settings {
 	 *
 	 * @var array
 	 */
-	private $cdn_fields = array( 'cdn', 'background_images', 'auto_resize', self::NEXT_GEN_CDN_KEY, 'rest_api_support' );
+	private $cdn_fields = array( 'cdn', 'background_images', 'cdn_dynamic_sizes', self::NEXT_GEN_CDN_KEY, 'rest_api_support' );
 
 	/**
 	 * List of fields in CDN form.
@@ -180,7 +182,7 @@ class Settings {
 	 *
 	 * @var array
 	 */
-	private $lazy_load_fields = array( 'lazy_load' );
+	private $lazy_load_fields = array( 'lazy_load', 'auto_resizing', 'image_dimensions' );
 
 	/**
 	 * @var array
@@ -191,6 +193,11 @@ class Settings {
 	 * @var array
 	 */
 	private $activated_subsite_modules;
+
+	/**
+	 * @var bool
+	 */
+	private $is_switching_subsite = false;
 
 	/**
 	 * Return the plugin instance.
@@ -209,8 +216,15 @@ class Settings {
 
 	/**
 	 * WP_Smush_Settings constructor.
+	 *
+	 * WARNING: Any new class added to this constructor must be loaded before use.
+	 * This constructor is called when the plugin is activated.
 	 */
-	private function __construct() {
+	protected function __construct() {
+		// Handle settings cache and subsite switching when switching between sites in a multisite network.
+		add_action( 'switch_blog', array( $this, 'maybe_reset_cache_site_settings' ), 10, 2 );
+		add_action( 'switch_blog', array( $this, 'toggle_switching_subsite' ) );
+
 		// Do not initialize if not in admin area
 		// wp_head runs specifically in the frontend, good check to make sure we're accidentally not loading settings on required pages.
 		if ( ! is_admin() && ! wp_doing_ajax() && did_action( 'wp_head' ) ) {
@@ -224,9 +238,11 @@ class Settings {
 
 		add_filter( 'wp_smush_settings', array( $this, 'remove_unavailable' ) );
 
-		add_action( 'switch_blog', array( $this, 'maybe_reset_cache_site_settings' ), 10, 2 );
-
 		$this->init();
+	}
+
+	public function toggle_switching_subsite() {
+		$this->is_switching_subsite = ! $this->is_switching_subsite;
 	}
 
 	/**
@@ -283,7 +299,7 @@ class Settings {
 			),
 			'bulk'              => array(
 				'short_label' => esc_html__( 'Image Sizes', 'wp-smushit' ),
-				'desc'        => esc_html__( 'WordPress generates multiple image thumbnails for each image you upload. Choose which of those thumbnail sizes you want to include when bulk smushing.', 'wp-smushit' ),
+				'desc'        => esc_html__( 'WordPress creates multiple thumbnails for each uploaded image. Select which sizes to include in bulk smushing.', 'wp-smushit' ),
 			),
 			'auto'              => array(
 				'label'       => esc_html__( 'Automatically compress my images on upload', 'wp-smushit' ),
@@ -301,19 +317,19 @@ class Settings {
 				),
 			),
 			'strip_exif'        => array(
-				'label'       => esc_html__( 'Strip my image metadata', 'wp-smushit' ),
+				'label'       => esc_html__( 'Remove image metadata', 'wp-smushit' ),
 				'short_label' => esc_html__( 'Metadata', 'wp-smushit' ),
-				'desc'        => esc_html__( 'Photos often store camera settings in the file, i.e., focal length, date, time and location. Removing EXIF data reduces the file size. Note: it does not strip SEO metadata.', 'wp-smushit' ),
+				'desc'        => esc_html__( 'Photos can include camera settings, date or location. Removing this EXIF data reduces the file size.', 'wp-smushit' ),
 			),
 			'resize'            => array(
-				'label'       => esc_html__( 'Resize original images', 'wp-smushit' ),
-				'short_label' => esc_html__( 'Image Resizing', 'wp-smushit' ),
-				'desc'        => esc_html__( 'As of version 5.3, WordPress creates a scaled version of uploaded images over 2560x2560px by default, and keeps your original uploaded images as a backup. If desired, you can choose a different resizing threshold or disable the scaled images altogether.', 'wp-smushit' ),
+				'label'       => esc_html__( 'Resize large images', 'wp-smushit' ),
+				'short_label' => esc_html__( 'Large Image Resizing', 'wp-smushit' ),
+				'desc'        => esc_html__( 'WordPress scales large images (over 2560px) and keeps the originals as a backup. You can adjust the size limit or turn scaling off entirely.', 'wp-smushit' ),
 			),
 			'no_scale'          => array(
 				'label'       => esc_html__( 'Disable scaled images', 'wp-smushit' ),
 				'short_label' => esc_html__( 'Disable Scaled Images', 'wp-smushit' ),
-				'desc'        => esc_html__( 'Enable this feature to disable automatic resizing of images above the threshold, keeping only your original uploaded images.', 'wp-smushit' ),
+				'desc'        => esc_html__( 'When enabled, WordPress won’t create scaled versions of large images; only your original upload is kept.', 'wp-smushit' ),
 			),
 			'detection'         => array(
 				'label'       => esc_html__( 'Detect and show incorrectly sized images', 'wp-smushit' ),
@@ -344,6 +360,11 @@ class Settings {
 				'label'       => esc_html__( 'Allow usage tracking', 'wp-smushit' ),
 				'short_label' => esc_html__( 'Usage Tracking', 'wp-smushit' ),
 				'desc'        => esc_html__( 'Help make Smush better by letting our designers learn how you’re using the plugin.', 'wp-smushit' ),
+			),
+			'image_dimensions'  => array(
+				'label'       => esc_html__( 'Automatically add missing image dimensions', 'wp-smushit' ),
+				'short_label' => esc_html__( 'Add Missing Image Dimensions', 'wp-smushit' ),
+				'desc'        => esc_html__( 'Automatically add width and height attributes to images missing dimensions for better layout stability and performance.', 'wp-smushit' ),
 			),
 		);
 
@@ -380,6 +401,10 @@ class Settings {
 	 * @return array
 	 */
 	public function get_bulk_fields() {
+		if ( $this->is_directory_smush_active() ) {
+			$this->bulk_fields[] = 'directory_smush';
+		}
+
 		return $this->bulk_fields;
 	}
 
@@ -499,6 +524,10 @@ class Settings {
 		);
 
 		if ( ! isset( $module_option_keys[ $option_id ] ) ) {
+			if ( $this->is_switching_subsite ) {
+				return false;
+			}
+
 			return self::is_ajax_network_admin() || is_network_admin();
 		}
 
@@ -560,9 +589,7 @@ class Settings {
 	}
 
 	public function maybe_reset_cache_site_settings( $new_blog_id, $prev_blog_id ) {
-		if ( $new_blog_id !== $prev_blog_id ) {
-			$this->reset_cache_site_settings();
-		}
+		$this->reset_cache_site_settings();
 	}
 
 	public function reset_cache_site_settings() {
@@ -595,10 +622,12 @@ class Settings {
 		$is_multisite = is_multisite();
 		if ( ! $is_multisite ) {
 			// Make sure the new default settings are included into the old configs.
-			return wp_parse_args( get_option( self::SETTINGS_KEY, array() ), $this->defaults );
+			$site_settings = get_option( self::SETTINGS_KEY, array() );
+			return wp_parse_args( $this->ensure_array( $site_settings ), $this->defaults );
 		}
 
 		$network_settings = get_site_option( self::SETTINGS_KEY, array() );
+		$network_settings = $this->ensure_array( $network_settings );
 		$network_settings = wp_parse_args( $network_settings, $this->defaults );
 		if ( $this->is_network_enabled() ) {
 			return $network_settings;
@@ -606,18 +635,41 @@ class Settings {
 
 		$subsite_modules  = $this->get_activated_subsite_modules();
 		$network_modules  = array_diff( $this->modules, $subsite_modules );
+		if ( in_array( self::LAZY_PRELOAD_MODULE_NAME, $network_modules, true ) ) {
+			// Lazy & preload modules include 2 modules: lazy_load and preload.
+			$network_modules[] = 'preload';
+		}
 		$subsite_settings = get_option( self::SETTINGS_KEY, array() );
+		$subsite_settings = $this->ensure_array( $subsite_settings );
 
 		foreach ( $network_modules as $key ) {
 			// Remove values that are network wide from subsite settings.
 			$get_module_fields = "get_{$key}_fields";
-			$subsite_settings  = array_diff_key( $subsite_settings, array_flip( $this->$get_module_fields() ) );
+			if ( method_exists( $this, $get_module_fields ) ) {
+				$subsite_settings  = array_diff_key( $subsite_settings, array_flip( $this->$get_module_fields() ) );
+			}
 		}
 
 		// And append subsite settings to the site settings.
 		$network_settings = array_merge( $network_settings, $subsite_settings );
 
 		return $network_settings;
+	}
+
+	public function get_defaults() {
+		return $this->defaults;
+	}
+
+	/**
+	 * Ensure the input is an array.
+	 *
+	 * @param mixed $array_value Array value.
+	 * @return array
+	 */
+	private function ensure_array( $array_value ) {
+		return empty( $array_value ) || ! is_array( $array_value )
+			? array()
+			: $array_value;
 	}
 
 	/**
@@ -653,6 +705,18 @@ class Settings {
 		}
 
 		$this->update_site_settings( array( $setting => $value ) );
+	}
+
+	public function delete( $setting ) {
+		if ( empty( $setting ) ) {
+			return;
+		}
+
+		$settings = $this->get_site_settings();
+		if ( isset( $settings[ $setting ] ) ) {
+			unset( $settings[ $setting ] );
+			$this->update_site_settings( $settings );
+		}
 	}
 
 	/**
@@ -790,10 +854,10 @@ class Settings {
 			return;
 		}
 
-		// Limit 100 sub sites by default.
 		$site_args = array(
 			'fields' => 'ids',
 			'public' => 1,
+			'number' => 250, // Limit to 250 sites to avoid performance issues.
 		);
 
 		$site_ids = get_sites( $site_args );
@@ -859,8 +923,7 @@ class Settings {
 
 		if ( 'bulk' === $page ) {
 			foreach ( $this->get_bulk_fields() as $field ) {
-				// Skip the module enable/disable option.
-				if ( 'bulk' === $field ) {
+				if ( ! isset( $this->defaults[ $field ] ) ) {
 					continue;
 				}
 				if ( 'lossy' == $field ) {
@@ -874,6 +937,8 @@ class Settings {
 
 		if ( 'lazy-load' === $page ) {
 			$this->parse_lazy_load_settings();
+			$new_settings['auto_resizing']    = (bool) filter_input( INPUT_POST, 'auto_resizing', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+			$new_settings['image_dimensions'] = (bool) filter_input( INPUT_POST, 'image_dimensions', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
 		} elseif ( 'preload' === $page ) {
 			$preload_images                 = filter_input( INPUT_POST, 'preload_images', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
 			$new_settings['preload_images'] = (bool) $preload_images;
@@ -920,8 +985,9 @@ class Settings {
 			}
 
 			if ( 'general' === $tab ) {
-				$new_settings['usage']     = (bool) filter_input( INPUT_POST, 'usage', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
-				$new_settings['detection'] = (bool) filter_input( INPUT_POST, 'detection', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+				$new_settings['usage']            = (bool) filter_input( INPUT_POST, 'usage', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+				$new_settings['detection']        = (bool) filter_input( INPUT_POST, 'detection', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+				$new_settings['image_dimensions'] = (bool) filter_input( INPUT_POST, 'image_dimensions', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
 			}
 			if ( 'permissions' === $tab ) {
 				$new_settings['networkwide'] = $this->parse_access_settings();
@@ -1132,6 +1198,7 @@ class Settings {
 				'filter'  => FILTER_CALLBACK,
 				'options' => 'sanitize_text_field',
 			),
+			'lcp_fetchpriority' => FILTER_VALIDATE_BOOLEAN,
 		);
 
 		$settings = filter_input_array( INPUT_POST, $args );
@@ -1362,6 +1429,14 @@ class Settings {
 		return self::get_instance()->get( 'lazy_load' );
 	}
 
+	public function is_auto_resizing_active() {
+		return $this->is_module_active( 'auto_resizing' );
+	}
+
+	public function should_add_missing_dimensions() {
+		return self::get_instance()->get( 'image_dimensions' );
+	}
+
 	public function is_module_active( $module ) {
 		$pro_modules = array(
 			'cdn',
@@ -1371,6 +1446,8 @@ class Settings {
 			's3',
 			'ultra',
 			'preload_images',
+			'auto_resizing',
+			'image_dimensions',
 		);
 
 		$module_active = self::get_instance()->get( $module );
@@ -1482,11 +1559,26 @@ class Settings {
 	}
 
 	/**
+	 * Check if the directory smush module is active.
+	 *
+	 * @return bool
+	 */
+	public function is_directory_smush_active() {
+		if ( ! is_multisite() || is_super_admin() ) {
+			return true;
+		}
+
+		$activated_subsite_modules = $this->get_activated_subsite_modules();
+
+		return in_array( 'directory_smush', $activated_subsite_modules, true ) && in_array( 'bulk', $activated_subsite_modules, true );
+	}
+
+	/**
 	 * @return array
 	 */
 	private function get_activated_subsite_modules() {
 		if ( ! is_array( $this->activated_subsite_modules ) ) {
-			$this->activated_subsite_modules = $this->prepare_activated_subsite_modules();
+			$this->activated_subsite_modules = $this->get_activated_subsite_modules_list();
 		}
 
 		return $this->activated_subsite_modules;
@@ -1495,7 +1587,7 @@ class Settings {
 	/**
 	 * @return array
 	 */
-	private function prepare_activated_subsite_modules() {
+	public function get_activated_subsite_modules_list() {
 		$subsite_controls = get_site_option( self::SUBSITE_CONTROLS_OPTION_KEY );
 		// None:false|All:1|Custom:array list page modules.
 		if ( empty( $subsite_controls ) ) {
@@ -1513,6 +1605,7 @@ class Settings {
 	private function get_subsite_modules() {
 		return array(
 			'bulk',
+			'directory_smush',
 			'integrations',
 			self::LAZY_PRELOAD_MODULE_NAME,
 			'cdn',
@@ -1520,15 +1613,22 @@ class Settings {
 	}
 
 	/**
-	 * Get $content_width global var value.
+	 * Get the maximum content width for images.
+	 *
+	 * @return int
 	 */
 	public function max_content_width() {
-		// Get global content width (if content width is empty, set 1920).
-		$content_width = isset( $GLOBALS['content_width'] ) ? (int) $GLOBALS['content_width'] : 1920;
+		// Get global content width (if content width is empty, set 2560).
+		$content_width = isset( $GLOBALS['content_width'] ) ? (int) $GLOBALS['content_width'] : $this->get_default_size_threshold();
 
 		// Avoid situations, when themes misuse the global.
 		if ( 0 === $content_width ) {
-			$content_width = 1920;
+			$content_width = $this->get_default_size_threshold();
+		}
+
+		$resize_module_active = $this->is_resize_module_active();
+		if ( ! $resize_module_active ) {
+			return $content_width;
 		}
 
 		// Check to see if we are resizing the images (can not go over that value).
@@ -1539,5 +1639,16 @@ class Settings {
 		}
 
 		return $content_width;
+	}
+
+	/**
+	 * Get the default size threshold for images.
+	 *
+	 * WordPress sets the default threshold value to 2560 pixels.
+	 *
+	 * @return int
+	 */
+	public function get_default_size_threshold() {
+		return apply_filters( 'wp_smush_default_size_threshold', 2560 );
 	}
 }

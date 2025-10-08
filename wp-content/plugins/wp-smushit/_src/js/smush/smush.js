@@ -598,14 +598,14 @@ class Smush {
 	}
 
 	showBulkFreeLimitReachedNotice() {
-		const bulkFreeLimitReachedNotice = document.getElementById( 'smush-limit-reached-notice' );
+		const bulkFreeLimitReachedNotice = document.getElementById( 'bulk-smush-limit-reached-notice' );
 		if ( bulkFreeLimitReachedNotice ) {
 			bulkFreeLimitReachedNotice.classList.remove( 'sui-hidden' );
 		}
 	}
 
 	hideBulkFreeLimitReachedNotice() {
-		const bulkFreeLimitReachedNotice = document.getElementById( 'smush-limit-reached-notice' );
+		const bulkFreeLimitReachedNotice = document.getElementById( 'bulk-smush-limit-reached-notice' );
 		if ( bulkFreeLimitReachedNotice ) {
 			bulkFreeLimitReachedNotice.classList.add( 'sui-hidden' );
 		}

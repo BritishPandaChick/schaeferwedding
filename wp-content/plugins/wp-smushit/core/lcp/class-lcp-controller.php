@@ -9,7 +9,7 @@ use Smush\Core\Settings;
 use WP_Error;
 
 class LCP_Controller extends Controller {
-	const LCP_TRANSFORM_PRIORITY = 25;
+	const LCP_TRANSFORM_PRIORITY = 30;
 	/**
 	 * @var Settings
 	 */
@@ -38,6 +38,7 @@ class LCP_Controller extends Controller {
 		$this->register_action( 'after_switch_theme', array( $this, 'mark_all_lcp_data_as_dirty' ) );
 		$this->register_action( 'wp_ajax_clear_all_lcp_data', array( $this, 'ajax_mark_all_lcp_data_as_dirty' ) );
 		$this->register_filter( 'wp_smush_content_transforms', array( $this, 'register_lcp_transform' ), self::LCP_TRANSFORM_PRIORITY );
+		$this->register_filter( 'wp_get_loading_optimization_attributes', array( $this, 'remove_fetchpriority_attribute' ) );
 	}
 
 	public function register_lcp_transform( $transforms ) {
@@ -179,6 +180,32 @@ class LCP_Controller extends Controller {
 		}
 
 		$this->mark_all_lcp_data_as_dirty();
+	}
+
+	/**
+	 * Remove fetchpriority attribute from if Smart LCP fetchpriority is enabled
+	 *
+	 * @param array $attributes
+	 *
+	 * @return array
+	 */
+	public function remove_fetchpriority_attribute( array $attributes ): array {
+		$preload_settings = $this->settings->get_setting( 'wp-smush-preload' );
+		if ( empty( $preload_settings['lcp_fetchpriority'] ) ) {
+			return $attributes;
+		}
+
+		// Exit early if attribute not set or not "high".
+		if ( empty( $attributes['fetchpriority'] ) || $attributes['fetchpriority'] !== 'high' ) {
+			return $attributes;
+		}
+
+		// Only remove if we have LCP data for this page.
+		if ( $this->lcp_helper->get_lcp_data_for_current_page() ) {
+			unset( $attributes['fetchpriority'] );
+		}
+
+		return $attributes;
 	}
 
 	/**

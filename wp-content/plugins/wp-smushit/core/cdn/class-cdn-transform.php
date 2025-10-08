@@ -8,6 +8,7 @@ use Smush\Core\Parser\Element_Attribute;
 use Smush\Core\Parser\Image_URL;
 use Smush\Core\Parser\Style;
 use Smush\Core\Settings;
+use Smush\Core\Srcset\Srcset_Helper;
 use Smush\Core\Transform\Transform;
 use Smush\Core\Url_Utils;
 
@@ -32,6 +33,10 @@ class CDN_Transform implements Transform {
 	 * @var Url_Utils
 	 */
 	private $url_utils;
+	/**
+	 * @var Srcset_Helper
+	 */
+	private $srcset_helper;
 
 	public function __construct() {
 		$this->cdn_helper           = CDN_Helper::get_instance();
@@ -39,6 +44,7 @@ class CDN_Transform implements Transform {
 		$this->settings             = Settings::get_instance();
 		$this->attachment_url_cache = Attachment_Url_Cache::get_instance();
 		$this->url_utils            = new Url_Utils();
+		$this->srcset_helper        = Srcset_Helper::get_instance();
 	}
 
 	public function should_transform() {
@@ -135,7 +141,7 @@ class CDN_Transform implements Transform {
 	private function process_url( $url, $image, $resizing = false ) {
 		$args = array();
 
-		if ( $resizing && $this->settings->get( 'auto_resize' ) ) {
+		if ( $resizing && $this->cdn_helper->is_dynamic_sizes_active() ) {
 			$dimensions = $this->cdn_helper->guess_dimensions_from_image_markup( $image );
 			if ( $dimensions ) {
 				$args['size'] = $dimensions;
@@ -193,10 +199,11 @@ class CDN_Transform implements Transform {
 			return;
 		}
 
-		$should_auto_resize = $this->settings->get( 'auto_resize' );
-		$element_markup     = $element->get_markup();
-		$skip_adding_srcset = apply_filters( 'smush_skip_adding_srcset', false, $src_url, $element_markup );
-		if ( $should_auto_resize && ! $skip_adding_srcset ) {
+		$should_add_dynamic_sizes = $this->cdn_helper->is_dynamic_sizes_active();
+		$element_markup           = $element->get_markup();
+		$skip_adding_srcset       = $this->srcset_helper->skip_adding_srcset( $src_url, $element_markup );
+		$should_generate_srcset   = apply_filters( 'wp_smush_cdn_force_generate_srcset', $should_add_dynamic_sizes, $srcset_attribute, $element_markup );
+		if ( $should_generate_srcset && ! $skip_adding_srcset ) {
 			$this->generate_and_use_fresh_srcset( $src_url, $element );
 		} elseif ( $srcset_attribute ) {
 			$this->update_image_urls( $srcset_attribute->get_image_urls(), $element_markup );
@@ -210,8 +217,10 @@ class CDN_Transform implements Transform {
 	 * @return void
 	 */
 	private function generate_and_use_fresh_srcset( $src_url, $element ) {
-		$attachment_id = $this->attachment_url_cache->get_id_for_url( $src_url );
-		list( $width, $height ) = $this->find_image_width_and_height( $src_url, $element );
+		$current_sizes          = $element->get_attribute_value( 'sizes' );
+		$has_sizes_auto         = $current_sizes && wp_sizes_attribute_includes_valid_auto( $current_sizes );
+		$attachment_id          = $this->attachment_url_cache->get_id_for_url( $src_url );
+		list( $width, $height ) = $this->get_image_dimensions_from_attributes( $element );
 		list( $srcset, $sizes ) = $this->cdn_srcset->generate_srcset( $src_url, $attachment_id, $width, $height );
 		if ( $srcset ) {
 			$new_srcset_attribute = new Element_Attribute( 'srcset', $srcset );
@@ -219,30 +228,25 @@ class CDN_Transform implements Transform {
 		}
 
 		if ( $sizes ) {
+			if ( $has_sizes_auto ) {
+				$sizes = 'auto, ' . $sizes;
+			}
+
 			$new_sizes_attribute = new Element_Attribute( 'sizes', $sizes );
 			$element->add_or_update_attribute( $new_sizes_attribute );
 		}
 	}
 
 	/**
-	 * @param $src_url string
 	 * @param $element Element
 	 *
 	 * @return array
 	 */
-	private function find_image_width_and_height( $src_url, $element ) {
-		if ( $element->has_attribute( 'width' ) ) {
-			$width_from_attribute = (int) $element->get_attribute( 'width' )->get_value();
-		}
-
-		if ( $element->has_attribute( 'height' ) ) {
-			$height_from_attribute = (int) $element->get_attribute( 'height' )->get_value();
-		}
-
-		list( $width_from_src, $height_from_src ) = $this->url_utils->guess_dimensions_from_image_url( $src_url );
-
-		$width  = intval( $width_from_attribute ?? $width_from_src );
-		$height = intval( $height_from_attribute ?? $height_from_src );
+	private function get_image_dimensions_from_attributes( $element ) {
+		$raw_width  = $element->get_attribute_value( 'width' );
+		$width      = false === strpos( $raw_width, '%' ) ? (int) $raw_width : 0;
+		$raw_height = $element->get_attribute_value( 'height' );
+		$height     = false === strpos( $raw_height, '%' ) ? (int) $raw_height : 0;
 
 		return array( $width, $height );
 	}

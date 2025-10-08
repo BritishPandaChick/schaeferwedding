@@ -1,4 +1,3 @@
-import {onLCP} from 'web-vitals/attribution';
 import unique from 'unique-selector';
 import getXPath from 'get-xpath';
 
@@ -9,10 +8,8 @@ export class SmushLCPDetector {
 		if (!element || !imageUrl) {
 			return;
 		}
-		const attributionSelector = data?.attribution?.element || '';
-		const selector = attributionSelector && document.querySelectorAll(attributionSelector).length === 1
-			? attributionSelector
-			: unique(element);
+
+		const selector = unique(element);
 		const xpath = getXPath(element, {ignoreId: true});
 		const body = {
 			url: window.location.href,
@@ -68,23 +65,76 @@ export class SmushLCPDetector {
 		if (backgroundSet.length <= 0) {
 			return null;
 		}
-		if (backgroundSet.length > 0) {
-			return {
-				type: type,
-				property: fullBackgroundProp,
-				urls: backgroundSet,
-			};
-		} else {
-			return null;
-		}
+		return {
+			type: type,
+			property: fullBackgroundProp,
+			urls: backgroundSet,
+		};
 	}
 }
 
 (function () {
-	if (!document?.documentElement?.scrollTop) {
-		onLCP(function (data) {
-			const detector = new SmushLCPDetector();
-			detector.onLCP(data);
-		});
+	let lcpEntry = null;
+	let finalized = false;
+	const initialViewportBottom = window.innerHeight;
+	const pageLoadStartedAtTop = document?.documentElement?.scrollTop === 0;
+
+	if (!pageLoadStartedAtTop || !('PerformanceObserver' in window)) {
+		return;
 	}
+
+	const po = new PerformanceObserver((list) => {
+		for (const entry of list.getEntries()) {
+			if (isInInitialViewport(entry)) {
+				lcpEntry = entry; // always keep the latest candidate
+			}
+		}
+	});
+
+	try {
+		po.observe({type: 'largest-contentful-paint', buffered: true});
+	} catch (e) {
+		// not supported
+	}
+
+	function finalizeLCP() {
+		if (finalized) {
+			return;
+		}
+		finalized = true;
+
+		if (lcpEntry) {
+			const detector = new SmushLCPDetector();
+			detector.onLCP({
+				entries: [lcpEntry],
+				attribution: {
+					url: lcpEntry.url || '',
+					element: lcpEntry.element || ''
+				}
+			});
+		}
+
+		if (po) {
+			po.disconnect();
+		}
+	}
+
+	function isInInitialViewport(entry) {
+		const el = entry && entry.element;
+		if (!el) {
+			return true;
+		}
+		const rect = el.getBoundingClientRect();
+		const elementTop = rect.top + window.scrollY;
+		return elementTop <= initialViewportBottom;
+	}
+
+	// Finalize on first *trusted* user input
+	['keydown', 'click', 'pointerdown', 'touchstart'].forEach((type) => {
+		addEventListener(type, (event) => {
+			if (event.isTrusted) {
+				finalizeLCP();
+			}
+		}, {once: true, capture: true});
+	});
 })();

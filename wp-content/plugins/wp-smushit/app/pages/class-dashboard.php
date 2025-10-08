@@ -64,7 +64,7 @@ class Dashboard extends Abstract_Summary_Page implements Interface_Page {
 				'dashboard/bulk',
 				__( 'Bulk Smush', 'wp-smushit' ),
 				array( $this, 'bulk_compress_meta_box' ),
-				null,
+				array( $this, 'bulk_meta_box_header' ),
 				null,
 				'box-dashboard-left'
 			);
@@ -101,17 +101,6 @@ class Dashboard extends Abstract_Summary_Page implements Interface_Page {
 				__( 'Smush Pro', 'wp-smushit' ),
 				array( $this, 'upsell_meta_box' ),
 				array( $this, 'upsell_meta_box_header' ),
-				null,
-				'box-dashboard-right'
-			);
-		}
-
-		if ( self::should_render( 'directory' ) ) {
-			$this->add_meta_box(
-				'dashboard/directory',
-				__( 'Directory Smush', 'wp-smushit' ),
-				array( $this, 'directory_compress_meta_box' ),
-				null,
 				null,
 				'box-dashboard-right'
 			);
@@ -362,5 +351,15 @@ class Dashboard extends Abstract_Summary_Page implements Interface_Page {
 	public function cdn_meta_box_header() {
 		$title = esc_html__( 'CDN', 'wp-smushit' );
 		$this->view( 'dashboard/cdn/meta-box-header', compact( 'title' ) );
+	}
+
+	/**
+	 * Bulk meta box header.
+	 *
+	 * @since 3.22.0
+	 */
+	public function bulk_meta_box_header() {
+		$title = esc_html__( 'Bulk Smush', 'wp-smushit' );
+		$this->view( 'dashboard/bulk/meta-box-header', compact( 'title' ) );
 	}
 }

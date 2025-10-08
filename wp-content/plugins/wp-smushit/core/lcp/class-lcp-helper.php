@@ -33,7 +33,6 @@ class LCP_Helper {
 	private $array_utils;
 
 	public function __construct() {
-		$this->settings       = Settings::get_instance();
 		$this->wp_query_utils = new WP_Query_Utils();
 		$this->server_utils   = new Server_Utils();
 		$this->array_utils    = new Array_Utils();

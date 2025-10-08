@@ -28,7 +28,7 @@ class Settings extends Abstract_Page implements Interface_Page {
 			'smush_setting_tabs',
 			array(
 				'general'       => __( 'General', 'wp-smushit' ),
-				'configs'       => __( 'Configs', 'wp-smushit' ),
+				'configs'        => __( 'Configs', 'wp-smushit' ),
 				'permissions'   => __( 'Permissions', 'wp-smushit' ),
 				'data'          => __( 'Data & Settings', 'wp-smushit' ),
 				'accessibility' => __( 'Accessibility', 'wp-smushit' ),
@@ -41,7 +41,10 @@ class Settings extends Abstract_Page implements Interface_Page {
 		}
 
 		add_action( 'smush_setting_column_right_inside', array( $this, 'usage_settings' ), 25, 2 );
+		add_action( 'wp_smush_render_general_setting_rows', array( $this, 'render_tracking_settings' ), 40 );
+		add_action( 'wp_smush_render_general_setting_rows', array( $this, 'render_image_resize_detection_settings' ), 10 );
 		add_action( 'smush_setting_column_right_inside', array( $this, 'detection_settings' ), 25, 2 );
+		add_action( 'wp_smush_render_general_setting_rows', array( $this, 'render_translations_settings' ), 20 );
 	}
 
 	/**
@@ -137,60 +140,56 @@ class Settings extends Abstract_Page implements Interface_Page {
 		if ( 'detection' !== $name ) {
 			return;
 		}
+
+		$detection_enabled      = $this->settings->get( 'detection' );
+		$is_lazyload_enabled    = $this->settings->is_lazyload_active();
+		$is_auto_resize_enabled = $this->settings->is_auto_resizing_active();
+		$notice_css_class       = '';
+
+		if ( $is_lazyload_enabled && $is_auto_resize_enabled ) {
+			$notice_message = esc_html(
+				$this->whitelabel->whitelabel_string(
+					__( 'Images served via the Automatic Resizing feature will be skipped.', 'wp-smushit' )
+				)
+			);
+		} else {
+			$notice_css_class = 'sui-notice-info';
+			$notice_message   = sprintf(
+			/* translators: %1$s: opening anchor tag, %2$s: closing anchor tag */
+				esc_html__(
+					'Incorrect image size highlighting is active. %1$sView the frontend%2$s of your website to see if any images aren\'t the correct size for their containers.',
+					'wp-smushit'
+				),
+				'<a href="' . esc_url( home_url() ) . '" target="_blank" rel="noopener">',
+				'</a>'
+			);
+		}
+
 		?>
 
 		<span class="sui-description sui-toggle-description">
-			<?php esc_html_e( 'Note: The highlighting will only be visible to administrators – visitors won’t see the highlighting.', 'wp-smushit' ); ?>
-			<?php if ( $this->settings->get( 'detection' ) ) : ?>
-				<?php if ( $this->settings->get( 'cdn' ) && $this->settings->get( 'auto_resize' ) ) : ?>
-					<div class="sui-notice smush-highlighting-notice">
-						<div class="sui-notice-content">
-							<div class="sui-notice-message">
-								<i class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></i>
-								<p>
-									<?php
-									$cdn_resized_message = __(
-										'Note: Images served via the Smush CDN are automatically resized to fit their containers, these will be skipped.',
-										'wp-smushit'
-									);
-									echo esc_html( $this->whitelabel->whitelabel_string( $cdn_resized_message ) );
-									?>
-								</p>
-							</div>
-						</div>
-					</div>
-				<?php else : ?>
-					<div class="sui-notice sui-notice-info smush-highlighting-notice">
-						<div class="sui-notice-content">
-							<div class="sui-notice-message">
-								<i class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></i>
-								<p>
-									<?php
-									printf(
-									/* translators: %1$s: opening a tag, %2$s: closing a tag */
-										esc_html__(
-											'Incorrect image size highlighting is active. %1$sView the frontend%2$s of your website to see if any images aren\'t the correct size for their containers.',
-											'wp-smushit'
-										),
-										'<a href="' . esc_url( home_url() ) . '" target="_blank">',
-										'</a>'
-									);
-									?>
-								</p>
-							</div>
-						</div>
-					</div>
-				<?php endif; ?>
-			<?php else : ?>
-				<div class="sui-notice sui-notice-warning smush-highlighting-warning sui-hidden">
-					<div class="sui-notice-content">
-						<div class="sui-notice-message">
-							<i class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></i>
-							<p><?php esc_html_e( 'Almost there! To finish activating this feature you must save your settings.', 'wp-smushit' ); ?></p>
-						</div>
+			<?php esc_html_e( 'Note: The highlighting will only be visible to administrators – visitors won\'t see the highlighting.', 'wp-smushit' ); ?>
+
+			<div class="sui-notice <?php echo esc_attr( $notice_css_class ); ?> smush-highlighting-notice" <?php echo $detection_enabled ? '' : 'style="display: none;"'; ?>>
+				<div class="sui-notice-content">
+					<div class="sui-notice-message">
+						<i class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></i>
+						<p>
+							<?php echo wp_kses_post( $notice_message ); ?>
+						</p>
 					</div>
 				</div>
-			<?php endif; ?>
+			</div>
+
+			<?php // Warning notice (shown when detection is checked but not saved). ?>
+			<div class="sui-notice sui-notice-warning smush-highlighting-warning" style="display: none;">
+				<div class="sui-notice-content">
+				<div class="sui-notice-message">
+					<i class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></i>
+					<p><?php esc_html_e( 'Almost there! To finish activating this feature you must save your settings.', 'wp-smushit' ); ?></p>
+				</div>
+				</div>
+			</div>
 		</span>
 		<?php
 	}
@@ -208,27 +207,7 @@ class Settings extends Abstract_Page implements Interface_Page {
 	 * General settings meta box.
 	 */
 	public function general_meta_box() {
-		$link = WP_Smush::is_pro() ? 'https://wpmudev.com/translate/projects/wp-smushit/' : 'https://translate.wordpress.org/projects/wp-plugins/wp-smushit';
-
-		$site_locale = get_locale();
-
-		if ( 'en' === $site_locale || 'en_US' === $site_locale ) {
-			$site_language = 'English';
-		} else {
-			require_once ABSPATH . 'wp-admin/includes/translation-install.php';
-			$translations  = wp_get_available_translations();
-			$site_language = isset( $translations[ $site_locale ] ) ? $translations[ $site_locale ]['native_name'] : __( 'Error detecting language', 'wp-smushit' );
-		}
-
-		$this->view(
-			'settings/general-meta-box',
-			array(
-				'detection'        => $this->settings->get( 'detection' ),
-				'site_language'    => $site_language,
-				'tracking'         => (bool) $this->settings->get( 'usage' ),
-				'translation_link' => $link,
-			)
-		);
+		$this->view( 'settings/general-meta-box' );
 	}
 
 	/**
@@ -265,5 +244,78 @@ class Settings extends Abstract_Page implements Interface_Page {
 				'accessible_colors' => (bool) $this->settings->get( 'accessible_colors' ),
 			)
 		);
+	}
+
+	/**
+	 * Render image resize detection settings.
+	 *
+	 * @return void
+	 */
+	public function render_image_resize_detection_settings() {
+		do_action( 'wp_smush_render_setting_row', 'detection', $this->settings->get( 'detection' ) );
+	}
+
+	/**
+	 * Render translations settings.
+	 *
+	 * @return void
+	 */
+	public function render_translations_settings() {
+		$translation_link = WP_Smush::is_pro() ? 'https://wpmudev.com/translate/projects/wp-smushit/' : 'https://translate.wordpress.org/projects/wp-plugins/wp-smushit';
+
+		$site_locale = get_locale();
+
+		if ( 'en' === $site_locale || 'en_US' === $site_locale ) {
+			$site_language = 'English';
+		} else {
+			require_once ABSPATH . 'wp-admin/includes/translation-install.php';
+			$translations  = wp_get_available_translations();
+			$site_language = isset( $translations[ $site_locale ] ) ? $translations[ $site_locale ]['native_name'] : __( 'Error detecting language', 'wp-smushit' );
+		}
+		?>
+		<div class="sui-box-settings-row" id="general-translations-settings-row">
+			<div class="sui-box-settings-col-1">
+				<span class="sui-settings-label "><?php esc_html_e( 'Translations', 'wp-smushit' ); ?></span>
+				<span class="sui-description">
+					<?php
+					printf( /* translators: %1$s: opening a tag, %2$s: closing a tag */
+						esc_html__( 'By default, Smush will use the language you’d set in your %1$sWordPress Admin Settings%2$s if a matching translation is available.', 'wp-smushit' ),
+						'<a href="' . esc_html( admin_url( 'options-general.php' ) ) . '">',
+						'</a>'
+					);
+					?>
+				</span>
+			</div>
+			<div class="sui-box-settings-col-2">
+				<div class="sui-form-field">
+					<label for="language-input" class="sui-label">
+						<?php esc_html_e( 'Active Translation', 'wp-smushit' ); ?>
+					</label>
+					<input type="text" id="language-input" class="sui-form-control" disabled="disabled" placeholder="<?php echo esc_attr( $site_language ); ?>">
+					<span class="sui-description">
+						<?php
+						if ( ! apply_filters( 'wpmudev_branding_hide_doc_link', false ) ) {
+							printf(
+							/* translators: %1$s: opening a tag, %2$s: closing a tag */
+								esc_html__( 'Not using your language, or have improvements? Help us improve translations by providing your own improvements %1$shere%2$s.', 'wp-smushit' ),
+								'<a href="' . esc_html( $translation_link ) . '" target="_blank">',
+								'</a>'
+							);
+						}
+						?>
+					</span>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render tracking settings.
+	 *
+	 * @return void
+	 */
+	public function render_tracking_settings() {
+		do_action( 'wp_smush_render_setting_row', 'usage', $this->settings->get( 'usage' ) );
 	}
 }

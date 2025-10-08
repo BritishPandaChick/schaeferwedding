@@ -32,7 +32,6 @@ class ConvertKit_Admin_Section_Tools extends ConvertKit_Admin_Section_Base {
 		if ( $this->on_settings_screen( $this->name ) ) {
 			add_filter( 'convertkit_settings_base_register_notices', array( $this, 'register_notices' ) );
 			add_action( 'convertkit_settings_base_render_before', array( $this, 'maybe_output_notices' ) );
-			add_action( 'admin_footer', array( $this, 'output_intercom' ) );
 		}
 
 		parent::__construct();
@@ -365,7 +364,7 @@ class ConvertKit_Admin_Section_Tools extends ConvertKit_Admin_Section_Base {
 	 */
 	public function documentation_url() {
 
-		return 'https://help.kit.com/en/articles/2502591-the-convertkit-wordpress-plugin';
+		return 'https://help.kit.com/en/articles/2502591-how-to-set-up-the-kit-plugin-on-your-wordpress-website';
 
 	}
 

@@ -6,7 +6,7 @@
 				<?php
 				if ( $this->settings->is_cdn_next_gen_conversion_active() ) {
 					printf( /* translators: 1: Opening a link, 2: Closing the link */
-						esc_html__( 'It looks like your site is already serving WebP and AVIF images via the CDN. Please %1$sdisable the CDN%2$s if you prefer to use Next-Gen Formats instead.', 'wp-smushit' ),
+						esc_html__( 'It looks like your site is already serving WebP and AVIF images via the CDN. Please %1$sdisable the CDN%2$s if you want to convert images to Next-Gen Formats and serve them locally instead of through the CDN.', 'wp-smushit' ),
 						'<a href="' . esc_url( $this->get_url( 'smush-cdn#smush-cancel-cdn' ) ) . '">',
 						'</a>'
 					);

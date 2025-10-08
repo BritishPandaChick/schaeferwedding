@@ -109,6 +109,7 @@ class Lazy_Load_Controller extends Controller {
 
 		// Load js file that is required in public facing pages.
 		$this->register_action( 'wp_head', array( $this, 'add_inline_styles' ) );
+		$this->register_action( 'wp_head', array( $this, 'add_early_inline_styles' ), 5 );
 		$this->register_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ), 99 );
 		if ( defined( 'WP_SMUSH_ASYNC_LAZY' ) && WP_SMUSH_ASYNC_LAZY ) {
 			$this->register_filter( 'script_loader_tag', array( $this, 'async_load' ), 10, 2 );
@@ -131,6 +132,20 @@ class Lazy_Load_Controller extends Controller {
 			$this->register_action( 'dynamic_sidebar_before', array( $this, 'filter_sidebar_content_start' ), 0 );
 			$this->register_action( 'dynamic_sidebar_after', array( $this, 'filter_sidebar_content_end' ), 1000 );
 		}
+	}
+	
+	public function add_early_inline_styles() {
+		if ( $this->helper->should_skip_lazyload() ) {
+			return;
+		}
+		?>
+		<style>
+			.lazyload,
+			.lazyloading {
+				max-width: 100%;
+			}
+		</style>
+		<?php
 	}
 
 	/**
@@ -203,8 +218,8 @@ class Lazy_Load_Controller extends Controller {
 			.lazyloading {
 				--smush-placeholder-width: 100px;
 				--smush-placeholder-aspect-ratio: 1/1;
-				width: var(--smush-placeholder-width) !important;
-				aspect-ratio: var(--smush-placeholder-aspect-ratio) !important;
+				width: var(--smush-image-width, var(--smush-placeholder-width)) !important;
+				aspect-ratio: var(--smush-image-aspect-ratio, var(--smush-placeholder-aspect-ratio)) !important;
 			}
 
 			<?php if ( 'fadein' === $this->options['animation']['selected'] ) : ?>
@@ -288,6 +303,23 @@ class Lazy_Load_Controller extends Controller {
 			array(),
 			WP_SMUSH_VERSION,
 			$in_footer
+		);
+
+		$lazy_load_script_options = apply_filters(
+			'smush_lazy_load_script_options',
+			array(
+				'autoResizingEnabled' => $this->settings->is_auto_resizing_active(),
+				'autoResizeOptions'   => array(
+					'precision' => 5, //5px.
+					'skipAutoWidth' => true, // Whether to skip the image has 'auto' width.
+				),
+			)
+		);
+
+		wp_add_inline_script(
+			'smush-lazy-load',
+			'var smushLazyLoadOptions = ' . wp_json_encode( $lazy_load_script_options ) . ';',
+			'before'
 		);
 
 		$this->add_masonry_support();

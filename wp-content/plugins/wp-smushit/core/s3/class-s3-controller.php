@@ -40,6 +40,7 @@ class S3_Controller extends Controller {
 		$this->fs               = new File_System();
 
 		$this->register_action( 'init', array( $this, 'maybe_initialize' ), - 10 );
+		$this->register_filter( 'wp_smush_should_fetch_external_image_dimensions', array( $this, 'allow_fetch_image_dimensions_from_s3' ), 10, 2 );
 	}
 
 	public function maybe_initialize() {
@@ -389,5 +390,18 @@ class S3_Controller extends Controller {
 				$this->wp_offload_media->delete_remote_files( $jpg_file_paths, $attachment_id );
 			}
 		}, 50 );
+	}
+
+	public function allow_fetch_image_dimensions_from_s3( $allow_fetch, $image_url ) {
+		if ( $allow_fetch || ! $this->wp_offload_media->get_setting( 'serve-from-s3' ) ) {
+			return $allow_fetch;
+		}
+
+		$delivery_domain = $this->wp_offload_media->get_delivery_domain();
+		if ( ! empty( $delivery_domain ) ) {
+			$allow_fetch = strpos( $image_url, $delivery_domain ) !== false;
+		}
+
+		return $allow_fetch;
 	}
 }

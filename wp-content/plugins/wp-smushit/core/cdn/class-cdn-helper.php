@@ -2,6 +2,7 @@
 
 namespace Smush\Core\CDN;
 
+use Smush\Core\Media\Attachment_Url_Cache;
 use Smush\Core\Settings;
 use Smush\Core\Url_Utils;
 use Smush\Core\Array_Utils;
@@ -64,7 +65,11 @@ class CDN_Helper {
 		'webp',
 	);
 
-	public function __construct() {
+	private $generated_urls = array();
+
+	private $original_urls = array();
+
+	private function __construct() {
 		$this->settings    = Settings::get_instance();
 		$this->url_utils   = new Url_Utils();
 		$this->array_utils = new Array_Utils();
@@ -283,10 +288,10 @@ class CDN_Helper {
 		 * Taken from 6e13e2f0
 		 */
 		return WP_Smush::is_pro()
-			   // CDN will not work if there is no dashboard plugin installed.
-			   && class_exists( 'WPMUDEV_Dashboard' )
-			   // CDN will not work if site is not registered with the dashboard.
-			   && WPMUDEV_Dashboard::$api->has_key();
+		       // CDN will not work if there is no dashboard plugin installed.
+		       && class_exists( 'WPMUDEV_Dashboard' )
+		       // CDN will not work if site is not registered with the dashboard.
+		       && WPMUDEV_Dashboard::$api->has_key();
 	}
 
 	public function get_cdn_base_url() {
@@ -355,6 +360,14 @@ class CDN_Helper {
 			return $original_url;
 		}
 
+		$args             = wp_parse_args( $this->get_cdn_parameters(), $args );
+		$original_url     = trim( $original_url );
+		$original_url_key = $this->get_original_url_key( $original_url, $args );
+		// If the URL is cached then return the cached value
+		if ( isset( $this->generated_urls[ $original_url_key ] ) ) {
+			return $this->generated_urls[ $original_url_key ];
+		}
+
 		/**
 		 * Filter hook to alter image src before going through cdn.
 		 *
@@ -377,13 +390,17 @@ class CDN_Helper {
 			return $original_url;
 		}
 
-		$args = wp_parse_args( $this->get_cdn_parameters(), $args );
-
 		// Replace base url with cdn base.
 		$url = $this->get_cdn_base_url() . ltrim( $url_parts['path'], '/' );
 
 		// Now we need to add our CDN parameters for resizing.
-		return add_query_arg( $args, $url );
+		$generated_cdn_url = add_query_arg( $args, $url );
+
+		$this->generated_urls[ $original_url_key ] = $generated_cdn_url;
+
+		$this->original_urls[ $generated_cdn_url ] = $original_url;
+
+		return $generated_cdn_url;
 	}
 
 	private function get_site_url() {
@@ -502,13 +519,13 @@ class CDN_Helper {
 	}
 
 	public function get_excluded_keywords() {
-		$excluded_keywords = $this->array_utils->get_array_value( $this->get_cdn_avanced_settings(), 'excluded-keywords' );
+		$excluded_keywords = $this->array_utils->get_array_value( $this->get_cdn_advanced_settings(), 'excluded-keywords' );
 		$excluded_keywords = $this->array_utils->ensure_array( $excluded_keywords );
 
 		return apply_filters( 'wp_smush_cdn_excluded_keywords', array_unique( $excluded_keywords ) );
 	}
 
-	private function get_cdn_avanced_settings() {
+	private function get_cdn_advanced_settings() {
 		return $this->settings->get_setting( 'wp-smush-cdn-advanced-settings', $this->get_default_cdn_advanced_settings() );
 	}
 
@@ -526,5 +543,46 @@ class CDN_Helper {
 
 	public function is_rest_request() {
 		return defined( 'REST_REQUEST' ) && REST_REQUEST;
+	}
+
+	public function is_dynamic_sizes_active() {
+		if ( ! $this->is_cdn_active() ) {
+			return false;
+		}
+
+		return $this->settings->get( 'cdn_dynamic_sizes' );
+	}
+
+	public function is_cdn_url( $url ) {
+		$cdn_base_url = $this->get_cdn_base_url();
+		if ( empty( $cdn_base_url ) ) {
+			return false;
+		}
+
+		// Check if the URL starts with the CDN base URL.
+		return str_starts_with( $url, $cdn_base_url );
+	}
+
+	public function get_original_url( $cdn_url ) {
+		if ( isset( $this->original_urls[ $cdn_url ] ) ) {
+			return $this->original_urls[ $cdn_url ];
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param $original_url
+	 * @param array $args
+	 *
+	 * @return string
+	 */
+	private function get_original_url_key( $original_url, array $args ): string {
+		$key = md5( $original_url );
+		if ( $args ) {
+			$key .= '-' . $this->array_utils->array_hash( $args );
+		}
+
+		return $key;
 	}
 }

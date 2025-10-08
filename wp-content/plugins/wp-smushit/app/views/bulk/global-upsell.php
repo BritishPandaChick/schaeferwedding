@@ -18,11 +18,7 @@
 		</p>
 		<a href="<?php echo esc_url( $bulk_upgrade_url ); ?>" class="smush-upsell-link" target="_blank">
 			<?php
-			printf(
-				/* translators: %s: Discount */
-				esc_html__( 'Upgrade to Pro and get %s off', 'wp-smushit' ),
-				esc_html( WP_Smush::get_instance()->admin()->get_plugin_discount() )
-			);
+			esc_html_e( 'Smush Pro is on sale!', 'wp-smushit' );
 			?>
 		</a>
 	</div>

@@ -39,7 +39,9 @@ if ( ! defined( 'WPINC' ) ) {
 				</p>
 
 				<?php
-					$this->view( 'bulk/limit-reached-notice' );
+					$this->view( 'bulk/limit-reached-notice', array(
+						'smush_type' => 'directory-smush',
+					) );
 				?>
 
 				<div class="sui-progress-block sui-progress-can-close">

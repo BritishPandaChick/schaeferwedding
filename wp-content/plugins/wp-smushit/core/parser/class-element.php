@@ -190,6 +190,10 @@ class Element implements Replaceable {
 	 * @return void
 	 */
 	public function remove_attribute( $attribute ) {
+		if ( ! $attribute instanceof Element_Attribute ) {
+			return;
+		}
+
 		$name = $attribute->get_name();
 
 		if ( isset( $this->added_attributes[ $name ] ) ) {
@@ -219,7 +223,7 @@ class Element implements Replaceable {
 	}
 
 	private function set_has_updates( $has_updates ) {
-		$this->has_updates = $has_updates;
+		$this->has_updates        = $has_updates;
 	}
 
 	/**

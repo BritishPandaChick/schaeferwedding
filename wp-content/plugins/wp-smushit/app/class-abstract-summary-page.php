@@ -125,12 +125,12 @@ abstract class Abstract_Summary_Page extends Abstract_Page {
 						<span class="sui-tag sui-tag-sm sui-tag-purple"><?php esc_html_e( 'Pro', 'wp-smushit' ); ?></span>
 					</span>
 				<?php elseif ( $is_preload_images_active ): ?>
-					<span class="sui-tag sui-tag-green">
+					<span class="wp-smush-preload-images-status sui-tag sui-tag-green">
 						<?php esc_html_e( 'Active', 'wp-smushit' ); ?>
 					</span>
 				<?php else: ?>
 					<a href="<?php echo esc_url( $this->get_url( 'smush-lazy-preload&view=preload' ) ); ?>">
-						<span class="sui-tag" style="cursor: pointer;">
+						<span class="wp-smush-preload-images-status sui-tag" style="cursor: pointer;">
 							<?php esc_html_e( 'Inactive', 'wp-smushit' ); ?>
 						</span>
 					</a>
@@ -200,8 +200,8 @@ abstract class Abstract_Summary_Page extends Abstract_Page {
 				<?php if ( $human <= 0 ) { ?>
 					<p class="wp-smush-stats-label-message sui-hidden-sm sui-hidden-md sui-hidden-lg">
 						<?php esc_html_e( "Smush images that aren't located in your uploads folder.", 'wp-smushit' ); ?>
-						<a href="<?php echo esc_url( $this->get_url( 'smush-directory' ) ); ?>" class="wp-smush-dir-link"
-							id="<?php echo 'smush-directory' === $this->get_slug() ? 'smush-directory-open-modal' : ''; ?>"
+						<a href="<?php echo esc_url( $this->get_url( 'smush-bulk#directory_smush-settings-row' ) ); ?>" class="wp-smush-dir-link"
+							id="<?php echo 'smush-bulk' === $this->get_slug() ? 'smush-directory-open-modal' : ''; ?>"
 							title="<?php esc_attr_e( "Select a directory you'd like to Smush.", 'wp-smushit' ); ?>">
 							<?php esc_html_e( 'Choose directory', 'wp-smushit' ); ?>
 						</a>
@@ -213,8 +213,8 @@ abstract class Abstract_Summary_Page extends Abstract_Page {
 				<span class="wp-smush-stats-human"></span>
 				<span class="wp-smush-stats-sep sui-hidden">/</span>
 				<span class="wp-smush-stats-percent"></span>
-				<a href="<?php echo esc_url( $this->get_url( 'smush-directory' ) ); ?>" class="wp-smush-dir-link sui-hidden-xs sui-hidden"
-					id="<?php echo 'smush-directory' === $this->get_slug() ? 'smush-directory-open-modal' : ''; ?>"
+				<a href="<?php echo esc_url( $this->get_url( 'smush-bulk#directory_smush-settings-row' ) ); ?>" class="wp-smush-dir-link sui-hidden-xs sui-hidden"
+					id="<?php echo 'smush-bulk' === $this->get_slug() ? 'smush-directory-open-modal' : ''; ?>"
 					title="<?php esc_attr_e( "Select a directory you'd like to Smush.", 'wp-smushit' ); ?>">
 					<?php esc_html_e( 'Choose directory', 'wp-smushit' ); ?>
 				</a>

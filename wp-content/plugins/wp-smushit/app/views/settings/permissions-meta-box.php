@@ -8,12 +8,13 @@
  * @var mixed  $networkwide  Network wide settings.
  */
 
+use Smush\Core\Hub_Connector;
+use Smush\Core\Membership\Membership;
 use Smush\Core\Settings;
 
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
-
 ?>
 
 <div class="sui-box-settings-row" id="permissions-subsite-controls-settings-row">
@@ -28,6 +29,18 @@ if ( ! defined( 'WPINC' ) ) {
 
 	<div class="sui-box-settings-col-2">
 		<div class="sui-side-tabs sui-tabs">
+			<?php if ( Membership::get_instance()->is_api_hub_access_required() ) : ?>
+				<a class="sui-button sui-button-blue smush-button-dark-blue" href="<?php echo esc_url( Hub_Connector::get_connect_site_url( 'smush-bulk', 'smush_settings_permissions_subsite_controls' ) ); ?>">
+					<span class="sui-icon-plug-connected" aria-hidden="true"></span>
+					<?php esc_html_e( 'Connect My Site', 'wp-smushit' ); ?>
+				</a>
+				<span class="sui-description" style="margin-top:10px">
+					<?php
+					/* translators: 1: Open strong tag, 2: Close strong tag */
+					printf( esc_html__( 'Connect your site to the %1$sfree%2$s WPMU DEV Hub to enable Subsite Controls. Setup takes seconds — 100%% free, no card required.', 'wp-smushit' ), '<strong>', '</strong>' );
+					?>
+				</span>
+			<?php else : ?>
 			<div data-tabs>
 				<?php $selected = is_array( $networkwide ) ? 'custom' : $networkwide; ?>
 				<label for="access-none" class="sui-tab-item <?php echo ! $networkwide ? 'active' : ''; ?>">
@@ -66,10 +79,36 @@ if ( ! defined( 'WPINC' ) ) {
 						<?php esc_html_e( 'Choose which modules settings subsite admins have access to.', 'wp-smushit' ); ?>
 					</p>
 
+					<?php
+					$is_bulk_smush_active      = ! is_array( $networkwide ) || in_array( 'bulk', $networkwide, true );
+					$is_directory_smush_active = $is_bulk_smush_active && ( ! is_array( $networkwide ) || in_array( 'directory_smush', $networkwide, true ) );
+					?>
 					<label class="sui-checkbox sui-checkbox-stacked sui-checkbox-sm">
-						<input type="checkbox" id="module-bulk" name="wp-smush-access[]" value="bulk" <?php checked( ! is_array( $networkwide ) || in_array( 'bulk', $networkwide, true ) ); ?>>
+						<input
+							type="checkbox"
+							id="module-bulk"
+							name="wp-smush-access[]"
+							value="bulk"
+							<?php checked( $is_bulk_smush_active ); ?>
+							onchange="(() => {
+								const directorySmushEl = document.getElementById( 'module-directory_smush' );
+								if ( ! directorySmushEl ) {
+									return;
+								}
+								if ( ! this.checked ) {
+									directorySmushEl.checked = false;
+									directorySmushEl.disabled = true;
+								} else {
+									directorySmushEl.disabled = false;
+								}
+							})();">
 						<span aria-hidden="true">&nbsp;</span>
 						<span><?php esc_html_e( 'Bulk Smush', 'wp-smushit' ); ?></span>
+					</label>
+					<label class="sui-checkbox sui-checkbox-stacked sui-checkbox-sm">
+						<input type="checkbox" id="module-directory_smush" name="wp-smush-access[]" <?php echo $is_bulk_smush_active ? '' : 'disabled'; ?> value="directory_smush" <?php checked( $is_directory_smush_active ); ?>>
+						<span aria-hidden="true">&nbsp;</span>
+						<span><?php esc_html_e( 'Directory Smush', 'wp-smushit' ); ?></span>
 					</label>
 					<label class="sui-checkbox sui-checkbox-stacked sui-checkbox-sm">
 						<input type="checkbox" id="module-integrations" name="wp-smush-access[]" value="integrations" <?php checked( ! is_array( $networkwide ) || in_array( 'integrations', $networkwide, true ) ); ?>>
@@ -88,6 +127,7 @@ if ( ! defined( 'WPINC' ) ) {
 					</label>
 				</div>
 			</div>
+			<?php endif; ?>
 		</div>
 	</div>
 </div>

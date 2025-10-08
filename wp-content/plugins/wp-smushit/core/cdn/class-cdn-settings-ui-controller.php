@@ -3,6 +3,7 @@
 namespace Smush\Core\CDN;
 
 use Smush\Core\Controller;
+use Smush\Core\Helper;
 use Smush\Core\Settings;
 
 class CDN_Settings_Ui_Controller extends Controller {
@@ -17,6 +18,7 @@ class CDN_Settings_Ui_Controller extends Controller {
 
 		$this->register_filter( 'wp_smush_settings', array( $this, 'register_cdn_settings' ) );
 		$this->register_action( 'smush_setting_column_right_inside', array( $this, 'settings_desc' ), 10, 2 );
+		$this->register_action( 'smush_setting_column_right_inside', array( $this, 'settings_notice' ), 20 );
 	}
 
 	/**
@@ -38,10 +40,10 @@ class CDN_Settings_Ui_Controller extends Controller {
 					'short_label' => __( 'Background Images', 'wp-smushit' ),
 					'desc'        => __( 'Where possible we will serve background images declared with CSS directly from the CDN.', 'wp-smushit' ),
 				),
-				'auto_resize'       => array(
-					'label'       => __( 'Enable automatic resizing of my images', 'wp-smushit' ),
-					'short_label' => __( 'Automatic Resizing', 'wp-smushit' ),
-					'desc'        => __( 'If your images don’t match their containers, we’ll automatically serve a correctly sized image.', 'wp-smushit' ),
+				'cdn_dynamic_sizes' => array(
+					'label'       => __( 'Add extra image sizes', 'wp-smushit' ),
+					'short_label' => __( 'Dynamic Image Sizing', 'wp-smushit' ),
+					'desc'        => __( 'Ensure browsers have all the image sizes needed for optimal performance.', 'wp-smushit' ),
 				),
 				$next_gen_cdn_key   => array(
 					'label'       => __( 'Choose Format Settings', 'wp-smushit' ),
@@ -77,15 +79,8 @@ class CDN_Settings_Ui_Controller extends Controller {
 			id="<?php echo esc_attr( 'wp-smush-' . $setting_key . '-desc' ); ?>">
 			<?php
 			switch ( $setting_key ) {
-				case 'auto_resize':
-					esc_html_e( 'Having trouble with Google PageSpeeds ‘properly size images’ suggestion? This feature will fix this without any coding needed!', 'wp-smushit' );
-					echo '<br>';
-					printf(
-						/* translators: %1$s - opening tag, %2$s - closing tag */
-						esc_html__( 'Note: Smush will pre-fill the srcset attribute with missing image sizes so for this feature to work, those must be declared properly by your theme and page builder using the %1$scontent width%2$s variable.', 'wp-smushit' ),
-						'<a href="https://developer.wordpress.com/themes/content-width/" target="_blank">',
-						'</a>'
-					);
+				case 'cdn_dynamic_sizes':
+					esc_html_e( 'Generate extra image sizes on the fly so browsers can display the best one according to device and viewport.', 'wp-smushit' );
 					break;
 				case 'background_images':
 					printf(
@@ -98,7 +93,7 @@ class CDN_Settings_Ui_Controller extends Controller {
 					printf(
 						/* translators: %1$s - Open the link <a>, %2$s - closing link tag */
 						esc_html__( 'For any non-media library uploads, you can still use the %1$sDirectory Smush%2$s feature to compress them, they just won’t be served from the CDN.', 'wp-smushit' ),
-						'<a href="' . esc_url( network_admin_url( 'admin.php?page=smush-directory' ) ) . '">',
+						'<a href="' . esc_url( network_admin_url( 'admin.php?page=smush-bulk#directory_smush-settings-row' ) ) . '">',
 						'</a>'
 					);
 					break;
@@ -115,6 +110,57 @@ class CDN_Settings_Ui_Controller extends Controller {
 			}
 			?>
 		</span>
+		<?php
+	}
+
+	/**
+	 * Show additional notice under field description for settings.
+	 *
+	 * @param string $setting_key Setting key.
+	 */
+	public function settings_notice( $setting_key ) {
+		$allowed_setting_keys = array(
+			'cdn_dynamic_sizes',
+		);
+		if (
+			empty( $setting_key )
+			|| ! in_array( $setting_key, $allowed_setting_keys, true )
+		) {
+			return;
+		}
+		?>
+		<div style="margin-left:44px"
+			id="<?php echo esc_attr( 'wp-smush-' . $setting_key . '-notice' ); ?>">
+			<?php
+			switch ( $setting_key ) {
+				case 'cdn_dynamic_sizes':
+					$is_auto_resizing_enabled = $this->settings->is_lazyload_active() &&
+												$this->settings->is_auto_resizing_active();
+					if ( ! $is_auto_resizing_enabled && $this->settings->has_lazy_preload_page() ) :
+					?>
+						<div class="sui-upsell-notice" style="margin-top:10px;">
+							<div class="sui-notice sui-notice-blue">
+								<div class="sui-notice-content">
+									<div class="sui-notice-message">
+										<span class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></span>
+										<p>
+										<?php
+										esc_html_e( 'The automatic resizing feature in the Lazy Load module takes guesswork out of the equation by detecting the container size on page load and making sure the perfect image size is loaded in every situation.', 'wp-smushit' );
+										?>
+										</p>
+										<p><a class="sui-button smush-sui-button-outline smush-sui-button-outline-blue" href="<?php echo esc_url( Helper::get_page_url( 'smush-lazy-preload' ) ); ?>#lazyload-image-resizing-settings-row"><?php esc_html_e( 'Go to Lazy Load', 'wp-smushit' ); ?></a></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					<?php endif; ?>
+					<?php
+					break;
+				default:
+					break;
+			}
+			?>
+		</div>
 		<?php
 	}
 }

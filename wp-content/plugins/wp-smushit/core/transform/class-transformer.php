@@ -54,6 +54,8 @@ class Transformer {
 					}
 				}
 
+				$this->do_post_transform_action( $parsed_page );
+
 				$page_markup = $parsed_page->has_updates()
 					? $parsed_page->get_updated_markup()
 					: $parsed_page->get_page_markup();
@@ -224,5 +226,14 @@ class Transformer {
 	 */
 	public function do_pre_transform_action( $parsed_page ) {
 		do_action( 'wp_smush_pre_transform_page', $parsed_page );
+	}
+
+	/**
+	 * @param Page $parsed_page
+	 *
+	 * @return void
+	 */
+	public function do_post_transform_action( $parsed_page ) {
+		do_action( 'wp_smush_post_transform_page', $parsed_page );
 	}
 }

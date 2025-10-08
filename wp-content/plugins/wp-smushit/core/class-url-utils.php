@@ -2,6 +2,9 @@
 
 namespace Smush\Core;
 
+use Smush\Core\CDN\CDN_Helper;
+use Smush\Core\Transform\Transformation_Controller;
+
 class Url_Utils {
 	/**
 	 * @var Upload_Dir
@@ -88,6 +91,17 @@ class Url_Utils {
 	}
 
 	public function get_image_dimensions( $image_url ) {
+		$dimensions = apply_filters( 'wp_smush_get_image_dimensions', false, $image_url );
+		if ( $dimensions ) {
+			return $dimensions;
+		}
+
+		$image_url = apply_filters( 'wp_smush_get_image_dimensions_url', $image_url );
+
+		return $this->_get_image_dimensions( $image_url );
+	}
+
+	private function _get_image_dimensions( $image_url ) {
 		$default = array( false, false );
 
 		if ( empty( $image_url ) ) {
@@ -96,7 +110,7 @@ class Url_Utils {
 
 		list( $width, $height ) = $this->guess_dimensions_from_image_url( $image_url );
 
-		if ( ! empty( $width ) && ! empty( $height ) ) {
+		if ( ! empty( $width ) && ! empty( $height ) && $width > Transformation_Controller::MIN_TRANSFORMABLE_IMAGE_DIMENSION ) {
 			return array( $width, $height );
 		}
 
@@ -109,15 +123,15 @@ class Url_Utils {
 				return $default;
 			}
 
-			return $this->_get_image_dimensions( $image_url );
+			return $this->getimagesize( $image_url );
 		}
 
 		$local_path = $this->url_to_path( $image_url );
-		if ( ! file_exists( $local_path ) ) {
+		if ( ! $local_path || ! file_exists( $local_path ) ) {
 			return $default;
 		}
 
-		return $this->_get_image_dimensions( $local_path );
+		return $this->getimagesize( $local_path );
 	}
 
 	public function get_url_content_type_header( $image_url ) {
@@ -139,7 +153,7 @@ class Url_Utils {
 		return ini_get( 'allow_url_fopen' ) && apply_filters( 'wp_smush_should_fetch_external_image_dimensions', false, $image_url );
 	}
 
-	private function _get_image_dimensions( $image_url ) {
+	private function getimagesize( $image_url ) {
 		$sizes = wp_getimagesize( $image_url );
 
 		if ( empty( $sizes ) ) {
@@ -232,6 +246,30 @@ class Url_Utils {
 
 		// Revert to source if file does not exist.
 		return $src;
+	}
+
+	/**
+     * Convert original image URL to scaled image URL.
+     *
+     * @param string $src Original image URL.
+     *
+     * @return string|null
+     */
+    public function get_scaled_image_url( $original_src ) {
+        if ( strpos( $original_src, '-scaled' ) !== false ) {
+            return $original_src;
+        }
+
+		$path_info = pathinfo( $original_src );
+		$scaled_filename = $path_info['filename'] . '-scaled.' . $path_info['extension'];
+		$scaled_src = str_replace( $path_info['basename'], $scaled_filename, $original_src );
+
+		$scaled_path = $this->url_to_path( $scaled_src );
+		if ( $scaled_path && file_exists( $scaled_path ) ) {
+			return $scaled_src;
+		}
+
+		return null;
 	}
 
 	public function normalize_url( $url ) {

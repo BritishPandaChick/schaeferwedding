@@ -11,3 +11,4 @@ require( '@wpmudev/shared-ui/dist/js/_src/select2' );
 require( '@wpmudev/shared-ui/dist/js/_src/tabs' );
 require( '@wpmudev/shared-ui/dist/js/_src/upload' ); // Used on lazy load page (since 3.2.2).
 require( '@wpmudev/shared-ui/dist/js/_src/reviews' );
+require( '@wpmudev/shared-ui/dist/js/_src/accordion' );

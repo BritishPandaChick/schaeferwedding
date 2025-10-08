@@ -9,6 +9,10 @@ import GlobalTracking from '../global-tracking';
 ( function() {
 	'use strict';
 
+	// Keep loading onboarding script for other dependencies.
+	if ( document.getElementById( 'smush-onboarding-free' ) ) {
+		return;
+	}
 	/**
 	 * Onboarding modal.
 	 *
@@ -141,13 +145,7 @@ import GlobalTracking from '../global-tracking';
 		 * @param {string} directionClass Accepts: fadeInRight, fadeInLeft, none.
 		 */
 		renderTemplate( directionClass = 'none' ) {
-			// Grab the selected value.
-			const input = this.onboardingModal.querySelector(
-				'input[type="checkbox"]'
-			);
-			if ( input ) {
-				this.selection[ input.id ] = input.checked;
-			}
+			this.updateCheckboxStates();
 
 			const template = WP_Smush.onboarding.template( 'smush-onboarding' );
 			const content = template( this.settings );
@@ -185,6 +183,16 @@ import GlobalTracking from '../global-tracking';
 			this.maybeHandleProFeatureClick();
 		},
 
+		updateCheckboxStates() {
+			// Grab the selected value.
+			const input = this.onboardingModal.querySelector(
+				'input[type="checkbox"]'
+			);
+			if ( input ) {
+				this.selection[ input.id ] = input.checked;
+			}
+		},
+
 		toggleSkipButton() {
 			if ( ! this.skipButton ) {
 				return;
@@ -207,20 +215,19 @@ import GlobalTracking from '../global-tracking';
 			const self = this;
 
 			if ( submitButton ) {
-				submitButton.addEventListener( 'click', function( e ) {
+				submitButton.addEventListener( 'click', async function( e ) {
 					e.preventDefault();
 
-					submitButton.classList.add( 'wp-smush-link-in-progress' );
+					submitButton.classList.add( 'sui-button-onload-text' );
 
 					// Because we are not rendering the template, we need to update the last element value.
-					const input = self.onboardingModal.querySelector(
-						'input[type="checkbox"]'
-					);
-					if ( input ) {
-						self.selection[ input.id ] = input.checked;
-					}
+					self.updateCheckboxStates();
 
-					self.trackFinishSetupWizard();
+					try {
+						await self.trackFinishSetupWizard();
+					} catch ( err ) {
+						// Do nothing..
+					}
 
 					const _nonce = document.getElementById(
 						'smush_quick_setup_nonce'
@@ -323,11 +330,16 @@ import GlobalTracking from '../global-tracking';
 		/**
 		 * Skip onboarding experience.
 		 */
-		skipSetup() {
+		async skipSetup() {
 			const _nonce = document.getElementById( 'smush_quick_setup_nonce' );
+			this.updateCheckboxStates();
 
 			// Track skip setup wizard.
-			this.trackSkipSetupWizard();
+			try {
+				await this.trackSkipSetupWizard();
+			} catch ( err ) {
+				// Do nothing..
+			}
 
 			const xhr = new XMLHttpRequest();
 			xhr.open(
@@ -425,10 +437,10 @@ import GlobalTracking from '../global-tracking';
 			}
 		},
 		trackFinishSetupWizard() {
-			this.trackSetupWizard( 'finish' );
+			return this.trackSetupWizard( 'finish' );
 		},
 		trackSkipSetupWizard() {
-			this.trackSetupWizard( 'quit' );
+			return this.trackSetupWizard( 'quit' );
 		},
 		trackSetupWizard( action ) {
 			const quitWizard = 'quit' === action;
@@ -441,7 +453,7 @@ import GlobalTracking from '../global-tracking';
 
 			const allowToTrack = this.selection?.usage;
 
-			tracker.setAllowToTrack( allowToTrack ).track( 'Setup Wizard', properties );
+			return tracker.setAllowToTrack( allowToTrack ).track( 'Setup Wizard', properties );
 		},
 		getQuitStep( quitWizard ) {
 			if ( ! quitWizard ) {

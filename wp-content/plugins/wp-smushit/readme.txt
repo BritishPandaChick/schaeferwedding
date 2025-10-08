@@ -1,13 +1,13 @@
 === Smush Image Optimization – Optimize Images | Compress & Lazy Load Images | Convert WebP & AVIF | Image CDN ===
 Plugin Name: Smush Image Optimization – Optimize Images | Compress & Lazy Load Images & Videos | Convert WebP & AVIF | Image CDN
-Version: 3.20.0
+Version: 3.22.1
 Author: WPMU DEV
 Author URI: https://wpmudev.com/
 Contributors: WPMUDEV, alexdunae
 Tags: optimize images, convert webp, webp, image optimization, compress images
 Requires at least: 6.4
 Tested up to: 6.8
-Stable tag: 3.20.0
+Stable tag: 3.22.1
 Requires PHP: 7.4
 License: GPL v2 - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -35,7 +35,8 @@ Smush has been benchmarked and tested number one for speed and quality. Beyond t
 - Compress images
 - Lazy load images & videos
 - Preload critical images
-- Resize images
+- Automatic resizing
+- Resize larger images
 - Convert to WebP or AVIF
 - And more...
 
@@ -55,7 +56,8 @@ Discover the features that set Smush apart from other image optimization plugins
 - **Preload Critical Images (Pro Only)** - Improve Google Pagespeed scores by automatically preloading Largest Contentful Paint (LCP) images.
 - **Bulk Smush** - Bulk optimize and compress images with one click. 
 - **Background Optimization (Pro Only)** - Smush's powerful image optimization features will continue to run in the background even when the plugin is closed. 
-- **Resize Images** - Set a max width and height, and large images will scale down as they are being optimized. 
+- **Automatic Resizing (Pro Only)** - Speeds up your site by automatically resizing images to fit their containers, eliminating "Properly size images" PageSpeed warnings.
+- **Resize Larger Images** - Set a maximum width and height, and add missing image sizes to allow the browser to make intelligent decisions about which image to load. 
 - **119-point global CDN (Pro Only)** - Ensure blazing-fast image delivery anywhere in the world. Includes automatic WebP/AVIF conversion and image resizing, plus, GIF / Rest API support.
 - **Incorrect Image Size Detection** - Quickly locate images that are slowing down your site. 
 - **Directory Smush** - Optimize images even if they aren't in the default WordPress media library. 
@@ -239,6 +241,31 @@ We take plugin security incredibly seriously; if you have a bug or vulnerability
 5. Make your page load faster with lazy loading.
 
 == Changelog ==
+
+= 3.22.1 ( 2025-10-06 ) =
+- Fix: Memory issues caused by Elementor integration
+
+= 3.22.0 ( 2025-10-06 ) =
+- Improvement: More accurate use of fetchpriority=high based on LCP data
+- Improvement: General UI enhancements
+- Fix: LCP image not lazy-loaded after disabling preload
+- Fix: Incorrect Preload Critical Images status shown in summary box
+- Fix: Wrong retina image size applied by the auto-resize module
+- Fix: Incorrect LCP image detected on mobile in certain cases
+
+= 3.21.1 ( 2025-09-03 ) =
+- Fix: Auto-resize module using incorrect aspect ratio for cropped images
+- Fix: Auto-resize module using lower quality version in certain situations
+- Fix: Images using width or height attributes with percentage values resized incorrectly
+- Fix: Images in Divi shrinking on page scroll in mobile devices
+
+= 3.21.0 ( 2025-09-03 ) =
+- New: Automatic image resizing option in Lazy Loading to make sure every image fits its container size
+- New: Add Missing Dimensions option in Lazy Loading to resolve Pagespeed audit of "Ensure images have explicit height and width"
+- Improvement: Changed "Automatic Resizing" feature name in CDN to "Dynamic Image Sizing"
+- Improvement: Added an Advanced section on the Bulk Smush page to streamline the experience
+- Improvement: Added an Advanced section on the Lazy Load page to streamline the experience
+- Fix: Minor code improvements
 
 = 3.20.0 ( 2025-06-25 ) =
 - New: Lazy load YouTube and Vimeo videos to improve page load speed

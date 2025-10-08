@@ -1168,4 +1168,16 @@ class Media_Item extends Smush_File {
 
 		return $file_size > $cut_off;
 	}
+
+	public function set_wp_metadata( $metadata ) {
+		$this->metadata = $metadata;
+	}
+
+	public function set_attached_file( $attached_file ) {
+		$this->attached_file = $attached_file;
+	}
+
+	public function set_original_image_path( $original_image_path ) {
+		$this->original_image_path = $original_image_path;
+	}
 }

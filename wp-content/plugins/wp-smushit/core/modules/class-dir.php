@@ -108,7 +108,8 @@ class Dir extends Abstract_Module {
 			$current_page   = ! empty( $current_screen ) ? $current_screen->base : '';
 		}
 
-		if ( false === strpos( $current_page, 'page_smush-directory' ) ) {
+
+		if ( false === strpos( $current_page, 'page_smush-bulk' ) ) {
 			return;
 		}
 
@@ -181,8 +182,7 @@ class Dir extends Abstract_Module {
 	public function directory_smush_start() {
 		check_ajax_referer( 'wp-smush-ajax' );
 		// Check for permission.
-		$capability = is_multisite() ? 'manage_network' : 'manage_options';
-		if ( ! Helper::is_user_allowed( $capability ) ) {
+		if ( ! Helper::is_user_allowed( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Unauthorized', 'wp-smushit' ), 403 );
 		}
 		$this->scanner->init_scan();
@@ -199,8 +199,7 @@ class Dir extends Abstract_Module {
 		check_ajax_referer( 'wp-smush-ajax' );
 
 		// Check for permission.
-		$capability = is_multisite() ? 'manage_network' : 'manage_options';
-		if ( ! Helper::is_user_allowed( $capability ) ) {
+		if ( ! Helper::is_user_allowed( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Unauthorized', 'wp-smushit' ), 403 );
 		}
 
@@ -225,8 +224,7 @@ class Dir extends Abstract_Module {
 		check_ajax_referer( 'wp-smush-ajax' );
 
 		// Check for permission.
-		$capability = is_multisite() ? 'manage_network' : 'manage_options';
-		if ( ! Helper::is_user_allowed( $capability ) ) {
+		if ( ! Helper::is_user_allowed( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Unauthorized', 'wp-smushit' ), 403 );
 		}
 
@@ -257,8 +255,7 @@ class Dir extends Abstract_Module {
 	public function directory_smush_cancel() {
 		check_ajax_referer( 'wp-smush-ajax' );
 		// Check for permission.
-		$capability = is_multisite() ? 'manage_network' : 'manage_options';
-		if ( ! Helper::is_user_allowed( $capability ) ) {
+		if ( ! Helper::is_user_allowed( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Unauthorized', 'wp-smushit' ), 403 );
 		}
 		$this->scanner->reset_scan();
@@ -485,9 +482,11 @@ class Dir extends Abstract_Module {
 	 *
 	 * @since 3.0
 	 *
+	 * @param int $limit  Limit the number of results.
+	 *
 	 * @return array  Array of last scanned images
 	 */
-	public function get_image_errors() {
+	public function get_image_errors( $limit = 50 ) {
 		global $wpdb;
 
 		return $wpdb->get_results(
@@ -495,7 +494,7 @@ class Dir extends Abstract_Module {
 					FROM {$wpdb->base_prefix}smush_dir_images
 					WHERE error IS NOT NULL
 						AND last_scan = ( SELECT MAX(last_scan) FROM {$wpdb->base_prefix}smush_dir_images )
-					LIMIT 20",
+					LIMIT $limit",
 			ARRAY_A
 		); // Db call ok; no-cache ok.
 	}
@@ -648,7 +647,7 @@ class Dir extends Abstract_Module {
 	 */
 	public function get_root_path() {
 		// If main site.
-		if ( is_main_site() ) {
+		if ( is_super_admin() ) {
 			/**
 			 * Sometimes content directories may reside outside
 			 * the installation sub-directory. We need to make sure

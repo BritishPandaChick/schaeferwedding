@@ -58,4 +58,36 @@ abstract class Controller {
 			'accepted_args' => $accepted_args,
 		);
 	}
+
+	public function remove_action( $hook_name ) {
+		if ( isset( $this->actions[ $hook_name ] ) ) {
+			foreach ( $this->actions[ $hook_name ] as $action_args ) {
+				remove_action( $hook_name, $action_args['callback'], $action_args['priority'] );
+			}
+		}
+	}
+
+	public function remove_filter( $hook_name ) {
+		if ( isset( $this->filters[ $hook_name ] ) ) {
+			foreach ( $this->filters[ $hook_name ] as $filter_args ) {
+				remove_filter( $hook_name, $filter_args['callback'], $filter_args['priority'] );
+			}
+		}
+	}
+
+	public function restore_action( $hook_name ) {
+		if ( isset( $this->actions[ $hook_name ] ) ) {
+			foreach ( $this->actions[ $hook_name ] as $action_args ) {
+				add_action( $hook_name, $action_args['callback'], $action_args['priority'], $action_args['accepted_args'] );
+			}
+		}
+	}
+
+	public function restore_filter( $hook_name ) {
+		if ( isset( $this->filters[ $hook_name ] ) ) {
+			foreach ( $this->filters[ $hook_name ] as $filter_args ) {
+				add_filter( $hook_name, $filter_args['callback'], $filter_args['priority'], $filter_args['accepted_args'] );
+			}
+		}
+	}
 }

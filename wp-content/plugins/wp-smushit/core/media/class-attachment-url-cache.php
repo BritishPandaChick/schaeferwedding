@@ -11,6 +11,7 @@ class Attachment_Url_Cache {
 	 * @var self
 	 */
 	private static $instance;
+	private $fetch_in_advance = false;
 
 	/**
 	 * Static instance getter
@@ -50,5 +51,13 @@ class Attachment_Url_Cache {
 
 	public function get_all() {
 		return $this->cache;
+	}
+
+	public function set_fetch_in_advance( $fetch_in_advance ) {
+		$this->fetch_in_advance = $fetch_in_advance;
+	}
+
+	public function fetch_in_advance() {
+		return $this->fetch_in_advance;
 	}
 }

@@ -95,14 +95,13 @@
     }
 
     a {
-      text-decoration: none !important;
-      font-weight: 700 !important;
-      color: #0059FF !important;
+      text-decoration: underline !important;
+      color: #fff !important;
       transition: color 0.5s;
     }
 
     a:hover {
-      color: #0C33A9 !important;
+      color: #f5f5f5 !important;
     }
 
     .hidden-img img {
@@ -229,7 +228,12 @@
   </style>
   <style>
     @media only screen and (prefers-color-scheme: dark) {
-      .smush-mail-body {
+     body,
+     .smush-mail-body,
+     .summary-compression-body
+     .summary-compression > table,
+     .smush-whitelabel-summary,
+     .smush-whitelabel-summary table {
         background: #1A1A1A !important;
       }
       .smush-header-logo{
@@ -256,6 +260,13 @@
         color: #0059FF !important;
       }
       h2 a:hover{
+        color: #0C33A9 !important;
+      }
+      a {
+        color: #0059FF !important;
+      }
+
+      a:hover {
         color: #0C33A9 !important;
       }
       .main-content p, .summary-compression p,.summary-compression td, .summary-compression strong, .summary-compression span{

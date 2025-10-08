@@ -158,7 +158,7 @@ class Resize_Detection extends Abstract_Module {
 		}
 
 		// CDN with auto resize need to be enabled.
-		if ( ! $this->settings->get( 'cdn' ) || ! $this->settings->get( 'auto_resize' ) ) {
+		if ( ! $this->settings->is_lazyload_active() || ! $this->settings->is_auto_resizing_active() ) {
 			return $image;
 		}
 

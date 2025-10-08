@@ -170,6 +170,8 @@ export const Configs = ({ isWidget }) => {
 				'Amazon S3',
 				'NextGen Gallery',
 				'Preload Critical Images',
+				'Auto Resizing',
+				'Add Missing Image Dimensions',
 			] }
 		/>
 	);

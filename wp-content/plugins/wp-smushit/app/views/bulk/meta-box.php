@@ -103,11 +103,7 @@ $this->view( 'list-errors', array(), 'views/bulk' );
 </div>
 <?php
 if ( ! $can_use_background ) {
-	$global_upsell_desc = sprintf(
-		/* translators: %d: Number of CDN PoP locations */
-		__( 'Process images 2x faster, leave this page while Bulk Smush runs in the background, and serve streamlined next-gen images via Smush’s %d-point CDN and Next-Gen Formats features.', 'wp-smushit' ),
-		Admin::CDN_POP_LOCATIONS
-	);
+	$global_upsell_desc = __( 'Smush Pro lets you optimize in the background. Unlock Ultra Smush, blazing-fast CDN, and more.', 'wp-smushit' );
 
 	$this->view(
 		'global-upsell',

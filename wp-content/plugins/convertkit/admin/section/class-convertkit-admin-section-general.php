@@ -65,8 +65,13 @@ class ConvertKit_Admin_Section_General extends ConvertKit_Admin_Section_Base {
 				'wrap'     => true,
 			),
 			'site-wide' => array(
-				'title'    => __( 'Site Wide', 'convertkit' ),
+				'title'    => __( 'Non-inline Forms', 'convertkit' ),
 				'callback' => array( $this, 'print_section_info_site_wide' ),
+				'wrap'     => true,
+			),
+			'recaptcha' => array(
+				'title'    => __( 'reCAPTCHA', 'convertkit' ),
+				'callback' => array( $this, 'print_section_info_recaptcha' ),
 				'wrap'     => true,
 			),
 			'advanced'  => array(
@@ -80,7 +85,6 @@ class ConvertKit_Admin_Section_General extends ConvertKit_Admin_Section_Base {
 		if ( $this->on_settings_screen( $this->name ) ) {
 			add_filter( 'convertkit_settings_base_register_notices', array( $this, 'register_notices' ) );
 			add_action( 'convertkit_settings_base_render_before', array( $this, 'maybe_output_notices' ) );
-			add_action( 'admin_footer', array( $this, 'output_intercom' ) );
 		}
 
 		// Enqueue scripts and CSS.
@@ -378,6 +382,62 @@ class ConvertKit_Admin_Section_General extends ConvertKit_Admin_Section_Base {
 			)
 		);
 
+		// Non-inline Form Limit per Session.
+		add_settings_field(
+			'non_inline_form_limit_per_session',
+			__( 'Limit Display', 'convertkit' ),
+			array( $this, 'non_inline_form_limit_per_session_callback' ),
+			$this->settings_key,
+			$this->name . '-site-wide',
+			array(
+				'label_for' => 'non_inline_form_limit_per_session',
+			)
+		);
+
+		// reCAPTCHA.
+		add_settings_field(
+			'recaptcha_site_key',
+			__( 'reCAPTCHA: Site Key', 'convertkit' ),
+			array( $this, 'recaptcha_site_key_callback' ),
+			$this->settings_key,
+			$this->name . '-recaptcha',
+			array(
+				'label_for'   => 'recaptcha_site_key',
+				'description' => array(
+					__( 'Enter your Google reCAPTCHA v3 Site Key. When specified, this will be used to reduce spam signups.', 'convertkit' ),
+				),
+			)
+		);
+		add_settings_field(
+			'recaptcha_secret_key',
+			__( 'reCAPTCHA: Secret Key', 'convertkit' ),
+			array( $this, 'recaptcha_secret_key_callback' ),
+			$this->settings_key,
+			$this->name . '-recaptcha',
+			array(
+				'label_for'   => 'recaptcha_secret_key',
+				'description' => array(
+					__( 'Enter your Google reCAPTCHA v3 Secret Key. When specified, this will be used to reduce spam signups.', 'convertkit' ),
+				),
+			)
+		);
+		add_settings_field(
+			'recaptcha_minimum_score',
+			__( 'reCAPTCHA: Minimum Score', 'convertkit' ),
+			array( $this, 'recaptcha_minimum_score_callback' ),
+			$this->settings_key,
+			$this->name . '-recaptcha',
+			array(
+				'label_for'   => 'recaptcha_minimum_score',
+				'min'         => 0,
+				'max'         => 1,
+				'step'        => 0.01,
+				'description' => array(
+					__( 'Enter the minimum threshold for a subscriber to pass Google reCAPTCHA. A higher number will reduce spam signups (1.0 is very likely a good interaction, 0.0 is very likely a bot).', 'convertkit' ),
+				),
+			)
+		);
+
 		// Advanced.
 		add_settings_field(
 			'debug',
@@ -449,6 +509,17 @@ class ConvertKit_Admin_Section_General extends ConvertKit_Admin_Section_Base {
 	}
 
 	/**
+	 * Prints help info for the recaptcha section of the settings screen.
+	 *
+	 * @since   3.0.0
+	 */
+	public function print_section_info_recaptcha() {
+		?>
+		<p class="description"><?php esc_html_e( 'Configure reCAPTCHA to protect the Member Content signup form and Form Builder block from spam and abuse.', 'convertkit' ); ?></p>
+		<?php
+	}
+
+	/**
 	 * Prints help info for the advanced section of the settings screen.
 	 *
 	 * @since   2.7.1
@@ -470,7 +541,7 @@ class ConvertKit_Admin_Section_General extends ConvertKit_Admin_Section_Base {
 	 */
 	public function documentation_url() {
 
-		return 'https://help.kit.com/en/articles/2502591-the-convertkit-wordpress-plugin';
+		return 'https://help.kit.com/en/articles/2502591-how-to-set-up-the-kit-plugin-on-your-wordpress-website';
 
 	}
 
@@ -758,6 +829,92 @@ class ConvertKit_Admin_Section_General extends ConvertKit_Admin_Section_Base {
 
 	}
 
+
+	/**
+	 * Renders the input for the Modal Form Limit per Session setting.
+	 *
+	 * @since   3.0.0
+	 *
+	 * @param   array $args   Setting field arguments (name,description).
+	 */
+	public function non_inline_form_limit_per_session_callback( $args ) {
+
+		// Output field.
+		$this->output_checkbox_field(
+			'non_inline_form_limit_per_session',
+			'on',
+			$this->settings->non_inline_form_limit_per_session(),
+			esc_html__( 'If checked, one non-inline form will be displayed per session. This applies to all non-inline forms defined on this screen, Page / Post / Category settings, and any Form blocks or shortcodes specifying a non-inline form.', 'convertkit' )
+		);
+
+	}
+
+	/**
+	 * Renders the input for the reCAPTCHA Site Key setting.
+	 *
+	 * @since   3.0.0
+	 *
+	 * @param   array $args   Setting field arguments (name,description).
+	 */
+	public function recaptcha_site_key_callback( $args ) {
+
+		// Output field.
+		$this->output_text_field(
+			'recaptcha_site_key',
+			esc_attr( $this->settings->recaptcha_site_key() ),
+			$args['description'],
+			array(
+				'widefat',
+			)
+		);
+
+	}
+
+	/**
+	 * Renders the input for the reCAPTCHA Secret Key setting.
+	 *
+	 * @since   3.0.0
+	 *
+	 * @param   array $args   Setting field arguments (name,description).
+	 */
+	public function recaptcha_secret_key_callback( $args ) {
+
+		// Output field.
+		$this->output_text_field(
+			'recaptcha_secret_key',
+			esc_attr( $this->settings->recaptcha_secret_key() ),
+			$args['description'],
+			array(
+				'widefat',
+			)
+		);
+
+	}
+
+	/**
+	 * Renders the input for the reCAPTCHA Minimum Score setting.
+	 *
+	 * @since   3.0.0
+	 *
+	 * @param   array $args   Setting field arguments (name,description).
+	 */
+	public function recaptcha_minimum_score_callback( $args ) {
+
+		// Output field.
+		$this->output_number_field(
+			'recaptcha_minimum_score',
+			esc_attr( (string) $this->settings->recaptcha_minimum_score() ),
+			$args['min'],
+			$args['max'],
+			$args['step'],
+			$args['description'],
+			array(
+				'widefat',
+			)
+		);
+
+	}
+
 	/**
 	 * Renders the input for the Debug setting.
 	 *
@@ -788,7 +945,7 @@ class ConvertKit_Admin_Section_General extends ConvertKit_Admin_Section_Base {
 			'no_scripts',
 			'on',
 			$this->settings->scripts_disabled(),
-			esc_html__( 'Prevent plugin from loading JavaScript files. This will disable the custom content and tagging features of the plugin. Does not apply to landing pages. Use with caution!', 'convertkit' )
+			esc_html__( 'Prevent plugin JavaScript files loading on the frontend site. This will disable the custom content and tagging features of the plugin. Does not apply to embedding forms or landing pages. Use with caution!', 'convertkit' )
 		);
 
 	}
@@ -813,6 +970,7 @@ class ConvertKit_Admin_Section_General extends ConvertKit_Admin_Section_Base {
 					esc_url( convertkit_get_form_editor_url() ),
 					esc_html__( 'Kit form editor', 'convertkit' )
 				),
+				esc_html__( 'For creators who require form designs to follow their WordPress theme, use the Kit Form Builder block in the block editor.', 'convertkit' ),
 				sprintf(
 					'%s <a href="https://wordpress.org/plugins/contact-form-7/" target="_blank">Contact Form 7</a>, <a href="https://wordpress.org/plugins/convertkit-gravity-forms/" target="_blank">Gravity Forms</a> %s <a href="https://wordpress.org/plugins/integrate-convertkit-wpforms/" target="_blank">WPForms</a> %s',
 					esc_html__( 'For developers who require custom form designs through use of CSS, consider using the', 'convertkit' ),

@@ -78,4 +78,36 @@
 			}
 		);
 	} );
+	
+	function insertHubConnectNotice() {
+		const mediaHubConnectNotice = $( '#smush-hub-connect-media-notice' );
+		if ( ! mediaHubConnectNotice.length ) {
+			return;
+		}
+		
+		const headerEnd = $( '.wrap > .wp-header-end' );
+		if ( headerEnd.length ) {
+			headerEnd.after( mediaHubConnectNotice.show() );
+		}
+	}
+	
+	insertHubConnectNotice();
+	
+	$( '.smus-media-notification-skip' ).on( 'click', function ( e ) {
+		e.preventDefault();
+		
+		$.post( ajaxurl, {
+			 action: 'dismiss_media_hub_connect_notice',
+			 _ajax_nonce: window.wp_smush_msgs.nonce,
+		 } )
+		 .done( function ( response ) {
+			 if ( response && response.success ) {
+				 $( '#smush-hub-connect-media-notice' ).remove();
+			 }
+		 } )
+		 .fail( function () {
+			 console.error( 'Failed to dismiss the media hub connect notice.' );
+		 } );
+	} );
+	
 }( jQuery ) );

@@ -16,7 +16,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 <p>
 	<?php
-	esc_html_e( "Preload helps to improve the Largest Contentful Paint (LCP) metric by optimizing images that often form the main viewport content. Since LCP measures the rendering time of the largest visible element, Smush helps to achieve Google's recommended 2.5-second benchmark for good user experience.", 'wp-smushit' );
+	esc_html_e( "Preload helps improve the Largest Contentful Paint (LCP) metric by optimizing images that form the main viewport content. When enabled, Smush also overrides WordPress’ default fetchpriority=high with smarter detection to enhance lazy loading and help meet Google’s recommended 2.5-second benchmark for good user experience.", 'wp-smushit' );
 	?>
 </p>
 
@@ -49,19 +49,17 @@ if ( ! defined( 'WPINC' ) ) {
 			</label>
 			<?php
 			if ( ! WP_Smush::is_pro() ) :
-				$discount    = WP_Smush::get_instance()->admin()->get_plugin_discount();
 				$upgrade_url = $this->get_utm_link(
 					array(
 						'utm_campaign' => 'smush_lazyload-preload_preload-critical-images',
 					)
 				);
-			?>
+				?>
 			<span id="preload-images-description" class="sui-description">
 				<a style="margin-left:44px;" class="smush-upsell-link" href="<?php echo esc_url( $upgrade_url ); ?>" target="_blank">
 				<strong>
 					<?php
-						/* translators: %s: Discount */
-						printf( esc_html__( 'Get %s OFF when you upgrade to Pro️', 'wp-smushit' ), $discount );
+						esc_html_e( 'Go Pro for Faster Load Times & Optimized LCP – On Sale Now!', 'wp-smushit' );
 					?>
 				</strong>
 				<span class="sui-icon-open-new-window" aria-hidden="true"></span>
@@ -73,48 +71,78 @@ if ( ! defined( 'WPINC' ) ) {
 </div>
 
 <div class="sui-box-settings-row" id="preload-exclude-settings-row" style="display: <?php echo $lcp_preload_enabled ? 'flex' : 'none'; ?>">
-    <div class="sui-box-settings-col-1">
+	<div class="sui-box-settings-col-1">
 		<span class="sui-settings-label">
 			<?php esc_html_e( 'Exclude', 'wp-smushit' ); ?>
 		</span>
-        <span class="sui-description">
+		<span class="sui-description">
 			<?php esc_html_e( 'Disable preload for specific pages or posts that you wish to prevent preload on', 'wp-smushit' ); ?>
 		</span>
-    </div>
+	</div>
 
-    <div class="sui-box-settings-col-2">
-        <div class="sui-form-field">
-            <strong><?php esc_html_e( 'Post, Pages & URLs', 'wp-smushit' ); ?></strong>
-            <div class="sui-description">
-			    <?php esc_html_e( 'Specify URLs of the pages or posts you want to disable preload on.', 'wp-smushit' ); ?>
-            </div>
-		    <?php
-		    $strings = '';
-		    if ( isset( $preload_settings['exclude-pages'] ) && is_array( $preload_settings['exclude-pages'] ) ) {
-			    $strings = join( PHP_EOL, $preload_settings['exclude-pages'] );
-		    }
-		    ?>
-            <textarea class="sui-form-control" name="exclude-pages" placeholder="<?php esc_attr_e( 'E.g. /page', 'wp-smushit' ); ?>"><?php echo esc_attr( $strings ); ?></textarea>
-            <div class="sui-description">
-			    <?php
-			    printf(
-			    /* translators: %1$s - opening strong tag, %2$s - closing strong tag */
-				    esc_html__( 'Add one page or post URL per line in relative format. I.e. %1$s/example-page%2$s or %1$s/example-page/sub-page/%2$s.', 'wp-smushit' ),
-				    '<strong>',
-				    '</strong>'
-			    );
-			    ?>
-            </div>
-        </div>
-    </div>
+	<div class="sui-box-settings-col-2">
+		<div class="sui-form-field">
+			<strong><?php esc_html_e( 'Post, Pages & URLs', 'wp-smushit' ); ?></strong>
+			<div class="sui-description">
+				<?php esc_html_e( 'Specify URLs of the pages or posts you want to disable preload on.', 'wp-smushit' ); ?>
+			</div>
+			<?php
+			$strings = '';
+			if ( isset( $preload_settings['exclude-pages'] ) && is_array( $preload_settings['exclude-pages'] ) ) {
+				$strings = join( PHP_EOL, $preload_settings['exclude-pages'] );
+			}
+			?>
+			<textarea class="sui-form-control" name="exclude-pages" placeholder="<?php esc_attr_e( 'E.g. /page', 'wp-smushit' ); ?>"><?php echo esc_attr( $strings ); ?></textarea>
+			<div class="sui-description">
+				<?php
+				printf(
+				/* translators: %1$s - opening strong tag, %2$s - closing strong tag */
+					esc_html__( 'Add one page or post URL per line in relative format. I.e. %1$s/example-page%2$s or %1$s/example-page/sub-page/%2$s.', 'wp-smushit' ),
+					'<strong>',
+					'</strong>'
+				);
+				?>
+			</div>
+		</div>
+	</div>
 </div>
-<?php if ( WP_Smush::is_pro() ) :  ?>
+
+<div class="sui-box-settings-row" id="preload-images-fetchpriority-settings-row" style="display: <?php echo $lcp_preload_enabled ? 'flex' : 'none'; ?>">
+	<div class="sui-box-settings-col-1">
+		<span class="sui-settings-label">
+			<?php esc_html_e( 'Optimize LCP Fetchpriority', 'wp-smushit' ); ?>
+		</span>
+		<span class="sui-description">
+			<?php esc_html_e( 'Replace WordPress default fetchpriority=high with smarter LCP detection for better lazy loading, image handling, and faster page performance.', 'wp-smushit' ); ?>
+		</span>
+	</div>
+
+	<div class="sui-box-settings-col-2">
+		<div class="sui-form-field">
+			<label for="lcp-fetchpriority" class="sui-toggle">
+				<input
+						type="checkbox"
+						id="lcp-fetchpriority"
+						name="lcp_fetchpriority"
+						aria-labelledby="lcp-fetchpriority-label"
+						aria-describedby="lcp-fetchpriority-description"
+					<?php checked( isset( $preload_settings['lcp_fetchpriority'] ) && $preload_settings['lcp_fetchpriority'] ); ?>
+				/>
+				<span class="sui-toggle-slider" aria-hidden="true"></span>
+				<span id="lcp-fetchpriority-label" class="sui-toggle-label">
+					<?php esc_html_e( 'Enable Fetchpriority', 'wp-smushit' ); ?>
+				</span>
+			</label>
+		</div>
+	</div>
+</div>
+<?php if ( WP_Smush::is_pro() ) : ?>
 <div class="sui-box-settings-row" id="preload-clear-lcp-settings">
-    <div class="sui-box-settings-col-1">
+	<div class="sui-box-settings-col-1">
 		<span class="sui-settings-label">
 			<?php esc_html_e( 'Clear LCP Data', 'wp-smushit' ); ?>
 		</span>
-        <span class="sui-description">
+		<span class="sui-description">
 			<?php
 			esc_html_e(
 				'Remove all LCP data from the database. Use this option if you\'ve made image optimisations and want to ensure Smush identifies new critical images.',
@@ -122,22 +150,22 @@ if ( ! defined( 'WPINC' ) ) {
 			);
 			?>
 		</span>
-    </div>
-    <div class="sui-box-settings-col-2">
-        <button class="sui-button sui-button-ghost" id="smush-clear-lcp-data">
+	</div>
+	<div class="sui-box-settings-col-2">
+		<button class="sui-button sui-button-ghost" id="smush-clear-lcp-data">
 			<span class="sui-loading-text">
 				<?php esc_html_e( 'Clear LCP Data', 'wp-smushit' ); ?>
 			</span>
-            <i class="sui-icon-loader sui-loading" aria-hidden="true"></i>
-        </button>
-        <span class="sui-description sui-toggle-description">
-            <?php
-            esc_html_e(
-	            'Note: This will not affect your images, but it will clear the stored LCP data across your entire site.',
-	            'wp-smushit'
-            );
-            ?>
-        </span>
-    </div>
+			<i class="sui-icon-loader sui-loading" aria-hidden="true"></i>
+		</button>
+		<span class="sui-description sui-toggle-description">
+			<?php
+			esc_html_e(
+				'Note: This will not affect your images, but it will clear the stored LCP data across your entire site.',
+				'wp-smushit'
+			);
+			?>
+		</span>
+	</div>
 </div>
 <?php endif; ?>

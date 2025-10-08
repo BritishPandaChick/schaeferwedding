@@ -29,7 +29,7 @@ class Configs {
 	 *
 	 * @var array
 	 */
-	private $pro_features = array( 'png_to_jpg', 's3', 'nextgen', 'cdn', 'webp', 'webp_mod', 'avif_mod', 'preload_images' );
+	private $pro_features = array( 'png_to_jpg', 's3', 'nextgen', 'cdn', 'webp', 'webp_mod', 'avif_mod', 'preload_images', 'auto_resizing', 'image_dimensions' );
 
 	/**
 	 * @var Settings
@@ -94,6 +94,8 @@ class Configs {
 	 * Adds the default configuration to the local configs.
 	 *
 	 * @since 3.8.6
+	 *
+	 * TODO: Add get_defaults for Settings class and use it here.
 	 */
 	private function get_basic_config() {
 		$basic_config = array(
@@ -118,7 +120,9 @@ class Configs {
 						'gutenberg'         => false,
 						'js_builder'        => false,
 						'cdn'               => false,
-						'auto_resize'       => false,
+						'auto_resizing'     => false,
+						'cdn_dynamic_sizes' => false,
+						'image_dimensions'  => false,
 						'webp'              => true,
 						'usage'             => false,
 						'accessible_colors' => false,
@@ -750,6 +754,8 @@ class Configs {
 		$settings_labels = array(
 			'format'            => __( 'Media Types', 'wp-smushit' ),
 			'output'            => __( 'Output Locations', 'wp-smushit' ),
+			'auto_resizing'     => __( 'Auto Resizing', 'wp-smushit' ),
+			'image_dimensions'  => __( 'Add Missing Image Dimensions', 'wp-smushit' ),
 			'include'           => __( 'Included Post Types', 'wp-smushit' ),
 			'animation'         => __( 'Display And Animation', 'wp-smushit' ),
 			'footer'            => __( 'Load Scripts In Footer', 'wp-smushit' ),
@@ -757,9 +763,13 @@ class Configs {
 			'noscript_fallback' => __( 'Noscript Tag', 'wp-smushit' ),
 		);
 
-		foreach ( $config['lazy_load'] as $key => $value ) {
+		foreach ( $settings_labels as $key => $label ) {
 			// Skip if the setting doesn't exist.
-			if ( ! isset( $settings_labels[ $key ] ) ) {
+			if ( isset( $config['lazy_load'][ $key ] ) ) {
+				$value = $config['lazy_load'][ $key ];
+			} elseif ( isset( $config['settings'][ $key ] ) ) {
+				$value = $config['settings'][ $key ];
+			} else {
 				continue;
 			}
 
@@ -770,9 +780,15 @@ class Configs {
 				continue;
 			}
 
-			$formatted_value = $settings_labels[ $key ] . ' - ';
+			$formatted_value = $label . ' - ';
 
-			if ( 'animation' === $key ) {
+			$setting_keys = array(
+				'auto_resizing',
+				'image_dimensions',
+			);
+			if ( in_array( $key, $setting_keys, true ) ) {
+				$formatted_value .= $this->format_boolean_setting_value( $key, ! empty( $value ) );
+			} elseif ( 'animation' === $key ) {
 				// The special kid.
 				$formatted_value .= __( 'Selected: ', 'wp-smushit' ) . $value['selected'];
 				if ( ! empty( $value['fadein'] ) ) {
@@ -847,9 +863,43 @@ class Configs {
 
 
 	public function sanitize_and_format_configs( $configs ) {
+		$configs = $this->normalize_configs( $configs );
+
 		return array(
 			'configs' => $this->sanitize_config( $configs ),
 			'strings' => $this->format_config_to_display( $configs ),
 		);
+	}
+
+	private function normalize_configs( $configs ) {
+		if ( ! isset( $configs['settings'] ) ) {
+			return $configs;
+		}
+
+		$settings = $configs['settings'];
+		$settings = $this->maybe_migrate_auto_resize_to_new_settings( $settings );
+
+		// Update settings.
+		$configs['settings'] = $settings;
+
+		return $configs;
+	}
+
+	/**
+	 * Migrates the CDN auto_resize setting to the new auto_resizing
+	 * and cdn_dynamic_sizes settings.
+	 *
+	 * @since 3.21.0
+	 */
+	private function maybe_migrate_auto_resize_to_new_settings( $settings ) {
+		if ( isset( $settings['auto_resizing'] ) || isset( $settings['cdn_dynamic_sizes'] ) ) {
+			return $settings;
+		}
+
+		$is_auto_resizing_active       = ! empty( $settings['auto_resize'] );
+		$settings['auto_resizing']     = $is_auto_resizing_active;
+		$settings['cdn_dynamic_sizes'] = $is_auto_resizing_active;
+
+		return $settings;
 	}
 }

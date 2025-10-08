@@ -7,6 +7,7 @@ use Smush\Core\CDN\CDN_Helper;
 use Smush\Core\Controller;
 use Smush\Core\Parser\Element;
 use Smush\Core\Parser\Page;
+use Smush\Core\Settings;
 use Smush\Core\Upload_Dir;
 use Smush\Core\Url_Utils;
 
@@ -35,6 +36,11 @@ class Attachment_Url_Cache_Controller extends Controller {
 	 */
 	private $url_utils;
 	/**
+	 * @var Settings
+	 */
+	private $settings;
+
+	/**
 	 * @var CDN_Helper
 	 */
 	private $cdn_helper;
@@ -45,10 +51,12 @@ class Attachment_Url_Cache_Controller extends Controller {
 		$this->media_item_query = new Media_Item_Query();
 		$this->array_utils      = new Array_Utils();
 		$this->url_utils        = new Url_Utils();
+		$this->settings         = Settings::get_instance();
 		$this->cdn_helper       = CDN_Helper::get_instance();
 
 		$this->register_filter( 'wp_get_attachment_image_src', array( $this, 'save__wp_get_attachment_image_src' ), 10, 2 );
 		$this->register_filter( 'wp_calculate_image_srcset', array( $this, 'save__wp_calculate_image_srcset' ), 10, 5 );
+		$this->register_filter( 'wp_get_attachment_metadata', array( $this, 'save__wp_get_attachment_metadata' ), 10, 2 );
 		$this->register_filter( 'wp_smush_pre_transform_page', array( $this, 'pre_transform_bulk_cache_page_urls' ) );
 	}
 
@@ -74,15 +82,29 @@ class Attachment_Url_Cache_Controller extends Controller {
 		return $sources;
 	}
 
+	public function save__wp_get_attachment_metadata( $meta_data, $attachment_id ) {
+		$original_file = $this->array_utils->get_array_value( $meta_data, 'original_image' );
+		if ( $original_file ) {
+			$upload_dir        = wp_upload_dir();
+			$upload_dir_url    = untrailingslashit( $upload_dir['baseurl'] );
+			$file_dir          = untrailingslashit( dirname( $meta_data['file'] ) );
+			$original_file_url = "$upload_dir_url/$file_dir/$original_file";
+
+			$this->cache->set_id_for_url( $original_file_url, $attachment_id );
+		}
+
+		return $meta_data;
+	}
+
 	/**
+	 *
 	 * @param $page Page
 	 *
 	 * @return void
 	 */
 	public function pre_transform_bulk_cache_page_urls( $page ) {
-		if ( ! $this->cdn_helper->is_cdn_active() ) {
-			// Right now we only need to lookup attachment ID to generate CDN srcset
-			// No need to make the bulk lookup if CDN is not active
+		if ( ! $this->cache->fetch_in_advance() ) {
+			// Run only if a component has asked for the cache to be primed in advance
 			return;
 		}
 
@@ -117,19 +139,25 @@ class Attachment_Url_Cache_Controller extends Controller {
 	 */
 	private function collect_bulk_image_urls( $elements ) {
 		foreach ( $elements as $element ) {
-			$element_key = md5( $element->get_markup() );
+			$original_url = $this->get_original_url( $element );
+			if ( ! $original_url ) {
+				continue;
+			}
+			$element_key = md5( $original_url );
 
 			if ( $element->has_attribute( 'src' ) ) {
 				$src_url = $element->get_attribute( 'src' )->get_single_image_url();
 				if ( $src_url ) {
 					$src_absolute_url = $src_url->get_absolute_url();
-					if ( $this->should_add_url( $src_absolute_url ) ) {
-						$this->collect_url( $src_absolute_url, $element_key );
-					}
-
-					$src_url_without_dimensions = $this->url_utils->get_url_without_dimensions( $src_absolute_url );
-					if ( $this->should_add_url( $src_url_without_dimensions ) ) {
-						$this->collect_url( $src_url_without_dimensions, $element_key );
+					$urls = array(
+						$src_absolute_url,
+						$original_url,
+						$this->url_utils->get_scaled_image_url( $original_url ),
+					);
+					foreach ( $urls as $url ) {
+						if ( $this->should_add_url( $url ) ) {
+							$this->collect_url( $url, $element_key );
+						}
 					}
 				}
 			}
@@ -145,6 +173,23 @@ class Attachment_Url_Cache_Controller extends Controller {
 				}
 			}
 		}
+	}
+
+	private function get_original_url( $element ) {
+		$image_attributes = array( 'src', 'srcset' );
+		foreach ( $image_attributes as $attribute ) {
+			if ( $element->has_attribute( $attribute ) ) {
+				$image_url = $element->get_attribute( $attribute )->get_single_image_url();
+				if ( $image_url ) {
+					$absolute_url = $image_url->get_absolute_url();
+					if ( $this->upload_dir->is_uploads_url( $absolute_url ) ) {
+						return $this->url_utils->get_url_without_dimensions( $absolute_url );
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 	private function should_add_url( $url ) {

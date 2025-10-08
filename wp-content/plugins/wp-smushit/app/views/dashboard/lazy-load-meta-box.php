@@ -15,7 +15,7 @@ if ( ! defined( 'WPINC' ) ) {
 ?>
 
 <p>
-	<?php esc_html_e( 'Boost your site’s speed and PageSpeed scores with smart image loading. Lazy Load delays offscreen images for faster initial loads, while Preload Critical Images ensures key above-the-fold content loads instantly—improving LCP and perceived performance.', 'wp-smushit' ); ?>
+	<?php esc_html_e( 'Boost your site’s speed and PageSpeed scores with smart image loading. Lazy Load delays offscreen images for faster initial loads, while Image Sizing helps you with properly sized images and adds missing dimensions. Preload Critical Images ensures key above-the-fold content loads instantly—improving LCP and perceived performance.', 'wp-smushit' ); ?>
 </p>
 
 
