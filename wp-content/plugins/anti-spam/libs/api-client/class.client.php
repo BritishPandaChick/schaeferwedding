@@ -539,7 +539,7 @@ class Client {
         if ( !empty ( $this->plugin_id ) ) {
             $headers['PluginId'] = $this->plugin_id;
         }
-
+	    update_option( 'anti_spam_logger_flag', 'yes' );
         $url = sprintf( "%s%s", self::ENDPOINT, $apiMethod );
 
         if ( $post ) {

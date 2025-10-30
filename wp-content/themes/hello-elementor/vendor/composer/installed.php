@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'elementor/hello-theme',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => 'c39d9f25619b465d7dd58f732f659675e5e801a2',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '2ebc4a4f9c7b97091ec3de16f20a83adde79c1c9',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'elementor/hello-theme' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => 'c39d9f25619b465d7dd58f732f659675e5e801a2',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '2ebc4a4f9c7b97091ec3de16f20a83adde79c1c9',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

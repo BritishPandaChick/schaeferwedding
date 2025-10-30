@@ -1,14 +1,16 @@
 <?php
-/*
-Plugin Name: Titan Anti-spam & Security
-Plugin URI: http://wordpress.org/plugins/anti-spam/
-Description: Titan Security - Anti-spam, Anti-virus, Firewall and Malware Scan
-Version: 7.3.8
-Author: CreativeMotion
-Requires PHP: 8.0
-Text Domain: titan-security
-Author URI: https://cm-wp.com/
-License: GPLv3
+/**
+ * Plugin Name: Titan Anti-spam & Security
+ * Plugin URI: http://wordpress.org/plugins/anti-spam/
+ * Description: Titan Security - Anti-spam, Anti-virus, Firewall and Malware Scan
+ * Version: 7.4.0
+ * Author: Themeisle
+ * Requires PHP: 8.0
+ *  WordPress Available:  yes
+ *  Requires License:    no
+ * Text Domain: titan-security
+ * Author URI: https://themeisle.com
+ * License: GPLv3
 */
 
 // Exit if accessed directly
@@ -113,7 +115,6 @@ $wtitan_plugin_info = [
 		['libs/factory/pages', 'factory_pages_475', 'admin'],
 		['libs/factory/templates', 'factory_templates_128', 'all'],
 		['libs/factory/freemius', 'factory_freemius_165', 'all'],
-		['libs/factory/feedback', 'factory_feedback_128', 'admin']
 	],
 	'load_plugin_components' => []
 
@@ -148,7 +149,7 @@ define('WTITAN_PLUGIN_VERSION', $wtitan_compatibility->get_plugin_version());
 define('WTITAN_PLUGIN_DIR', dirname(__FILE__));
 define('WTITAN_PLUGIN_BASE', plugin_basename(__FILE__));
 define('WTITAN_PLUGIN_URL', plugins_url('', __FILE__));
-
+define('WTITAN_PLUGIN_FILE', __FILE__);
 
 
 /**
@@ -162,6 +163,7 @@ require_once WTITAN_PLUGIN_DIR . "/includes/helpers.php";
 require_once(WTITAN_PLUGIN_DIR . '/includes/class-titan-security-plugin.php');
 
 try {
+	require_once (WTITAN_PLUGIN_DIR . '/vendor/autoload.php');
 	$plugin = new \WBCR\Titan\Plugin(__FILE__, array_merge($wtitan_plugin_info, [
 		'plugin_version' => WTITAN_PLUGIN_VERSION,
 		'plugin_text_domain' => $wtitan_compatibility->get_text_domain(),

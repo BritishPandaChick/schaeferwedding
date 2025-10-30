@@ -1,10 +1,10 @@
 === Titan Anti-spam & Security ===
-Contributors: creativemotion
+Contributors: themeisle
 Tags: antispam, firewall, malware scanner, security, antivirus, firewall, malware, scan, spam
 Requires at least: 5.6
-Tested up to: 6.6
+Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 7.3.8
+Stable tag: 7.4.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 
@@ -193,6 +193,16 @@ You may check out the [source code of the plugin](http://plugins.trac.wordpress.
 The plugin is pretty small and easy to read.
 
 == Changelog ==
+
+####   Version 7.4.0 (2025-10-20)
+
+Titan Security plugin has been acquired by Themeisle 🎉
+We’re happy to announce that Themeisle is now the new owner of Titan Security. This acquisition will help ensure the plugin’s continued development, better support, and exciting new updates in the future.
+
+Your existing setup will continue to work as usual — no action is required on your part.
+
+
+
 = 7.3.8 (17.07.2024) =
 * Added: Compatibility with Wordpress 6.6
 * Fixed: Minor bugs

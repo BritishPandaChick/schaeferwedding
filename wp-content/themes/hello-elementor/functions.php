@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'HELLO_ELEMENTOR_VERSION', '3.4.4' );
+define( 'HELLO_ELEMENTOR_VERSION', '3.4.5' );
 define( 'EHP_THEME_SLUG', 'hello-elementor' );
 
 define( 'HELLO_THEME_PATH', get_template_directory() );
@@ -80,7 +80,7 @@ if ( ! function_exists( 'hello_elementor_setup' ) ) {
 			 * Editor Styles
 			 */
 			add_theme_support( 'editor-styles' );
-			add_editor_style( 'editor-styles.css' );
+			add_editor_style( 'assets/css/editor-styles.css' );
 
 			/*
 			 * WooCommerce.

@@ -72,6 +72,29 @@ class Plugin extends \Wbcr_Factory475_Plugin {
 				require(WTITAN_PLUGIN_DIR . '/admin/ajax/install-addons.php');
 			}
 		}
+		add_filter( 'themeisle_sdk_products', [ __CLASS__, 'register_sdk' ] );
+		add_filter( 'themeisle_sdk_ran_promos', [ __CLASS__, 'sdk_hide_promo_notice' ] );
+	}
+
+	/**
+	 * Hide SDK promo notice for pro uses.
+	 *
+	 * @access public
+	 */
+	public static function sdk_hide_promo_notice( $should_show ) {
+		return Plugin::app()->premium->is_active();
+	}
+	/**
+	 * Register product into SDK.
+	 *
+	 * @param array $products All products.
+	 *
+	 * @return array Registered product.
+	 */
+	public static function register_sdk( $products ) {
+		$products[] = WTITAN_PLUGIN_FILE;
+
+		return $products;
 	}
 
 	/**

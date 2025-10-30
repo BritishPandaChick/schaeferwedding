@@ -6262,11 +6262,11 @@ wfWAFRuleComparisonSubject::create($this, array('request.queryString', 'action')
 $this->rules[858] = wfWAFRule::create($this, 858, NULL, 'priv-esc', '100', 'WAF-RULE-858', 0, 'block', new wfWAFRuleComparisonGroup(new wfWAFRuleComparison($this, 'lengthGreaterThan', '0', array(wfWAFRuleComparisonSubject::create($this, array('request.queryString', 'mls_temp_user_token'), array (
 )))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'notMatch', '/^[0-9a-f]{64}$|^[0-9a-f]{128}$/i', array(wfWAFRuleComparisonSubject::create($this, array('request.queryString', 'mls_temp_user_token'), array (
 ))))));
-$this->rules[859] = wfWAFRule::create($this, 859, NULL, 'file_delete', '100', 'WAF-RULE-859', 0, 'block', new wfWAFRuleComparisonGroup(new wfWAFRuleComparison($this, 'md5Equals', 'edd70738be34657cc1c70fd1f9db085c', array(wfWAFRuleComparisonSubject::create($this, array('request.md5Body', '418c5509e2171d55b0aee5c2ea4442b5'), array (
-)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'lengthGreaterThan', '0', array(wfWAFRuleComparisonSubject::create($this, array('request.md5Body', 'aaa4520bf66eaad58c3c15d0d46117e4'), array (
-)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'lengthGreaterThan', '0', array(wfWAFRuleComparisonSubject::create($this, array('request.md5Body', 'e526fe57c8aeffe23e1b4e32a7192219'), array (
-)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'notMatch', '/^(?!:.*\\.[^.]+\\.)(?:[^.]+)\\.(png|gif|jpg|jpeg)$/i', array(wfWAFRuleComparisonSubject::create($this, array('request.md5Body', 'e526fe57c8aeffe23e1b4e32a7192219'), array (
-)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'notEquals', 'custom-image', array(wfWAFRuleComparisonSubject::create($this, array('request.md5Body', 'e526fe57c8aeffe23e1b4e32a7192219'), array (
+$this->rules[859] = wfWAFRule::create($this, 859, NULL, 'file_delete', '100', 'WAF-RULE-859', 0, 'block', new wfWAFRuleComparisonGroup(new wfWAFRuleComparison($this, 'equals', 'wp_travel_engine_save_account_details', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'action'), array (
+)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'lengthGreaterThan', '0', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'user_profile_image_url'), array (
+)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'lengthGreaterThan', '0', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'user_profile_image'), array (
+)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'notMatch', '/^(?!:.*\\.[^.]+\\.)(?:[^.]+)\\.(png|gif|jpg|jpeg)$/i', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'user_profile_image'), array (
+)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'notEquals', 'custom-image', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'user_profile_image'), array (
 ))))));
 $this->rules[860] = wfWAFRule::create($this, 860, NULL, 'file_upload', '100', 'WAF-RULE-860', 0, 'block', new wfWAFRuleComparisonGroup(new wfWAFRuleComparisonGroup(new wfWAFRuleComparison($this, 'match', '/wp-json[\\/]+mwai[\\/]+v1[\\/]+simpleFileUpload/i', array(wfWAFRuleComparisonSubject::create($this, 'request.path', array (
 )))), new wfWAFRuleLogicalOperator('OR'), new wfWAFRuleComparison($this, 'match', '/mwai[\\/]+v1[\\/]+simpleFileUpload/i', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'rest_route'), array (
@@ -6300,6 +6300,17 @@ wfWAFRuleComparisonSubject::create($this, array('request.md5QueryString', '418c5
 ))))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'lengthGreaterThan', '0', array(wfWAFRuleComparisonSubject::create($this, array('request.md5Body', '93f6bfde0afd2111572d0596662a75a3'), array (
 )))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparisonGroup(new wfWAFRuleComparison($this, 'notEquals', 'subscriber', array(wfWAFRuleComparisonSubject::create($this, array('request.md5Body', '93f6bfde0afd2111572d0596662a75a3'), array (
 )))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'notEquals', 'customer', array(wfWAFRuleComparisonSubject::create($this, array('request.md5Body', '93f6bfde0afd2111572d0596662a75a3'), array (
+)))))));
+$this->rules[864] = wfWAFRule::create($this, 864, NULL, 'priv-esc', '100', 'WAF-RULE-864', 0, 'block', new wfWAFRuleComparisonGroup(new wfWAFRuleComparison($this, 'match', '/\\/wp\\-admin[\\/]+admin\\-ajax\\.php/i', array(wfWAFRuleComparisonSubject::create($this, 'server.script_filename', array (
+)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparisonGroup(new wfWAFRuleComparison($this, 'equals', 'academy_pro_social_login/facebook_login', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'action'), array (
+)),
+wfWAFRuleComparisonSubject::create($this, array('request.queryString', 'action'), array (
+)))), new wfWAFRuleLogicalOperator('OR'), new wfWAFRuleComparison($this, 'equals', 'nopriv_academy_pro_social_login/facebook_login', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'action'), array (
+)),
+wfWAFRuleComparisonSubject::create($this, array('request.queryString', 'action'), array (
+))))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'lengthGreaterThan', '0', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'role'), array (
+)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparisonGroup(new wfWAFRuleComparison($this, 'notEquals', 'subscriber', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'role'), array (
+)))), new wfWAFRuleLogicalOperator('AND'), new wfWAFRuleComparison($this, 'notEquals', 'academy_student', array(wfWAFRuleComparisonSubject::create($this, array('request.body', 'role'), array (
 )))))));
 $this->rules[307] = wfWAFRule::create($this, 307, NULL, 'brute-force', '100', 'Known malicious User-Agents', 0, 'block', new wfWAFRuleComparisonGroup(new wfWAFRuleComparison($this, 'equals', 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)', array(wfWAFRuleComparisonSubject::create($this, array('request.headers', 'User-Agent'), array (
 )))), new wfWAFRuleLogicalOperator('OR'), new wfWAFRuleComparison($this, 'match', '#mozlila#i', array(wfWAFRuleComparisonSubject::create($this, array('request.headers', 'User-Agent'), array (

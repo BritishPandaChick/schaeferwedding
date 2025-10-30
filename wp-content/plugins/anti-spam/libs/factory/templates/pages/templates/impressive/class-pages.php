@@ -482,41 +482,40 @@ class PageBase extends \WBCR\Factory_Templates_128\Impressive {
 		</div>
 		<?php
 	}
+    public function showSubscribeWidget()
+    {
+        $widget_settings = $this->plugin->getPluginInfoAttr('subscribe_settings');
+        $group_id = isset($widget_settings['group_id']) ? $widget_settings['group_id'] : 0;
+        $terms = "https://themeisle.com/privacy-policy/";
+        ?>
+        <div id="wbcr-clr-subscribe-widget" class="wbcr-factory-sidebar-widget wbcr-factory-subscribe-widget">
+            <p><strong><?php _e('Subscribe to plugin’s newsletter', 'wbcr_factory_clearfy_246'); ?></strong></p>
+            <div class="wbcr-clr-subscribe-widget-body">
 
-	public function showSubscribeWidget()
-	{
-		$widget_settings = $this->plugin->getPluginInfoAttr('subscribe_settings');
-		$group_id = isset($widget_settings['group_id']) ? $widget_settings['group_id'] : 0;
-		$terms = "https://cm-wp.com/?bizpanda=privacy-policy";
-		?>
-		<div id="wbcr-clr-subscribe-widget" class="wbcr-factory-sidebar-widget wbcr-factory-subscribe-widget">
-			<p><strong><?php _e('Subscribe to plugin’s newsletter', 'wbcr_factory_templates_128'); ?></strong></p>
-			<div class="wbcr-clr-subscribe-widget-body">
+                <div class="wbcr-factory-subscribe-widget__message-contanier">
+                    <div class="wbcr-factory-subscribe-widget__text wbcr-factory-subscribe-widget__text--success">
+                        <?php _e("Thank you, you have successfully subscribed!", 'wbcr_factory_clearfy_246') ?>
+                    </div>
+                    <div class="wbcr-factory-subscribe-widget__text wbcr-factory-subscribe-widget__text--success2">
+                        <?php _e("Thank you for your subscription.", 'wbcr_factory_clearfy_246'); ?>
+                    </div>
+                </div>
 
-				<div class="wbcr-factory-subscribe-widget__message-contanier">
-					<div class="wbcr-factory-subscribe-widget__text wbcr-factory-subscribe-widget__text--success">
-						<?php _e("Thank you, you have successfully subscribed!", 'wbcr_factory_templates_128') ?>
-					</div>
-					<div class="wbcr-factory-subscribe-widget__text wbcr-factory-subscribe-widget__text--success2">
-						<?php _e("Thank you for your subscription, a confirmation email has been sent to you. You need to confirm your subscription to complete this process.", 'wbcr_factory_templates_128'); ?>
-					</div>
-				</div>
+                <form id="wbcr-factory-subscribe-widget__subscribe-form" method="post" data-nonce="<?php echo wp_create_nonce('clearfy_subscribe_for_' . $this->plugin->getPluginName()) ?>">
+                    <input id="wbcr-factory-subscribe-widget__email" class="wbcr-factory-subscribe-widget__field" type="email" name="email" placeholder="<?php _e('Enter your email address', 'wbcr_factory_clearfy_246'); ?>" required>
+                    <label class="wbcr-factory-subscribe-widget__checkbox-label">
+                        <input class="wbcr-factory-subscribe-widget__checkbox" type="checkbox" name="agree_terms" required>
+                        <?php echo sprintf(__("I confirm to subscribe to the Themeisle newsletter to receive the latest news. You can find how we use your information on our %s Privacy Policy %s", 'wbcr_factory_clearfy_246'), '<a href="' . $terms . '" target="_blank">', '</a>'); ?>
+                    </label>
+                    <input type="hidden" id="wbcr-factory-subscribe-widget__group-id" value="<?php echo esc_attr($group_id); ?>">
+                    <input type="hidden" id="wbcr-factory-subscribe-widget__plugin-name" value="<?php echo esc_attr($this->plugin->getPluginName()); ?>">
+                    <input type="submit" class="btn wbcr-factory-subscribe-widget__button" value="<?php _e('Subscribe', 'wbcr_factory_clearfy_246'); ?>">
+                </form>
+            </div>
+        </div>
 
-				<form id="wbcr-factory-subscribe-widget__subscribe-form" method="post" data-nonce="<?php echo wp_create_nonce('clearfy_subscribe_for_' . $this->plugin->getPluginName()) ?>">
-					<input id="wbcr-factory-subscribe-widget__email" class="wbcr-factory-subscribe-widget__field" type="email" name="email" placeholder="<?php _e('Enter your email address', 'wbcr_factory_templates_128'); ?>" required>
-					<label class="wbcr-factory-subscribe-widget__checkbox-label">
-						<input class="wbcr-factory-subscribe-widget__checkbox" type="checkbox" name="agree_terms" required>
-						<?php echo sprintf(__("I confirm to subscribe to the CreativeMotion newsletter to receive the latest news. You can find how we use your information on our %s Privacy Policy %s", 'wbcr_factory_templates_128'), '<a href="' . $terms . '" target="_blank">', '</a>'); ?>
-					</label>
-					<input type="hidden" id="wbcr-factory-subscribe-widget__group-id" value="<?php echo esc_attr($group_id); ?>">
-					<input type="hidden" id="wbcr-factory-subscribe-widget__plugin-name" value="<?php echo esc_attr($this->plugin->getPluginName()); ?>">
-					<input type="submit" class="btn wbcr-factory-subscribe-widget__button" value="<?php _e('Subscribe', 'wbcr_factory_templates_128'); ?>">
-				</form>
-			</div>
-		</div>
-
-		<?php
-	}
+        <?php
+    }
 
 	/**
 	 * Registers page options in the options registry

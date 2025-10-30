@@ -41,29 +41,32 @@ function wbcr_factory_templates_128_subscribe($plugin_instance)
 		wp_send_json_error(['error_message' => __('Group ID is empty!', 'wbcr_factory_templates_128')]);
 	}
 
-	$response = wp_remote_post('https://clearfy.pro/wp-json/mailerlite/v1/subscribe/', [
-		'body' => [
-			'email' => $email,
-			'group_id' => $group_id
-		]
-	]);
-
+	$response = wp_remote_post('https://api.themeisle.com/tracking/subscribe', array(
+		'timeout' => 10,
+		'headers' => array(
+			'Content-Type'  => 'application/json',
+			'Cache-Control' => 'no-cache',
+			'Accept'        => 'application/json, */*;q=0.1',
+		),
+		'body'    => wp_json_encode(
+			array(
+				'slug'  => $plugin_name,
+				'site'  => home_url(),
+				'email' => $email,
+			)
+		),
+	));
 	if( is_wp_error($response) ) {
 		wp_send_json_error(['error_message' => $response->get_error_message()]);
 	}
 
 	$data = @json_decode(wp_remote_retrieve_body($response), ARRAY_A);
 
-	if( isset($data['message']) ) {
-		wp_send_json_error(['error_message' => $data['message'], 'error_code' => $data['code']]);
-	}
 
-	if( isset($data['subscribed']) ) {
+	if( isset($data['code']) ) {
 		$plugin_instance->updatePopulateOption('factory_clearfy_user_subsribed', 1);
 		wp_send_json_success(['subscribed' => $data['subscribed']]);
 	}
-
-	wp_send_json_error(['error_message' => __('Unknown error while trying to subscribe to newsletter.', 'wbcr_factory_templates_128')]);
 
 	die();
 }

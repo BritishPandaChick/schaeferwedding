@@ -37,6 +37,7 @@ class Cookie_Notice_Frontend {
 
 		// filters
 		add_filter( 'body_class', [ $this, 'change_body_class' ] );
+		add_filter( 'cn_is_bot', [ $this, 'wp_cache_check' ] );
 	}
 
 	/**
@@ -110,6 +111,10 @@ class Cookie_Notice_Frontend {
 			// elementor compatibility, needed early for is_preview_mode
 			if ( cn_is_plugin_active( 'elementor' ) )
 				include_once( COOKIE_NOTICE_PATH . 'includes/modules/elementor/elementor.php' );
+
+			// divi builder compatibility
+			if ( cn_is_plugin_active( 'divi', 'theme' ) )
+				include_once( COOKIE_NOTICE_PATH . 'includes/modules/divi/divi.php' );
 		}
 
 		// is it preview mode?
@@ -117,7 +122,7 @@ class Cookie_Notice_Frontend {
 			return false;
 
 		// is bot detection enabled and it's a bot?
-		if ( $cn->options['general']['bot_detection'] && $cn->bot_detect->is_crawler() )
+		if ( $cn->options['general']['bot_detection'] && apply_filters( 'cn_is_bot', $cn->bot_detect->is_crawler() ) )
 			return false;
 
 		// check amp
@@ -131,12 +136,24 @@ class Cookie_Notice_Frontend {
 	}
 
 	/**
+	* Check if WP_CACHE is active.
+	 *
+	 * @return bool
+	 */
+	public function wp_cache_check( $result ) {
+		if ( defined( 'WP_CACHE' ) && WP_CACHE === true )
+			$result = false;
+
+		return $result;
+	}
+
+	/**
 	 * Whether preview mode is active.
 	 *
 	 * @return bool
 	 */
 	public function is_preview_mode() {
-		return isset( $_GET['cn_preview_mode'] ) || is_preview() || is_customize_preview() || defined( 'IFRAME_REQUEST' ) || ( function_exists( 'wp_is_json_request' ) && wp_is_json_request() ) || apply_filters( 'cn_is_preview_mode', false );
+		return isset( $_GET['cn_preview_mode'] ) || is_preview() || is_customize_preview() || defined( 'IFRAME_REQUEST' ) || ( function_exists( 'wp_is_json_request' ) && wp_is_json_request() ) || isset( $_GET[ 'fl_builder' ] ) || apply_filters( 'cn_is_preview_mode', false );
 	}
 
 	/**
@@ -511,7 +528,7 @@ class Cookie_Notice_Frontend {
 			. '<span id="cn-notice-buttons" class="cn-buttons-container"><button id="cn-accept-cookie" data-cookie-set="accept" class="cn-set-cookie ' . esc_attr( $options['button_class'] ) . ( $options['css_class'] !== '' ? ' cn-button-custom ' . esc_attr( $options['css_class'] ) : '' ) . '" aria-label="' . esc_attr( $options['accept_text'] ) . '"' . ( $options['css_class'] == '' ? ' style="background-color: ' . esc_attr( $options['colors']['button'] ) . '"' : '' ) . '>' . esc_html( $options['accept_text'] ) . '</button>'
 			. ( $options['refuse_opt'] ? '<button id="cn-refuse-cookie" data-cookie-set="refuse" class="cn-set-cookie ' . esc_attr( $options['button_class'] ) . ( $options['css_class'] !== '' ? ' cn-button-custom ' . esc_attr( $options['css_class'] ) : '' ) . '" aria-label="' . esc_attr( $options['refuse_text'] ) . '"' . ( $options['css_class'] == '' ? ' style="background-color: ' . esc_attr( $options['colors']['button'] ) . '"' : '' ) . '>' . esc_html( $options['refuse_text'] ) . '</button>' : '' )
 			. ( $options['see_more'] && $options['link_position'] === 'banner' ? '<button data-link-url="' . esc_url( $options['see_more_opt']['link_type'] === 'custom' ? $options['see_more_opt']['link'] : $permalink ) . '" data-link-target="' . esc_attr( $options['link_target'] ) . '" id="cn-more-info" class="cn-more-info ' . esc_attr( $options['button_class'] ) . ( $options['css_class'] !== '' ? ' cn-button-custom ' . esc_attr( $options['css_class'] ) : '' ) . '" aria-label="' . esc_attr( $options['see_more_opt']['text'] ) . '"' . ( $options['css_class'] == '' ? ' style="background-color: ' . esc_attr( $options['colors']['button'] ) . '"' : '' ) . '>' . esc_html( $options['see_more_opt']['text'] ) . '</button>' : '' )
-			. '</span><span id="cn-close-notice" data-cookie-set="accept" class="cn-close-icon" title="' . esc_attr( $options['refuse_text'] ) . '"></span>'
+			. '</span><button id="cn-close-notice" data-cookie-set="accept" class="cn-close-icon" aria-label="' . esc_attr( $options['refuse_text'] ) . '"></button>'
 			. '</div>
 			' . ( $options['refuse_opt'] && $options['revoke_cookies'] ?
 			'<div class="cookie-revoke-container" style="color: ' . esc_attr( $options['colors']['text'] ) . '">'

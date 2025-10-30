@@ -3,8 +3,8 @@ Contributors: humanityco
 Tags: gdpr, ccpa, cookies, consent, privacy
 Requires at least: 4.9.6
 Requires PHP: 7.4
-Tested up to: 6.8.1
-Stable tag: 2.5.7
+Tested up to: 6.8.3
+Stable tag: 2.5.8
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -122,6 +122,12 @@ Yes! The plugin + web appliaction version includes technical compliance features
 4. Cookie Compliance settings
 
 == Changelog ==
+
+= 2.5.8 =
+* New: Microsoft Clarity Consent API v2 support
+* Fix: Prevent loading banner in Beaver Builder
+* Fix: Improved bot detection and object cache compatibility
+* Fix: Close icon accessibility by switching to button
 
 = 2.5.7 =
 * New: Microsoft Consent Mode support
@@ -559,5 +565,4 @@ Initial release
 
 == Upgrade Notice ==
 
-= 2.5.7 =
-Microsoft Consent Mode support, Improved compatibility with caching plugins and banner accessibility
+Microsoft Clarity Consent API v2 support
