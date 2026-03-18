@@ -1,4 +1,3 @@
-/*! elementor - v3.32.0 - 21-10-2025 */
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -210,21 +209,30 @@ var Admin = /*#__PURE__*/function () {
     if (this.revertButton) {
       this.revertButton.addEventListener('click', this.onRevertButtonClick.bind(this));
       this.maybeAddRevertBtnMargin();
+      this.maybeScrollToRevertButton();
     }
     this.maybeShowReferrerKitDialog();
   }
-
-  /**
-   * Add bottom margin to revert btn if referred from Kit library
-   */
   return (0, _createClass2.default)(Admin, [{
+    key: "shouldScrollToRevert",
+    value: function shouldScrollToRevert() {
+      var urlParams = new URLSearchParams(window.location.search);
+      return !!urlParams.get('scroll_to_revert');
+    }
+  }, {
     key: "maybeAddRevertBtnMargin",
     value: function maybeAddRevertBtnMargin() {
-      var referrerKitId = new URLSearchParams(this.revertButton.href).get('referrer_kit');
-      if (!referrerKitId) {
+      if (!this.shouldScrollToRevert()) {
         return;
       }
       this.revertButton.style.marginBottom = this.calculateMargin();
+    }
+  }, {
+    key: "maybeScrollToRevertButton",
+    value: function maybeScrollToRevertButton() {
+      if (!this.shouldScrollToRevert()) {
+        return;
+      }
       this.scrollToBottom();
     }
 

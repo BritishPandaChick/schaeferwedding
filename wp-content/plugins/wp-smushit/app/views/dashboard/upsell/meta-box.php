@@ -11,9 +11,6 @@
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
-
-$bg_optimization    = WP_Smush::get_instance()->core()->mod->bg_optimization;
-$can_use_background = $bg_optimization->can_use_background();
 ?>
 
 <p>
@@ -33,7 +30,6 @@ $can_use_background = $bg_optimization->can_use_background();
 		<span class="sui-icon-check sui-md" aria-hidden="true"></span>
 		<?php echo esc_html( $this->whitelabel->whitelabel_string( __( 'Up to 50 GB Smush CDN', 'wp-smushit' ) ) ); ?>
 	</li>
-	<?php if ( ! $can_use_background ) : ?>
 	<li>
 		<span class="sui-icon-check sui-md" aria-hidden="true"></span>
 		<?php esc_html_e( 'Background optimization', 'wp-smushit' ); ?>
@@ -42,7 +38,6 @@ $can_use_background = $bg_optimization->can_use_background();
 		<span class="sui-icon-check sui-md" aria-hidden="true"></span>
 		<?php esc_html_e( 'Unlimited image optimization', 'wp-smushit' ); ?>
 	</li>
-	<?php endif; ?>
 	<li>
 		<span class="sui-icon-check sui-md" aria-hidden="true"></span>
 		<?php esc_html_e( 'Serve WebP & AVIF formats with Next-Gen Conversion', 'wp-smushit' ); ?>

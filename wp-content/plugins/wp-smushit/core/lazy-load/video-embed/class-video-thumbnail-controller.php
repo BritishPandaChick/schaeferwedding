@@ -7,6 +7,7 @@ use Smush\Core\Lazy_Load\Lazy_Load_Helper;
 use Smush\Core\Server_Utils;
 use Smush\Core\Settings;
 use Smush\Core\Url_Utils;
+use WP_Error;
 
 class Video_Thumbnail_Controller extends Controller {
 	private $video_helper;
@@ -37,19 +38,32 @@ class Video_Thumbnail_Controller extends Controller {
 	}
 
 	public function redirect_to_original_video_thumbnail() {
-		$embed_url = empty( $_GET['url'] ) ? '' : $_GET['url'];
-		$width     = empty( $_GET['video_width'] ) ? '' : $_GET['video_width'];
-		$height    = empty( $_GET['video_height'] ) ? '' : $_GET['video_height'];
-		if ( ! $embed_url || ( ! $width && ! $height ) ) {
+		$thumbnail_url = $this->get_video_thumbnail_url_from_request( $_GET );
+		if ( is_wp_error( $thumbnail_url ) ) {
 			status_header( 404 );
 			exit;
+		}
+
+		$expires = 31536000;
+		header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + $expires ) . ' GMT' );
+		header( "Cache-Control: public, max-age={$expires}, immutable" );
+		header( "Location: {$thumbnail_url}", true, 301 );
+		exit();
+	}
+
+	public function get_video_thumbnail_url_from_request( $request ) {
+		$embed_url = empty( $request['url'] ) ? '' : html_entity_decode( rawurldecode( $request['url'] ) );
+		$width     = empty( $request['video_width'] ) ? '' : (int) $request['video_width'];
+		$height    = empty( $request['video_height'] ) ? '' : (int) $request['video_height'];
+
+		if ( ! filter_var( $embed_url, FILTER_VALIDATE_URL ) || ( ! $width && ! $height ) ) {
+			return new WP_Error( 'invalid_params', __( 'Invalid video URL or dimensions.', 'wp-smushit' ) );
 		}
 
 		$embed           = $this->video_helper->create_embed_object( $embed_url );
 		$video_thumbnail = $embed->fetch_video_thumbnail( $width, $height );
 		if ( ! $video_thumbnail ) {
-			status_header( 404 );
-			exit;
+			return new WP_Error( 'not_found', __( 'Video thumbnail not found.', 'wp-smushit' ) );
 		}
 
 		$thumbnail_url = '';
@@ -66,10 +80,6 @@ class Video_Thumbnail_Controller extends Controller {
 			$thumbnail_url = $video_thumbnail->get_fallback_url();
 		}
 
-		$expires = 31536000;
-		header( "Expires: " . gmdate( "D, d M Y H:i:s", time() + $expires ) . " GMT" );
-		header( "Cache-Control: public, max-age={$expires}, immutable" );
-		header( "Location: {$thumbnail_url}", true, 301 );
-		exit();
+		return $thumbnail_url ? $thumbnail_url : new WP_Error( 'not_found', __( 'Thumbnail URL not found.', 'wp-smushit' ) );
 	}
 }

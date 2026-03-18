@@ -62,7 +62,7 @@ if ( ! defined( 'WPINC' ) ) {
 		</div>
 	<?php endif; ?>
 
-	<?php if ( ! WP_Smush::is_pro() && $this->view_exists( $orig_id . '/meta-box-upsell' ) ) : ?>
+	<?php if ( $this->view_exists( $orig_id . '/meta-box-upsell' ) ) : ?>
 		<?php $this->view( $orig_id . '/meta-box-upsell' ); ?>
 	<?php endif; ?>
 

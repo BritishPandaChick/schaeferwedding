@@ -3,10 +3,10 @@
 namespace Smush\Core\Modules\Background;
 
 class Loopback_Request_Tester extends Async_Request {
-	const ID = 'wp_smush_background_request_tester';
+	private static $id = 'wp_smush_background_request_tester';
 
 	public function __construct() {
-		parent::__construct( self::ID );
+		parent::__construct( self::$id );
 	}
 
 	protected function handle( $instance_id ) {
@@ -14,6 +14,6 @@ class Loopback_Request_Tester extends Async_Request {
 	}
 
 	public function test() {
-		$this->dispatch( self::ID );
+		$this->dispatch( self::$id );
 	}
 }

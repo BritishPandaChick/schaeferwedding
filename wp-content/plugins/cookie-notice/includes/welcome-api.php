@@ -42,7 +42,7 @@ class Cookie_Notice_Welcome_API {
 		$request = isset( $_POST['request'] ) ? sanitize_key( $_POST['request'] ) : '';
 
 		// no valid request?
-		if ( ! in_array( $request, [ 'register', 'login', 'configure', 'select_plan', 'payment', 'get_bt_init_token', 'use_license' ], true ) )
+		if ( ! in_array( $request, [ 'register', 'login', 'configure', 'select_plan', 'payment', 'get_bt_init_token', 'use_license', 'sync_config' ], true ) )
 			wp_die( __( 'You do not have permission to access this page.', 'cookie-notice' ) );
 
 		$special_actions = [ 'register', 'login', 'configure', 'payment' ];
@@ -938,6 +938,48 @@ class Cookie_Notice_Welcome_API {
 
 			case 'select_plan':
 				break;
+
+			case 'sync_config':
+				// force update configuration from Designer API
+				$status_data = $this->get_app_config( $app_id, true, true );
+
+				// get the blocking data with timestamp
+				if ( $network )
+					$blocking = get_site_option( 'cookie_notice_app_blocking', [] );
+				else
+					$blocking = get_option( 'cookie_notice_app_blocking', [] );
+
+				// debug: include blocking data in response when debug mode is enabled
+				$debug = $cn->options['general']['debug_mode'] ? [
+					'app_id' => $app_id,
+					'status_data' => $status_data,
+					'blocking' => $blocking,
+					'providers_count' => ! empty( $blocking['providers'] ) ? count( $blocking['providers'] ) : 0,
+					'patterns_count' => ! empty( $blocking['patterns'] ) ? count( $blocking['patterns'] ) : 0,
+				] : null;
+
+				// check if sync was successful
+				if ( ! empty( $status_data ) && is_array( $status_data ) && ! empty( $status_data['status'] ) && $status_data['status'] === 'active' ) {
+					// set cache purge transient to force widget to refresh
+					if ( $network )
+						set_site_transient( 'cookie_notice_config_update', time(), DAY_IN_SECONDS );
+					else
+						set_transient( 'cookie_notice_config_update', time(), DAY_IN_SECONDS );
+
+					$response = [
+						'success' => true,
+						'message' => esc_html__( 'Configuration synced successfully.', 'cookie-notice' ),
+						'timestamp' => ! empty( $blocking['lastUpdated'] ) ? $blocking['lastUpdated'] : ''
+					];
+				} else {
+					$response = [
+						'error' => esc_html__( 'Failed to sync configuration. Please check your app ID and try again.', 'cookie-notice' )
+					];
+				}
+
+				if ( $debug )
+					$response['debug'] = $debug;
+				break;
 		}
 
 		echo wp_json_encode( $response );
@@ -958,7 +1000,6 @@ class Cookie_Notice_Welcome_API {
 		// request arguments
 		$api_args = [
 			'timeout'	=> 60,
-			'sslverify'	=> false,
 			'headers'	=> [
 				'x-api-key'	=> $cn->get_api_key()
 			]
@@ -1224,7 +1265,10 @@ class Cookie_Notice_Welcome_API {
 					$api_params[$key] = sanitize_text_field( $param );
 			}
 
-			if ( $json )
+			// for GET requests, append params as query string instead of body
+			if ( $api_args['method'] === 'GET' )
+				$api_url = add_query_arg( $api_params, $api_url );
+			elseif ( $json )
 				$api_args['body'] = wp_json_encode( $api_params );
 			else
 				$api_args['body'] = $api_params;
@@ -1511,6 +1555,12 @@ class Cookie_Notice_Welcome_API {
 			]
 		);
 
+		// debug: log raw Designer API response
+		if ( $cn->options['general']['debug_mode'] ) {
+			error_log( '[Cookie Notice] get_app_config - AppID: ' . $app_id );
+			error_log( '[Cookie Notice] get_app_config - Designer API response: ' . wp_json_encode( $response ) );
+		}
+
 		// get status data
 		$status_data = $cn->defaults['data'];
 
@@ -1527,7 +1577,7 @@ class Cookie_Notice_Welcome_API {
 						$pattern->ProviderID = is_int( $pattern->ProviderID ) ? $pattern->ProviderID : sanitize_text_field( $pattern->ProviderID );
 						$pattern->PatternType = sanitize_text_field( $pattern->PatternType );
 						$pattern->PatternFormat = sanitize_text_field( $pattern->PatternFormat );
-						$pattern->Pattern = sanitize_text_field( $pattern->Pattern );
+						$pattern->Pattern = stripslashes( sanitize_text_field( $pattern->Pattern ) );
 
 						// add pattern
 						$result_raw[$index][$p_index] = $pattern;
@@ -1538,7 +1588,7 @@ class Cookie_Notice_Welcome_API {
 						$provider->IsCustom = (bool) $provider->IsCustom;
 						$provider->CategoryID = (int) $provider->CategoryID;
 						$provider->ProviderID = is_int( $provider->ProviderID ) ? $provider->ProviderID : sanitize_text_field( $provider->ProviderID );
-						$provider->ProviderURL = sanitize_text_field( $provider->ProviderURL );
+						$provider->ProviderURL = stripslashes( sanitize_text_field( $provider->ProviderURL ) );
 						$provider->ProviderName = sanitize_text_field( $provider->ProviderName );
 
 						// add provider
@@ -1624,9 +1674,20 @@ class Cookie_Notice_Welcome_API {
 
 				update_option( 'cookie_notice_app_blocking', $result, false );
 			}
+
+			// debug: log what gets stored
+			if ( $cn->options['general']['debug_mode'] ) {
+				error_log( '[Cookie Notice] get_app_config - Stored providers count: ' . count( $result['providers'] ) );
+				error_log( '[Cookie Notice] get_app_config - Stored patterns count: ' . count( $result['patterns'] ) );
+				error_log( '[Cookie Notice] get_app_config - Stored blocking data: ' . wp_json_encode( $result ) );
+			}
 		} else {
+			if ( $cn->options['general']['debug_mode'] ) {
+				error_log( '[Cookie Notice] get_app_config - No data in response. Error: ' . ( ! empty( $response->error ) ? $response->error : 'unknown' ) );
+			}
+
 			if ( ! empty( $response->error ) ) {
-				if ( $response->error == 'App is not puplised yet' )
+				if ( $response->error == 'App is not published yet' )
 					$status_data['status'] = 'pending';
 				else
 					$status_data['status'] = '';

@@ -4,8 +4,8 @@ namespace Elementor\Modules\GlobalClasses;
 
 use Elementor\Core\Base\Document;
 use Elementor\Core\Utils\Collection;
-use Elementor\Modules\AtomicWidgets\Elements\Atomic_Element_Base;
-use Elementor\Modules\AtomicWidgets\Elements\Atomic_Widget_Base;
+use Elementor\Modules\AtomicWidgets\Elements\Base\Atomic_Element_Base;
+use Elementor\Modules\AtomicWidgets\Elements\Base\Atomic_Widget_Base;
 use Elementor\Modules\GlobalClasses\Utils\Atomic_Elements_Utils;
 use Elementor\Plugin;
 
@@ -26,10 +26,13 @@ class Global_Classes_Cleanup {
 
 	private function on_classes_update( $new_value, $prev_value ) {
 		$deleted_classes_ids = $this->get_deleted_classes_ids( $new_value, $prev_value );
+		$additional_post_types = apply_filters( 'elementor/global_classes/additional_post_types', [] );
 
 		if ( ! empty( $deleted_classes_ids ) ) {
 			Plugin::$instance->db->iterate_elementor_documents(
-				fn( $document, $elements_data ) => $this->unapply_deleted_classes( $document, $elements_data, $deleted_classes_ids )
+				fn( $document, $elements_data ) => $this->unapply_deleted_classes( $document, $elements_data, $deleted_classes_ids ),
+				100,
+				$additional_post_types
 			);
 		}
 	}
@@ -72,7 +75,7 @@ class Global_Classes_Cleanup {
 			}
 
 			$element_data['settings'][ $prop->get_key() ]['value'] = Collection::make( $current_classes['value'] )
-				->filter( fn( $class ) => ! in_array( $class, $deleted_classes_ids, true ) )
+				->filter( fn( $class_name ) => ! in_array( $class_name, $deleted_classes_ids, true ) )
 				->values();
 		}
 

@@ -39,7 +39,7 @@ interface Video_Embed {
 	 *
 	 * @return null|Video_Thumbnail
 	 */
-	public function fetch_video_thumbnail( $video_width, $video_height ): ?Video_Thumbnail;
+	public function fetch_video_thumbnail( $video_width, $video_height );
 
-	public function get_cached_video_thumbnail( $video_width, $video_height ): ?Video_Thumbnail;
+	public function get_cached_video_thumbnail( $video_width, $video_height );
 }

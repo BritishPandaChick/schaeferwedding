@@ -2,18 +2,15 @@
 
 namespace WBCR\Titan;
 
-// Exit if accessed directly
-if( !defined('ABSPATH') ) {
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- *
- *
- * @author        Alexander Kovalev <alex.kovalevv@gmail.com>, Github: https://github.com/alexkovalevv
- * @copyright (c) 20.10.2019, Webcraftic
+ * Main plugin class.
  */
-class Plugin extends \Wbcr_Factory475_Plugin {
+class Plugin {
 
 	/**
 	 * Number of comments that will be sent for verification
@@ -24,25 +21,16 @@ class Plugin extends \Wbcr_Factory475_Plugin {
 
 	/**
 	 * @see self::app()
-	 * @var \Wbcr_Factory475_Plugin
+	 * @var Plugin
 	 */
 	private static $app;
 
 	/**
-	 * @since  6.0
-	 * @var array
+	 * Custom license provider (overrides parent's premium property)
+	 *
+	 * @var WBCR_License
 	 */
-	private $plugin_data;
-
-	/**
-	 * @var \wfWAFStorageFile
-	 */
-	private $firewall_storage;
-
-	/**
-	 * @var \WBCR\Titan\Views
-	 */
-	public $view;
+	public $premium;
 
 	/**
 	 * Конструктор
@@ -50,30 +38,31 @@ class Plugin extends \Wbcr_Factory475_Plugin {
 	 * Применяет конструктор родительского класса и записывает экземпляр текущего класса в свойство $app.
 	 * Подробнее о свойстве $app см. self::app()
 	 *
-	 * @param string $plugin_path
-	 * @param array $data
-	 *
 	 * @throws \Exception
 	 * @since  6.0
-	 *
 	 */
-	public function __construct($plugin_path, $data)
-	{
-		parent::__construct($plugin_path, $data);
-
+	public function __construct() {
 		self::$app = $this;
-		$this->plugin_data = $data;
+
+		require_once WTITAN_PLUGIN_DIR . '/includes/class-license.php';
+		require_once WTITAN_PLUGIN_DIR . '/includes/api/boot.php';
+		require_once WTITAN_PLUGIN_DIR . '/includes/vulnerabilities/boot.php';
+
+		$this->premium = new WBCR_License();
+		new Vulnerabilities();
+
+		require_once WTITAN_PLUGIN_DIR . '/admin/class-rest-controller.php';
+		\WBCR\Titan\Titan_Rest_Controller::get_instance();
 
 		$this->global_scripts();
 
-		if( is_admin() ) {
+		if ( is_admin() ) {
 			$this->admin_scripts();
-			if( defined('DOING_AJAX') && DOING_AJAX ) {
-				require(WTITAN_PLUGIN_DIR . '/admin/ajax/install-addons.php');
-			}
 		}
+
 		add_filter( 'themeisle_sdk_products', [ __CLASS__, 'register_sdk' ] );
 		add_filter( 'themeisle_sdk_ran_promos', [ __CLASS__, 'sdk_hide_promo_notice' ] );
+		add_filter( WTITAN_PLUGIN_NAMESPACE . '_logger_data', [ $this, 'get_logger_data' ] );
 	}
 
 	/**
@@ -81,8 +70,8 @@ class Plugin extends \Wbcr_Factory475_Plugin {
 	 *
 	 * @access public
 	 */
-	public static function sdk_hide_promo_notice( $should_show ) {
-		return Plugin::app()->premium->is_active();
+	public static function sdk_hide_promo_notice() {
+		return self::app()->premium->is_active();
 	}
 	/**
 	 * Register product into SDK.
@@ -106,362 +95,228 @@ class Plugin extends \Wbcr_Factory475_Plugin {
 	 * Используется для получения настроек плагина, информации о плагине, для доступа к вспомогательным
 	 * классам.
 	 *
-	 * @return \Wbcr_Factory475_Plugin|\WBCR\Titan\Plugin
+	 * @return Plugin
 	 * @since  6.0
 	 */
-	public static function app()
-	{
+	public static function app() {
 		return self::$app;
 	}
 
-	public function view()
-	{
-		require_once WTITAN_PLUGIN_DIR . '/includes/class-views.php';
-
-		if( !empty($this->view) ) {
-			return $this->view;
-		}
-		$this->view = Views::get_instance(WTITAN_PLUGIN_DIR);
-
-		return $this->view;
-	}
-
-
 	/**
-	 * @throws \Exception
-	 * @since  6.0
-	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
+	 * Backward-compatible option prefix used by legacy premium integrations.
+	 *
+	 * @return string
 	 */
-
-	private function register_pages()
-	{
-		self::app()->registerPage('WBCR\Titan\Page\Setup', WTITAN_PLUGIN_DIR . '/admin/pages/setup/class-pages-setup.php');
-
-		self::app()->registerPage('WBCR\Titan\Page\Antispam', WTITAN_PLUGIN_DIR . '/admin/pages/class-pages-antispam.php');
-
-		self::app()->registerPage('WBCR\Titan\Page\Dashboard', WTITAN_PLUGIN_DIR . '/admin/pages/class-pages-dashboard.php');
-
-		self::app()->registerPage('WBCR\Titan\Page\SiteChecker', WTITAN_PLUGIN_DIR . '/admin/pages/class-pages-sitechecker.php');
-
-		self::app()->registerPage('WBCR\Titan\Page\Logs', WTITAN_PLUGIN_DIR . '/admin/pages/class-pages-logs.php');
-
-		self::app()->registerPage('WBCR\Titan\Page\Tweaks', WTITAN_PLUGIN_DIR . '/admin/pages/class-pages-tweaks.php');
-
-		self::app()->registerPage('WBCR\Titan\Page\Components', WTITAN_PLUGIN_DIR . '/admin/pages/class-pages-components.php');
-
-		if( defined('WPSCANNER_PLUGIN_ACTIVE') ) {
-			$this->registerPage('WBCR\Titan\Page\Components_License', WTITAN_PLUGIN_DIR . '/admin/pages/class-pages-components-license.php');
-		}
-
-		self::app()->registerPage('WBCR\Titan\Page\License', WTITAN_PLUGIN_DIR . '/admin/pages/class-pages-license.php');
-
-		self::app()->registerPage('WBCR\Titan\Page\PluginSettings', WTITAN_PLUGIN_DIR . '/admin/pages/class-pages-plugin-settings.php');
-
-		//Hidden page
-		self::app()->registerPage('WBCR\Titan\Page\Check', WTITAN_PLUGIN_DIR . '/admin/pages/class-pages-check.php');
-
-		if( !defined('WTITANP_PLUGIN_ACTIVE') ) {
-			// Firewall
-			self::app()->registerPage('WBCR\Titan\Page\Firewall', WTITAN_PLUGIN_DIR . '/admin/pages/firewall/class-pages-firewall.php');
-			self::app()->registerPage('WBCR\Titan\Page\Firewall_Settings', WTITAN_PLUGIN_DIR . '/admin/pages/firewall/class-pages-firewall-settings.php');
-			self::app()->registerPage('WBCR\Titan\Page\Firewall_Blocking', WTITAN_PLUGIN_DIR . '/admin/pages/firewall/class-pages-firewall-blocking.php');
-			self::app()->registerPage('WBCR\Titan\Page\Firewall_Attacks_Log', WTITAN_PLUGIN_DIR . '/admin/pages/firewall/class-pages-firewall-attacks-log.php');
-
-			// TwoFactor
-			self::app()->registerPage('WBCR\Titan\Page\TwoFactor', WTITAN_PLUGIN_DIR . '/admin/pages/class-page-two-factor.php');
-
-			// Backup
-			self::app()->registerPage( 'WBCR\Titan\Page\Backup', WTITAN_PLUGIN_DIR . '/admin/pages/class-page-backup.php' );
-		}
-
-		self::app()->registerPage('WBCR\Titan\Page\Brute_Force', WTITAN_PLUGIN_DIR . '/admin/pages/firewall/class-pages-bruteforce.php');
-		self::app()->registerPage('WBCR\Titan\Page\Firewall_Login_Attempts', WTITAN_PLUGIN_DIR . '/admin/pages/firewall/class-pages-firewall-login-attempts.php');
+	public function getPrefix() {
+		return 'titan_';
 	}
 
 	/**
-	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
-	 * @since  6.0
+	 * Return a normalized option name for legacy premium calls.
+	 *
+	 * @param string $option_name Option key without/with prefix.
+	 *
+	 * @return string
+	 * @deprecated Use the new options name.
 	 */
-	protected function init_activation()
-	{
-		include_once(WTITAN_PLUGIN_DIR . '/admin/class-activation.php');
-		self::app()->registerActivation("\WBCR\Titan\Activation");
+	private function get_legacy_option_name( $option_name ) {
+		$option_name = (string) $option_name;
+		$prefix      = $this->getPrefix();
+
+		if ( 0 === strpos( $option_name, $prefix ) ) {
+			return $option_name;
+		}
+
+		return $prefix . $option_name;
+	}
+
+	/**
+	 * Backward-compatible getter for premium <= 1.5.x.
+	 *
+	 * @param string $option_name Option key without prefix.
+	 * @param mixed  $default_value     Default value.
+	 *
+	 * @return mixed
+	 * @deprecated
+	 */
+	public function getPopulateOption( $option_name, $default_value = false ) {
+		return get_option( $this->get_legacy_option_name( $option_name ), $default_value );
+	}
+
+	/**
+	 * Backward-compatible option updater for premium <= 1.5.x.
+	 *
+	 * @param string    $option_name Option key without prefix.
+	 * @param mixed     $value       Option value.
+	 * @param bool|null $autoload   Optional autoload flag.
+	 *
+	 * @return bool
+	 * @deprecated
+	 */
+	public function updatePopulateOption( $option_name, $value, $autoload = null ) {
+		$normalized_name = $this->get_legacy_option_name( $option_name );
+
+		if ( null === $autoload ) {
+			return update_option( $normalized_name, $value );
+		}
+
+		return update_option( $normalized_name, $value, $autoload );
 	}
 
 	/**
 	 * @throws \Exception
 	 * @since  6.0
-	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
 	 */
-	private function admin_scripts()
-	{
-		$this->init_activation();
+	private function admin_scripts() {
+		require_once WTITAN_PLUGIN_DIR . '/admin/boot.php';
 
-		require_once(WTITAN_PLUGIN_DIR . '/admin/boot.php');
-		require_once(WTITAN_PLUGIN_DIR . '/admin/class-page-titan-basic.php');
+		require_once WTITAN_PLUGIN_DIR . '/admin/pages/class-dashboard.php';
+		Titan_Dashboard::get_instance();
 
-		if( defined('DOING_AJAX') && DOING_AJAX ) {
-			require(WTITAN_PLUGIN_DIR . '/admin/ajax/logs.php');
-			require(WTITAN_PLUGIN_DIR . '/admin/ajax/notice.php');
-		}
-
-		add_action('admin_bar_menu', [$this, 'admin_bar_menu'], 80);
-
-		add_action('plugins_loaded', function () {
-			$this->register_pages();
-		}, 30);
+		add_filter( 'themeisle-sdk/survey/' . WTITAN_PLUGIN_DIR, [ $this, 'get_survey_data' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'mark_internal_page' ] );
 	}
 
 	/**
-	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
 	 * @since  7.0
 	 */
-	private function global_scripts()
-	{
+	private function global_scripts() {
 
-		// Bruteforce
-		if( $this->getPopulateOption('bruteforce_enabled') ) {
-			require_once(WTITAN_PLUGIN_DIR . '/includes/bruteforce/const.php');
-			require_once(WTITAN_PLUGIN_DIR . '/includes/bruteforce/class-helpers.php');
-			require_once(WTITAN_PLUGIN_DIR . '/includes/bruteforce/class-limit-login-attempts.php');
+		// Bruteforce.
+		if ( get_option( 'titan_bruteforce_enabled' ) ) {
+			require_once WTITAN_PLUGIN_DIR . '/includes/bruteforce/const.php';
+			require_once WTITAN_PLUGIN_DIR . '/includes/bruteforce/class-helpers.php';
+			require_once WTITAN_PLUGIN_DIR . '/includes/bruteforce/class-limit-login-attempts.php';
 		}
 
-		// Tweaks
-		require_once(WTITAN_PLUGIN_DIR . '/includes/tweaks/class-security-tweaks.php');
+		// Tweaks.
+		require_once WTITAN_PLUGIN_DIR . '/includes/tweaks/class-security-tweaks.php';
 
-		if( $this->getPopulateOption('strong_password') ) {
-			require_once(WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/boot.php');
+		if ( get_option( 'titan_strong_password' ) ) {
+			require_once WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/boot.php';
 		}
 
-		$enable_menu = $this->getPopulateOption('extra_menu', false);
-		if( $enable_menu ) {
-			add_action('admin_enqueue_scripts', [$this, 'admin_bar_enqueue']);
-			add_action('wp_enqueue_scripts', [$this, 'admin_bar_enqueue']);
-		}
-
-		// Logger
-		require_once(WTITAN_PLUGIN_DIR . '/includes/logger/class-logger-writter.php');
+		// Logger.
+		require_once WTITAN_PLUGIN_DIR . '/includes/logger/class-logger-writter.php';
 		new \WBCR\Titan\Logger\Writter();
 
-		// Antispam
-		require_once(WTITAN_PLUGIN_DIR . '/includes/antispam/boot.php');
-	}
-
-	/**
-	 */
-	public function admin_bar_enqueue()
-	{
-		wp_enqueue_style('titan-adminbar-styles', WTITAN_PLUGIN_URL . '/assets/css/admin-bar.css', [], $this->getPluginVersion());
+		// Antispam.
+		require_once WTITAN_PLUGIN_DIR . '/includes/antispam/boot.php';
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function currentUserCan()
-	{
-		$permission = $this->isNetworkActive() ? 'manage_network' : 'manage_options';
-
-		return current_user_can($permission);
+	public function is_premium() {
+		if ( $this->premium->is_active() ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
-	 * Add menu to admin bar
+	 * Get the data to be logged.
 	 *
-	 * @param \WP_Admin_Bar $wp_admin_bar
+	 * @param array<string, mixed> $data The data.
 	 *
+	 * @return array<string, mixed> The merged data.
 	 */
-	public function admin_bar_menu($wp_admin_bar)
-	{
-		$enable_menu = $this->getPopulateOption('extra_menu', false);
+	public function get_logger_data( $data = [] ) {
+		$antispam_stats = get_option( 'antispam_stats', [] );
+		$premium_active = $this->is_premium();
 
-		if( !$this->currentUserCan() || !$enable_menu ) {
-			return;
-		}
+		$advanced_spam_filter_enabled = (bool) get_option( 'titan_advanced_spam_filter', false );
+		$schedule_backup              = (string) get_option( 'titan_schedule_backup', 'off' );
+		$remove_old_data              = (bool) get_option( 'titan_remove_old_data', false );
+		$backup_store                 = (string) get_option( 'titan_backup_store', 'local' );
+		$backup_files_per_iteration   = (int) get_option( 'titan_backup_files_per_iteration', 100 );
 
-		if( $this->isNetworkActive() ) {
-			$settings_url = network_admin_url('settings.php');
-		} else {
-			$settings_url = admin_url('admin.php');
-		}
-
-		$dashboard_url = $settings_url . '?page=dashboard-' . $this->getPluginName();
-		$extra_menu_title = apply_filters('wbcr/titan/adminbar_menu_title', __('Titan Security', 'titan-security'));
-
-		$menu_items = [];
-		$menu_items = apply_filters('wbcr/titan/adminbar_menu_items', $menu_items);
-
-		$menu_items['titan-dashboard'] = [
-			'id' => 'titan-dashboard',
-			'title' => '<span class="dashicons dashicons-dashboard"></span> ' . __('Dashboard', 'titan-security'),
-			'href' => $dashboard_url
-		];
-		$menu_items['titan-settings'] = [
-			'id' => 'titan-settings',
-			'title' => '<span class="dashicons dashicons-admin-generic"></span> ' . __('Settings', 'titan-security'),
-			'href' => $settings_url . '?page=plugin_settings-' . $this->getPluginName()
-		];
-		$menu_items['titan-rating'] = [
-			'id' => 'titan-rating',
-			'title' => '<span class="dashicons dashicons-heart"></span> ' . __('Do you like our plugin?', 'titan-security'),
-			'href' => 'https://wordpress.org/support/plugin/anti-spam/reviews/'
-		];
-		if( !$this->is_premium() ) {
-			$menu_items['titan-premium'] = [
-				'id' => 'titan-premium',
-				'title' => '<span class="dashicons dashicons-star-filled"></span> ' . __('Upgrade to premium', 'titan-security'),
-				'href' => $this->get_support()->get_pricing_url(true, 'adminbar_menu')
-			];
-		}
-
-		if( empty($menu_items) ) {
-			return;
-		}
-
-		$wp_admin_bar->add_menu([
-			'id' => 'titan-menu',
-			'title' => '<span class="wtitan-admin-bar-menu-icon"></span><span class="wtitan-admin-bar-menu-title">' . $extra_menu_title . ' <span class="dashicons dashicons-arrow-down"></span></span>',
-			'href' => $dashboard_url
-		]);
-
-		foreach((array)$menu_items as $id => $item) {
-			$wp_admin_bar->add_menu([
-				'id' => $id,
-				'parent' => 'titan-menu',
-				'title' => $item['title'],
-				'href' => $item['href'],
-				'meta' => [
-					'class' => isset($item['class']) ? $item['class'] : ''
+		$two_factor_enabled = false;
+		if ( class_exists( '\\WBCR\\TFA\\TwoFactor' ) ) {
+			$query              = new \WP_User_Query(
+				[
+					'meta_key'    => 'titan_2fa_enable',
+					'meta_value'  => 'yes',
+					'fields'      => 'ids',
+					'number'      => 1,
+					'count_total' => false,
 				]
-			]);
+			);
+			$two_factor_enabled = ! empty( $query->get_results() );
 		}
+
+		return array_merge(
+			$data,
+			[
+				// Stats.
+				'spam_blocked_total'          => isset( $antispam_stats['blocked_total'] ) ? (int) $antispam_stats['blocked_total'] : 0,
+
+				// Anti-spam feature states.
+				'antispam_mode'               => (bool) get_option( 'titan_antispam_mode', true ),
+				'save_spam_comments'          => (bool) get_option( 'titan_save_spam_comments', true ),
+				'comment_form_privacy_notice' => (bool) get_option( 'titan_comment_form_privacy_notice', false ),
+				'advanced_spam_filter'        => $advanced_spam_filter_enabled,
+
+				// Security tweaks.
+				'strong_password'             => (bool) get_option( 'titan_strong_password', false ),
+				'strong_password_min_role'    => (string) get_option( 'titan_strong_password_min_role', 'administrator' ),
+				'protect_author_get'          => (bool) get_option( 'titan_protect_author_get', false ),
+				'remove_x_pingback'           => (bool) get_option( 'titan_remove_x_pingback', false ),
+				'remove_html_comments'        => (bool) get_option( 'titan_remove_html_comments', false ),
+				'remove_meta_generator'       => (bool) get_option( 'titan_remove_meta_generator', false ),
+				'remove_js_version'           => (bool) get_option( 'titan_remove_js_version', false ),
+				'remove_style_version'        => (bool) get_option( 'titan_remove_style_version', false ),
+
+				// Other features.
+				'complete_uninstall'          => (bool) get_option( 'titan_complete_uninstall', false ),
+
+				// Premium-only feature state.
+				'premium_active'              => $premium_active,
+				'schedule_backup'             => $schedule_backup,
+				'backup_schedule_enabled'     => $premium_active && 'off' !== $schedule_backup,
+				'remove_old_data'             => $remove_old_data,
+				'remove_old_data_enabled'     => $premium_active && $remove_old_data,
+				'backup_store'                => $backup_store,
+				'backup_files_per_iteration'  => $backup_files_per_iteration,
+				'two_factor_enabled'          => $premium_active && $two_factor_enabled,
+			]
+		);
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function is_premium()
-	{
-		if( $this->premium->is_active() && $this->premium->is_activate() ) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-
-	/**
-	 * @param string $component_name
+	 * Register survey data.
 	 *
-	 * @return bool
+	 * @param array<string, mixed> $data The data in Formbricks format.
+	 *
+	 * @return array<string, mixed> The data in Formbricks format.
+	 * @see survey.js in SDK.
 	 */
-	public function isActivateComponent($component_name)
-	{
-		if( !is_string($component_name) ) {
-			return false;
-		}
+	public function get_survey_data( $data ) {
+		$install_days_number = intval( ( time() - get_option( WTITAN_PLUGIN_NAMESPACE . '_install', time() ) ) / DAY_IN_SECONDS );
 
-		$deactivate_components = $this->getPopulateOption('deactive_preinstall_components', []);
+		// TODO: Add license check with the new dashboard.
+		$data = [
+			'environmentId' => 'cmioooiur4v4uad01gmey9tnn',
+			'attributes'    => [
+				'install_days_number' => $install_days_number,
+				'free_version'        => WTITAN_PLUGIN_VERSION,
+			],
+		];
 
-		if( !is_array($deactivate_components) ) {
-			$deactivate_components = [];
-		}
-
-		if( $deactivate_components && in_array($component_name, $deactivate_components) ) {
-			return false;
-		}
-
-		return true;
+		return $data;
 	}
 
 	/**
-	 * @param string $component_name
+	 * Mark internal Titan Security pages.
 	 *
-	 * @return bool
+	 * @param string $hook_suffix Hook sufix.
+	 *
+	 * @return void
 	 */
-	public function deactivateComponent($component_name)
-	{
-		if( !$this->isActivateComponent($component_name) ) {
-			return true;
+	public function mark_internal_page( $hook_suffix ) {
+		if ( false !== strpos( $hook_suffix, 'titan-' ) ) {
+			do_action( 'themeisle_internal_page', WTITAN_PLUGIN_DIR, 'dashboard' );
 		}
-
-		do_action('wbcr_clearfy_pre_deactivate_component', $component_name);
-
-		$deactivate_components = $this->getPopulateOption('deactive_preinstall_components', []);
-
-		if( !empty($deactivate_components) && is_array($deactivate_components) ) {
-			$deactivate_components[] = $component_name;
-		} else {
-			$deactivate_components = [];
-			$deactivate_components[] = $component_name;
-		}
-
-		$this->updatePopulateOption('deactive_preinstall_components', $deactivate_components);
-
-		do_action('wbcr_clearfy_deactivated_component', $component_name);
-
-		return true;
 	}
-
-	/**
-	 * @param string $component_name
-	 *
-	 * @return bool
-	 */
-	public function activateComponent($component_name)
-	{
-		if( $this->isActivateComponent($component_name) ) {
-			return true;
-		}
-
-		do_action('wbcr_clearfy_pre_activate_component', $component_name);
-
-		$deactivate_components = $this->getPopulateOption('deactive_preinstall_components', []);
-
-		if( !empty($deactivate_components) && is_array($deactivate_components) ) {
-			$index = array_search($component_name, $deactivate_components);
-			unset($deactivate_components[$index]);
-		}
-
-		if( empty($deactivate_components) ) {
-			$this->deletePopulateOption('deactive_preinstall_components');
-		} else {
-			$this->updatePopulateOption('deactive_preinstall_components', $deactivate_components);
-		}
-
-		return true;
-	}
-
-	/**
-	 * Allows you to get a button to install the plugin component
-	 *
-	 * @param $component_type
-	 * @param $slug
-	 * param $premium
-	 *
-	 * @return \WTITAN_InstallPluginsButton
-	 */
-	public function getInstallComponentsButton($component_type, $slug)
-	{
-		require_once WTITAN_PLUGIN_DIR . '/admin/includes/classes/class.install-plugins-button.php';
-
-		return new \WTITAN_InstallPluginsButton($component_type, $slug);
-	}
-
-	/**
-	 * Allows you to get a button to delete the plugin component
-	 *
-	 * @param $component_type
-	 * @param $slug
-	 *
-	 * @return \WTITAN_InstallPluginsButton
-	 */
-	public function getDeleteComponentsButton($component_type, $slug)
-	{
-		require_once WTITAN_PLUGIN_DIR . '/admin/includes/classes/class.install-plugins-button.php';
-		require_once WTITAN_PLUGIN_DIR . '/admin/includes/classes/class.delete-plugins-button.php';
-
-		return new \WTITAN_DeletePluginsButton($component_type, $slug);
-	}
-
 }
-

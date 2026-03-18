@@ -89,7 +89,7 @@ class ConvertKit_Block_Form_Builder_Field extends ConvertKit_Block {
 	 */
 	public function enqueue_styles() {
 
-		wp_enqueue_style( 'convertkit-form-builder', CONVERTKIT_PLUGIN_URL . 'resources/frontend/css/form-builder.css', array(), CONVERTKIT_PLUGIN_VERSION );
+		convertkit_enqueue_frontend_css();
 
 	}
 
@@ -107,6 +107,28 @@ class ConvertKit_Block_Form_Builder_Field extends ConvertKit_Block {
 		 * - a Gutenberg block, with the name convertkit/form-builder-field.
 		 */
 		return 'form-builder-field';
+
+	}
+
+	/**
+	 * Returns this block's title.
+	 *
+	 * @since   3.1.1
+	 */
+	public function get_title() {
+
+		return __( 'Kit Form Builder: Field', 'convertkit' );
+
+	}
+
+	/**
+	 * Returns this block's icon.
+	 *
+	 * @since   3.1.1
+	 */
+	public function get_icon() {
+
+		return 'resources/backend/images/block-icon-form-builder-field.svg';
 
 	}
 
@@ -194,11 +216,6 @@ class ConvertKit_Block_Form_Builder_Field extends ConvertKit_Block {
 	 */
 	public function get_fields() {
 
-		// Bail if the request is not for the WordPress Administration or frontend editor.
-		if ( ! WP_ConvertKit()->is_admin_or_frontend_editor() ) {
-			return false;
-		}
-
 		return array(
 			'label'    => array(
 				'label'       => __( 'Label', 'convertkit' ),
@@ -222,11 +239,6 @@ class ConvertKit_Block_Form_Builder_Field extends ConvertKit_Block {
 	 * @return  bool|array
 	 */
 	public function get_panels() {
-
-		// Bail if the request is not for the WordPress Administration or frontend editor.
-		if ( ! WP_ConvertKit()->is_admin_or_frontend_editor() ) {
-			return false;
-		}
 
 		return array(
 			'general' => array(

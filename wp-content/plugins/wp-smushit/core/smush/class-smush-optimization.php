@@ -13,9 +13,9 @@ use WP_Error;
  * Smushes a media item and updates the stats.
  */
 class Smush_Optimization extends Media_Item_Optimization {
-	const KEY = 'smush_optimization';
-	const SMUSH_META_KEY = 'wp-smpro-smush-data';
-	const LOSSY_META_KEY = 'wp-smush-lossy';
+	private static $key = 'smush_optimization';
+	private static $smush_meta_key = 'wp-smpro-smush-data';
+	private static $lossy_meta_key = 'wp-smush-lossy';
 
 	/**
 	 * @var Media_Item_Stats
@@ -69,8 +69,16 @@ class Smush_Optimization extends Media_Item_Optimization {
 		$this->smusher    = new Smusher();
 	}
 
-	public function get_key() {
-		return self::KEY;
+	public static function get_smush_meta_key() {
+		return self::$smush_meta_key;
+	}
+
+	public static function get_lossy_meta_key() {
+		return self::$lossy_meta_key;
+	}
+
+	public static function get_key() {
+		return self::$key;
 	}
 
 	public function get_name() {
@@ -128,12 +136,12 @@ class Smush_Optimization extends Media_Item_Optimization {
 	public function save() {
 		$meta = $this->make_smush_meta();
 		if ( ! empty( $meta ) ) {
-			update_post_meta( $this->media_item->get_id(), self::SMUSH_META_KEY, $meta );
+			update_post_meta( $this->media_item->get_id(), self::$smush_meta_key, $meta );
 			// TODO: the separate lossy meta is only necessary for the backup global stats, if enough time has passed and enough people have moved to the new stats then we can remove it
 			if ( $this->get_lossy_level() ) {
-				update_post_meta( $this->media_item->get_id(), self::LOSSY_META_KEY, 1 );
+				update_post_meta( $this->media_item->get_id(), self::$lossy_meta_key, 1 );
 			} else {
-				delete_post_meta( $this->media_item->get_id(), self::LOSSY_META_KEY );
+				delete_post_meta( $this->media_item->get_id(), self::$lossy_meta_key );
 			}
 			$this->reset();
 		}
@@ -217,7 +225,7 @@ class Smush_Optimization extends Media_Item_Optimization {
 	}
 
 	private function fetch_smush_meta() {
-		$post_meta = get_post_meta( $this->media_item->get_id(), self::SMUSH_META_KEY, true );
+		$post_meta = get_post_meta( $this->media_item->get_id(), self::$smush_meta_key, true );
 
 		return empty( $post_meta ) || ! is_array( $post_meta )
 			? array()
@@ -402,7 +410,7 @@ class Smush_Optimization extends Media_Item_Optimization {
 	}
 
 	public function delete_data() {
-		delete_post_meta( $this->media_item->get_id(), self::SMUSH_META_KEY );
+		delete_post_meta( $this->media_item->get_id(), self::$smush_meta_key );
 
 		$this->reset();
 	}

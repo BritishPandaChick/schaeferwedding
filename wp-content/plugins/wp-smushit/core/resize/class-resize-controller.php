@@ -8,8 +8,8 @@ use Smush\Core\Stats\Global_Stats;
 use Smush\Core\Stats\Media_Item_Optimization_Global_Stats_Persistable;
 
 class Resize_Controller extends Controller {
-	const GLOBAL_STATS_OPTION_ID = 'wp-smush-resize-global-stats';
-	const RESIZE_OPTIMIZATION_ORDER = 10;
+	private static $global_stats_option_id = 'wp-smush-resize-global-stats';
+	private static $resize_optimization_order = 10;
 	/**
 	 * @var Global_Stats
 	 */
@@ -26,7 +26,7 @@ class Resize_Controller extends Controller {
 		$this->register_filter( 'wp_smush_optimizations', array(
 			$this,
 			'add_resize_optimization',
-		), self::RESIZE_OPTIMIZATION_ORDER, 2 );
+		), self::$resize_optimization_order, 2 );
 		$this->register_filter( 'wp_smush_global_optimization_stats', array( $this, 'add_resize_global_stats' ) );
 
 		$this->register_action( 'wp_smush_settings_updated', array(
@@ -48,7 +48,7 @@ class Resize_Controller extends Controller {
 	}
 
 	public function add_resize_global_stats( $stats ) {
-		$stats[ Resize_Optimization::KEY ] = new Media_Item_Optimization_Global_Stats_Persistable( self::GLOBAL_STATS_OPTION_ID );
+		$stats[ Resize_Optimization::get_key() ] = new Media_Item_Optimization_Global_Stats_Persistable( self::$global_stats_option_id );
 
 		return $stats;
 	}

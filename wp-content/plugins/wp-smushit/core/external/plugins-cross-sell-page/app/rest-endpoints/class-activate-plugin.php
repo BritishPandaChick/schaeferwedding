@@ -36,7 +36,7 @@ class Activate_Plugin extends Rest_Api {
 	 *
 	 * @return void
 	 */
-	public function register_routes(): void {
+	public function register_routes() {
 		// Route to get auth url.
 		register_rest_route(
 			$this->get_namespace(),
@@ -59,7 +59,7 @@ class Activate_Plugin extends Rest_Api {
 	 *
 	 * @return array
 	 */
-	protected function input_args(): array {
+	protected function input_args() {
 		return array(
 			'plugin_slug'  => array(
 				'type'     => 'string',
@@ -78,7 +78,7 @@ class Activate_Plugin extends Rest_Api {
 	 * @param \WP_REST_Request $request Request object.
 	 * @return bool
 	 */
-	public function check_permission( \WP_REST_Request $request ): bool {
+	public function check_permission( $request ) {
 		return $this->has_permission( $request, 'activate_plugins' );
 	}
 
@@ -91,7 +91,7 @@ class Activate_Plugin extends Rest_Api {
 	 *
 	 * @return \WP_REST_Response
 	 */
-	public function activate( \WP_REST_Request $request ): \WP_REST_Response {
+	public function activate( $request ) {
 		$response_message = '';
 		$success          = true;
 
@@ -124,7 +124,7 @@ class Activate_Plugin extends Rest_Api {
 	 *
 	 * @return bool|\WP_Error
 	 */
-	public function activate_plugin( string $plugin_slug ) {
+	public function activate_plugin( $plugin_slug ) {
 		if ( ! function_exists( 'activate_plugin' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}

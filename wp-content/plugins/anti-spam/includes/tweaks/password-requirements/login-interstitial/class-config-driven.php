@@ -18,17 +18,20 @@ class Login_Interstitial_Config_Driven extends Login_Interstitial_Base {
 	 * @throws \InvalidArgumentException
 	 */
 	public function __construct( array $config ) {
-		$this->config = wp_parse_args( $config, array(
-			'force_completion' => true, // Will logout the user's session before displaying the interstitial.
-			'show_to_user'     => true, // Boolean or callable.
-			'wp_login_only'    => false, // Only show the interstitial if the login form is submitted from wp-login.php,
-			'submit'           => false, // Callable called with user when submitting the form.
-			'async_action'     => false, // Callable called when a user clicks a link to perform an interstitial action.
-			'info_message'     => false,
-			'after_submit'     => false,
-			'ajax_handler'     => false,
-			'priority'         => 5,
-		) );
+		$this->config = wp_parse_args(
+			$config,
+			[
+				'force_completion' => true, // Will logout the user's session before displaying the interstitial.
+				'show_to_user'     => true, // Boolean or callable.
+				'wp_login_only'    => false, // Only show the interstitial if the login form is submitted from wp-login.php.
+				'submit'           => false, // Callable called with user when submitting the form.
+				'async_action'     => false, // Callable called when a user clicks a link to perform an interstitial action.
+				'info_message'     => false,
+				'after_submit'     => false,
+				'ajax_handler'     => false,
+				'priority'         => 5,
+			] 
+		);
 
 		if ( ! is_bool( $this->config['show_to_user'] ) && ! is_callable( $this->config['show_to_user'] ) ) {
 			throw new \InvalidArgumentException( 'Show to user is required.' );
@@ -50,14 +53,14 @@ class Login_Interstitial_Config_Driven extends Login_Interstitial_Base {
 	 * @inheritDoc
 	 */
 	public function show_to_user( \WP_User $user, $is_requested ) {
-		return $this->result( $this->config['show_to_user'], array( $user, $is_requested ) );
+		return $this->result( $this->config['show_to_user'], [ $user, $is_requested ] );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function show_on_wp_login_only( \WP_User $user ) {
-		return $this->result( $this->config['wp_login_only'], array( $user ) );
+		return $this->result( $this->config['wp_login_only'], [ $user ] );
 	}
 
 	/**
@@ -113,7 +116,7 @@ class Login_Interstitial_Config_Driven extends Login_Interstitial_Base {
 	 * @inheritDoc
 	 */
 	public function get_info_message( Login_Interstitial_Session $session ) {
-		return $this->result( $this->config['info_message'], array( $session->get_user() ) );
+		return $this->result( $this->config['info_message'], [ $session->get_user() ] );
 	}
 
 	/**
@@ -138,11 +141,11 @@ class Login_Interstitial_Config_Driven extends Login_Interstitial_Base {
 	 * If it is a function, will call the function with the provided args.
 	 *
 	 * @param bool|callable $provider
-	 * @param array $args
+	 * @param array         $args
 	 *
 	 * @return bool|mixed
 	 */
-	private function result( $provider, $args = array() ) {
+	private function result( $provider, $args = [] ) {
 		if ( is_bool( $provider ) ) {
 			return $provider;
 		}

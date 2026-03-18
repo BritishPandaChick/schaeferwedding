@@ -11,6 +11,7 @@ export class SmushLCPDetector {
 
 		const selector = unique(element);
 		const xpath = getXPath(element, {ignoreId: true});
+		this.useRelativeImageURL = this.shouldUseRelativeImageURL( element, imageUrl );
 		const body = {
 			url: window.location.href,
 			data: JSON.stringify({
@@ -18,9 +19,9 @@ export class SmushLCPDetector {
 				selector_xpath: xpath,
 				selector_id: element?.id,
 				selector_class: element?.className,
-				image_url: imageUrl,
-				background_data: this.getBackgroundDataForElement(element),
-			}),
+				image_url: this.useRelativeImageURL ? this.makeImageURLRelative( imageUrl ) : imageUrl,
+				background_data: this.getBackgroundDataForElement( element ),
+			} ),
 			nonce: smush_detector.nonce,
 			is_mobile: smush_detector.is_mobile,
 			data_store: JSON.stringify(smush_detector.data_store),
@@ -35,6 +36,38 @@ export class SmushLCPDetector {
 			.map(key => encodeURIComponent(key) + "=" + encodeURIComponent(body[key]))
 			.join("&");
 		xhr.send(urlEncodedData);
+	}
+
+	shouldUseRelativeImageURL( element, absoluteImageUrl ) {
+		if ( ! element?.outerHTML ) {
+			return false;
+		}
+
+		const outerHTML = element.outerHTML;
+		const containsAbsoluteUrl = outerHTML.includes( absoluteImageUrl );
+
+		if ( containsAbsoluteUrl ) {
+			return false;
+		}
+
+		const relativeImageUrl = this.makeImageURLRelative( absoluteImageUrl );
+		const containsRelativeUrl = outerHTML.includes( relativeImageUrl );
+
+		return containsRelativeUrl;
+	}
+
+	makeImageURLRelative( imageUrl ) {
+		try {
+			const url = new URL( imageUrl, window.location.origin ); // Parse the URL
+			if ( url.hostname === window.location.hostname ) {
+				// Only make the URL relative if it belongs to the current host
+				return url.pathname + url.search; // Keep the path and query string
+			}
+		} catch ( e ) {
+			// If the URL is invalid or relative, return it as-is.
+		}
+
+		return imageUrl; // Return the original URL if it doesn't belong to the host
 	}
 
 	getBackgroundDataForElement(element) {
@@ -60,14 +93,21 @@ export class SmushLCPDetector {
 		}
 		// IMPORTANT: the following regex is a copy of the one in the PHP function Parser::get_image_urls. Remember to keep them synced.
 		const cssBackgroundUrlRegex = /((?:https?:\/|\.+)?\/[^'",\s()]+\.(jpe?g|png|gif|webp|svg|avif)(?:\?[^\s'",?)]+)?)\b/ig;
-		const matches = [...fullBackgroundProp.matchAll(cssBackgroundUrlRegex)];
-		let backgroundSet = matches.map((match) => match[1].trim());
-		if (backgroundSet.length <= 0) {
+		const matches = [ ...fullBackgroundProp.matchAll( cssBackgroundUrlRegex ) ];
+		const backgroundSet = matches.map( ( match ) => {
+			const imageURL = match[ 1 ].trim();
+
+			return this.useRelativeImageURL
+				? this.makeImageURLRelative( imageURL )
+				: imageURL;
+		} );
+
+		if ( backgroundSet.length <= 0 ) {
 			return null;
 		}
+
 		return {
 			type: type,
-			property: fullBackgroundProp,
 			urls: backgroundSet,
 		};
 	}

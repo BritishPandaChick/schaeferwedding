@@ -61,6 +61,9 @@ export class AutoResizing {
 
 		// Skip processing if it's not the initial render.
 		if ( ! isInitialRender ) {
+			if ( ! this.getOriginalSizesAttr( element ) ) {
+				lazyEvent.preventDefault();
+			}
 			return;
 		}
 
@@ -114,10 +117,25 @@ export class AutoResizing {
 	 * @param  imageElement
 	 * @param  resizeWidth
 	 */
+	/**
+	 * Decide whether Smush should apply auto-resize for this image.
+	 *
+	 * Rules:
+	 * 1. If wrapper is inline/inline-block and wrapper/image already equal resizeWidth, skip (prevents Divi shrink).
+	 * 2. Otherwise, allow.
+	 *
+	 * @param  imageElement
+	 * @param  resizeWidth
+	 */
 	shouldAutoResize( imageElement, resizeWidth ) {
 		const wrapper = imageElement.parentNode;
+
 		if ( wrapper && this.isInlineElement( wrapper ) ) {
-			const wrapperWidth = wrapper.offsetWidth;
+			if ( 'PICTURE' === wrapper.nodeName ) {
+				return false;
+			}
+
+			const wrapperWidth = wrapper.clientWidth;
 			const imageWidth = imageElement.offsetWidth;
 			const isWrapperAndImageSameWidth = resizeWidth === wrapperWidth && wrapperWidth === imageWidth;
 
@@ -161,12 +179,50 @@ export class AutoResizing {
 			return;
 		}
 
+		const isNonResponsive = 1 === sortedSources.length && '' === sortedSources[ 0 ].unit;
+		if ( isNonResponsive ) {
+			this.resizeNonResponsiveSource( sourceElement, sortedSources[ 0 ].src, resizeWidth );
+			return;
+		}
+
 		const baseSourceSrc = this.getBaseSourceSrcForResize( sortedSources, resizeWidth );
 		if ( ! this.isFromSmushCDN( baseSourceSrc ) ) {
 			return;
 		}
 
 		this.updateSrcsetForResize( sourceElement, srcset, baseSourceSrc, resizeWidth, sortedSources );
+	}
+
+	resizeNonResponsiveSource(sourceElement, sourceSrc, resizeWidth ) {
+		if ( ! this.isFromSmushCDN( sourceSrc ) ) {
+			return;
+		}
+
+		if ( ! this.isSourceActive( sourceElement ) ) {
+			return;
+		}
+
+		let newSrcset = this.getResizedCDNURL( sourceSrc, resizeWidth );
+
+		// Add a new retina source to the srcset if no similar source exists for the retina width.
+		const scale = this.getPixelRatio();
+		if ( scale > 1 ) {
+			const retinaWidth = Math.ceil( resizeWidth * scale );
+			const retinaCDNURL = this.getResizedCDNURL( sourceSrc, retinaWidth );
+			const newRetinaSourceString = retinaCDNURL + ' ' + retinaWidth + SRCSET_WIDTH_DESCRIPTOR;
+			newSrcset += ` ${ resizeWidth }${ SRCSET_WIDTH_DESCRIPTOR }, ${ newRetinaSourceString }`;
+		}
+
+		// Update the element's data-srcset attribute if the srcset has changed.
+		this.updateElementSrcset( sourceElement, null, newSrcset );
+	}
+
+	isSourceActive( sourceElement ) {
+		const media = sourceElement.getAttribute( 'media' );
+		if ( media && ! window?.matchMedia( media )?.matches ) {
+			return false;
+		}
+		return true;
 	}
 
 	getBaseSourceSrcForResize( sortedSources, resizeWidth ) {

@@ -71,7 +71,7 @@ class Srcset_Helper {
 		}
 
 		// This is an image placeholder - do not generate srcset.
-		if ( $width === $height && $width < Transformation_Controller::MIN_TRANSFORMABLE_IMAGE_DIMENSION ) {
+		if ( $width === $height && $width < Transformation_Controller::get_min_transformable_image_dimension() ) {
 			return array( false, false );
 		}
 

@@ -11,6 +11,7 @@ namespace Smush\Core\CLI;
 use Smush\Core\Array_Utils;
 use Smush\Core\Helper;
 use Smush\Core\Media_Library\Background_Media_Library_Scanner;
+use Smush\Core\Membership\Membership;
 use Smush\Core\Stats\Global_Stats;
 use WP_CLI;
 use WP_CLI_Command;
@@ -80,6 +81,11 @@ class CLI extends WP_CLI_Command {
 	 * @param array $assoc_args All the arguments defined like --key=value or --flag or --no-flag.
 	 */
 	public function compress( $args, $assoc_args ) {
+		if ( Membership::get_instance()->is_api_hub_access_required() ) {
+			WP_CLI::warning( __( 'Bulk Smush requires your site to be connected to a free WPMU DEV account. Connect your site via plugin and try again.', 'wp-smushit' ) );
+			return;
+		}
+
 		$type  = $this->array_utils->get_array_value( $assoc_args, 'type' );
 		$image = $this->array_utils->get_array_value( $assoc_args, 'image' );
 

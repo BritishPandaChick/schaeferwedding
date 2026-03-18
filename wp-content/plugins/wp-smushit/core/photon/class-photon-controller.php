@@ -26,7 +26,7 @@ class Photon_Controller extends Controller {
 			return $size;
 		}
 
-		return $key === Media_Item::SIZE_KEY_FULL
+		return $key === Media_Item::get_size_key_full()
 			? $size
 			: false;
 	}

@@ -5,17 +5,17 @@ namespace WBCR\Titan\Cert;
 
 /**
  * Class Cert
+ *
  * @package WBCR\Titan\Cert
  *
- * @author  Alexander Gorenkov <g.a.androidjc2@ya.ru>
  * @version 1.0.0
  */
 class Cert {
-	const ERROR_NO_ERROR = 0;
-	const ERROR_UNAVAILABLE = 1;
-	const ERROR_ONLY_HTTPS = 2;
+	const ERROR_NO_ERROR          = 0;
+	const ERROR_UNAVAILABLE       = 1;
+	const ERROR_ONLY_HTTPS        = 2;
 	const ERROR_HTTPS_UNAVAILABLE = 3;
-	const ERROR_UNKNOWN_ERROR = - 1;
+	const ERROR_UNKNOWN_ERROR     = - 1;
 
 	/**
 	 * @var Cert
@@ -103,7 +103,7 @@ class Cert {
 		if ( empty( $this->cert_info ) ) {
 			$g = stream_context_create( [ 'ssl' => [ 'capture_peer_cert' => true ] ] );
 			$r = @fopen( $this->url, 'rb', false, $g );
-			if ( $r === false ) {
+			if ( false === $r ) {
 				$this->error = self::ERROR_HTTPS_UNAVAILABLE;
 
 				return false;
@@ -154,19 +154,19 @@ class Cert {
 	public function get_error_message() {
 		switch ( $this->error ) {
 			case self::ERROR_UNKNOWN_ERROR:
-				return __( 'Unknown error', 'titan-security' );
+				return __( 'Unknown error', 'anti-spam' );
 				break;
 
 			case self::ERROR_UNAVAILABLE:
-				return __( 'PHP openssl extension is missing', 'titan-security' );
+				return __( 'PHP openssl extension is missing', 'anti-spam' );
 				break;
 
 			case self::ERROR_ONLY_HTTPS:
-				return __( 'Verification is only available on HTTPS', 'titan-security' );
+				return __( 'Verification is only available on HTTPS', 'anti-spam' );
 				break;
 
 			case self::ERROR_HTTPS_UNAVAILABLE:
-				return __( 'HTTPS is not activated on this site.', 'titan-security' );
+				return __( 'HTTPS is not activated on this site.', 'anti-spam' );
 				break;
 
 			case self::ERROR_NO_ERROR:

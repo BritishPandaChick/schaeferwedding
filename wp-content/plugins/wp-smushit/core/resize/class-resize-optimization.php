@@ -7,16 +7,16 @@ use Smush\Core\Helper;
 use Smush\Core\Media\Media_Item;
 use Smush\Core\Media\Media_Item_Optimization;
 use Smush\Core\Media\Media_Item_Size;
-use Smush\Core\Media\Media_Item_Stats;
 use Smush\Core\Settings;
+use Smush\Core\Smush\Smush_Optimization;
 use Smush\Core\Upload_Dir;
 use WDEV_Logger;
 use WP_Error;
 use WP_Image_Editor;
 
 class Resize_Optimization extends Media_Item_Optimization {
-	const KEY = 'resize_optimization';
-	const META_KEY = 'wp-smush-resize_savings';
+	private static $key = 'resize_optimization';
+	private static $meta_key = 'wp-smush-resize_savings';
 	/**
 	 * @var Media_Item
 	 */
@@ -38,7 +38,7 @@ class Resize_Optimization extends Media_Item_Optimization {
 	 */
 	private $implementations;
 	/**
-	 * @var Media_Item_Stats
+	 * @var Resize_Media_Item_Stats
 	 */
 	private $stats;
 	private $savings_meta;
@@ -70,14 +70,19 @@ class Resize_Optimization extends Media_Item_Optimization {
 		$this->upload_dir = new Upload_Dir();
 	}
 
-	public function get_key() {
-		return self::KEY;
+	public static function get_key() {
+		return self::$key;
 	}
 
 	public function get_name() {
 		return __( 'Resize', 'wp-smushit' );
 	}
 
+	/**
+	 * Get optimization statistics.
+	 *
+	 * @return Resize_Media_Item_Stats
+	 */
 	public function get_stats() {
 		if ( is_null( $this->stats ) ) {
 			$this->stats = $this->prepare_stats();
@@ -88,7 +93,7 @@ class Resize_Optimization extends Media_Item_Optimization {
 
 	public function get_size_stats( $size_key ) {
 		if ( is_null( $this->size_stats ) ) {
-			$this->size_stats = new Media_Item_Stats();
+			$this->size_stats = new Resize_Media_Item_Stats();
 		}
 
 		return $this->size_stats;
@@ -97,7 +102,7 @@ class Resize_Optimization extends Media_Item_Optimization {
 	public function save() {
 		$meta = $this->make_meta();
 		if ( ! empty( $meta ) ) {
-			update_post_meta( $this->media_item->get_id(), self::META_KEY, $meta );
+			update_post_meta( $this->media_item->get_id(), self::$meta_key, $meta );
 			$this->reset();
 		}
 	}
@@ -153,7 +158,18 @@ class Resize_Optimization extends Media_Item_Optimization {
 	}
 
 	public function should_reoptimize() {
-		return $this->should_optimize();
+		if ( ! $this->should_optimize() ) {
+			return false;
+		}
+
+		$stats                 = $this->get_stats();
+		$dimensions            = $this->get_resize_dimensions();
+		$target_width          = (int) $dimensions->width;
+		$target_height         = (int) $dimensions->height;
+		$resizing_size_changed = $target_width !== $stats->get_resize_width()
+							|| $target_height !== $stats->get_resize_height();
+
+		return $resizing_size_changed;
 	}
 
 	public function optimize() {
@@ -211,11 +227,15 @@ class Resize_Optimization extends Media_Item_Optimization {
 			return false;
 		}
 
-		$original_filesize = $size_to_resize->get_filesize();
+		$original_filesize  = $size_to_resize->get_filesize();
 		$new_filesize      = ! empty( $data['filesize'] )
 			? $data['filesize']
 			: $this->fs->filesize( $new_path );
-		if ( $new_filesize > $original_filesize ) {
+
+		if (
+			$new_filesize > $original_filesize
+			&& ! apply_filters( 'wp_smush_resize_allow_larger_resized_file', false )
+		) {
 			$this->maybe_delete_file( $new_path );
 			$this->add_error(
 				'no_savings',
@@ -233,6 +253,11 @@ class Resize_Optimization extends Media_Item_Optimization {
 					size_format( $original_filesize )
 				)
 			);
+
+			// Update no savings stats.
+			$this->update_stats( $original_filesize, $original_filesize );
+			// Save resize meta.
+			$this->save();
 
 			return false;
 		}
@@ -262,16 +287,33 @@ class Resize_Optimization extends Media_Item_Optimization {
 		$this->media_item->save();
 
 		// Update the stats.
-		$stats = $this->get_stats();
-		$stats->set_size_before( $original_filesize );
-		$stats->set_size_after( $new_filesize );
-
+		$this->update_stats( $new_filesize, $original_filesize );
 		// Save resize meta.
 		$this->save();
 
-		do_action( 'wp_smush_image_resized', $id, $stats->to_array() );
+		do_action( 'wp_smush_image_resized', $id, $this->get_stats()->to_array() );
 
 		return true;
+	}
+
+	/**
+	 * Update resizing statistics.
+	 *
+	 * @param mixed $size_after New resized image filesize.
+	 * @param mixed $size_before Original image filesize.
+	 * @return void
+	 */
+	private function update_stats( $size_after, $size_before ) {
+		$stats      = $this->get_stats();
+		$dimensions = $this->get_resize_dimensions();
+		// The image can be resized before, so make sure we don't lose the oldest stats.
+		$size_before = max( $size_before, $stats->get_size_before() );
+		$size_after  = $stats->get_size_after() > 0 ? min( $size_after, $stats->get_size_after() ) : $size_after;
+
+		$stats->set_size_before( $size_before );
+		$stats->set_size_after( $size_after );
+		$stats->set_resize_width( $dimensions->width );
+		$stats->set_resize_height( $dimensions->height );
 	}
 
 	private function maybe_delete_file( $file_path ) {
@@ -371,7 +413,7 @@ class Resize_Optimization extends Media_Item_Optimization {
 	}
 
 	private function prepare_stats() {
-		$stats = new Media_Item_Stats();
+		$stats = new Resize_Media_Item_Stats();
 		$stats->from_array( $this->get_savings_meta() );
 
 		return $stats;
@@ -386,7 +428,7 @@ class Resize_Optimization extends Media_Item_Optimization {
 	}
 
 	private function prepare_savings_meta() {
-		$meta = get_post_meta( $this->media_item->get_id(), self::META_KEY, true );
+		$meta = get_post_meta( $this->media_item->get_id(), self::$meta_key, true );
 
 		return empty( $meta )
 			? array()
@@ -401,7 +443,7 @@ class Resize_Optimization extends Media_Item_Optimization {
 	}
 
 	public function delete_data() {
-		delete_post_meta( $this->media_item->get_id(), self::META_KEY );
+		delete_post_meta( $this->media_item->get_id(), self::$meta_key );
 
 		$this->reset();
 	}

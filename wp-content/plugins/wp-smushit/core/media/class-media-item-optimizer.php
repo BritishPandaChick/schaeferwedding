@@ -10,7 +10,7 @@ use WDEV_Logger;
 use WP_Error;
 
 class Media_Item_Optimizer {
-	const ERROR_META_KEY = 'wp-smush-optimization-errors';
+	private static $error_meta_key = 'wp-smush-optimization-errors';
 
 	/**
 	 * @var Media_Item_Optimization[]
@@ -38,6 +38,13 @@ class Media_Item_Optimizer {
 	 * @var WP_Error
 	 */
 	private $errors;
+
+	/**
+	 * Restoration errors.
+	 *
+	 * @var WP_Error
+	 */
+	private $restoration_errors;
 
 	public function __construct( $media_item ) {
 		$this->media_item   = $media_item;
@@ -240,6 +247,8 @@ class Media_Item_Optimizer {
 
 		$this->set_restore_in_progress_transient();
 
+		$this->reset_restoration_errors();
+
 		$restoration_attempted = false;
 		$restored              = false;
 
@@ -270,6 +279,8 @@ class Media_Item_Optimizer {
 
 			// Once all data has been deleted, adjust the lists
 			$this->global_stats->adjust_lists_for_media_item( $this->media_item );
+		} else {
+			$this->set_restoration_errors( $this->backups->get_errors() );
 		}
 
 		$this->delete_restore_in_progress_transient();
@@ -405,7 +416,7 @@ class Media_Item_Optimizer {
 
 	private function fetch_errors_from_meta() {
 		$wp_error = new WP_Error();
-		$errors   = get_post_meta( $this->media_item->get_id(), self::ERROR_META_KEY, true );
+		$errors   = get_post_meta( $this->media_item->get_id(), self::$error_meta_key, true );
 
 		if ( empty( $errors ) || ! is_array( $errors ) ) {
 			return $wp_error;
@@ -435,7 +446,7 @@ class Media_Item_Optimizer {
 		}
 
 		if ( ! empty( $errors_array ) ) {
-			update_post_meta( $this->media_item->get_id(), self::ERROR_META_KEY, $errors_array );
+			update_post_meta( $this->media_item->get_id(), self::$error_meta_key, $errors_array );
 		}
 	}
 
@@ -449,8 +460,49 @@ class Media_Item_Optimizer {
 
 	private function delete_previous_optimization_errors() {
 		if ( $this->has_errors() ) {
-			delete_post_meta( $this->media_item->get_id(), self::ERROR_META_KEY );
+			delete_post_meta( $this->media_item->get_id(), self::$error_meta_key );
 			$this->set_errors( null );
 		}
 	}
+
+	/**
+	 * Reset restoration errors.
+	 *
+	 * @return void
+	 */
+	private function reset_restoration_errors() {
+		$this->restoration_errors = null;
+	}
+
+	/**
+	 * Set restoration errors.
+	 *
+	 * @param WP_Error $errors Restoration errors.
+	 */
+	private function set_restoration_errors( $errors ) {
+		$this->restoration_errors = $errors;
+	}
+
+	/**
+	 * Get restoration errors.
+	 *
+	 * @return WP_Error
+	 */
+	public function get_restoration_errors() {
+		if ( ! $this->restoration_errors ) {
+			$this->restoration_errors = new WP_Error();
+		}
+
+		return $this->restoration_errors;
+	}
+
+	/**
+	 * Get error_meta_key.
+	 *
+	 * @return string
+	 */
+	public static function get_error_meta_key() {
+		return self::$error_meta_key;
+	}
+
 }

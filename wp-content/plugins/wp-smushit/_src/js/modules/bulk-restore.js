@@ -98,11 +98,10 @@ import tracker from "../utils/tracker";
 
 					self.settings = { slide: 'progress' };
 					self.errors = [];
+					self.success = [];
 
 					self.renderTemplate();
 					self.initScan();
-
-					tracker.track('Bulk Restore Triggered');
 				});
 			}
 		},
@@ -223,6 +222,7 @@ import tracker from "../utils/tracker";
 								src: data.src || "Error",
 								thumb: data.thumb,
 								link: data.link,
+								error_code: data.error_code || '',
 							});
 						}
 					}
@@ -232,22 +232,51 @@ import tracker from "../utils/tracker";
 				};
 				xhr.send('item=' + item + '&_ajax_nonce=' + _nonce.value);
 			} else {
-				// Finish.
-				this.settings = {
-					slide: 'finish',
-					success: this.success.length,
-					errors: this.errors,
-					total: this.totalSteps,
-				};
-
-				self.renderTemplate();
-				if (0 < this.errors.length) {
-					this.modal.style.maxWidth = '660px';
-					this.modal.querySelector('.sui-box').style.maxWidth =
-						'660px';
-				}
+				this.onFinish();
+				
 			}
 		},
+		onFinish() {
+			const missingBackupCount = this.errors.filter(
+				(e) => e.error_code === 'missing_backup'
+			).length;
+
+			const errorCopyCount = this.errors.filter(
+				(e) => e.error_code === 'copy_failed'
+			).length;
+
+			// Finish.
+			this.settings = {
+				slide: 'finish',
+				success: this.success.length,
+				errors: this.errors,
+				errorsCount: this.errors.length,
+				missingBackupCount: missingBackupCount,
+				errorCopyCount: errorCopyCount,
+				total: this.totalSteps,
+			};
+
+			this.renderTemplate();
+			if (0 < this.errors.length) {
+				this.modal.style.maxWidth = '660px';
+				this.modal.querySelector('.sui-box').style.maxWidth =
+					'660px';
+			}
+
+			this.trackBulkRestoredEvent();
+		},
+
+		trackBulkRestoredEvent() {
+			tracker.track(
+				'Bulk Restore Triggered',
+				{
+					Type: 'All',
+					'Total images restored': this.settings.success,
+					'Total images': this.settings.total,
+					'Backup not found': this.settings.missingBackupCount
+				}
+			);
+		}
 	};
 
 	/**

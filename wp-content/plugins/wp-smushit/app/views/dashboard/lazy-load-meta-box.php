@@ -41,18 +41,12 @@ if ( ! defined( 'WPINC' ) ) {
 				<?php endif; ?>
 			</td>
 		</tr>
-		<tr class="<?php echo WP_Smush::is_pro() ? '' : 'smush-disabled-table-row'; ?>">
+		<tr class="smush-disabled-table-row">
 			<td class="sui-table-item-title">
 				<?php esc_html_e( 'Preload Critical Images', 'wp-smushit' ); ?>
 			</td>
 			<td>
-				<?php if ( $is_preload_active ) : ?>
-					<span class="sui-tag sui-tag-green"><?php esc_html_e( 'Active', 'wp-smushit' ); ?></span>
-				<?php elseif ( ! WP_Smush::is_pro() ) : ?>
-					<span class="sui-tag sui-tag-purple sui-tag-sm"><?php esc_html_e( 'PRO', 'wp-smushit' ); ?></span>
-				<?php else: ?>
-					<span class="sui-tag"><?php esc_html_e( 'Inactive', 'wp-smushit' ); ?></span>
-				<?php endif; ?>
+				<span class="sui-tag sui-tag-purple sui-tag-sm"><?php esc_html_e( 'PRO', 'wp-smushit' ); ?></span>
 			</td>
 		</tr>
 		</tbody>

@@ -11,8 +11,8 @@ use Smush\Core\Stats\Media_Item_Optimization_Global_Stats_Persistable;
 use Smush\Core\Webp\Webp_Converter;
 
 class Smush_Controller extends Controller {
-	const GLOBAL_STATS_OPTION_ID = 'wp-smush-optimization-global-stats';
-	const SMUSH_OPTIMIZATION_ORDER = 40;
+	private static $global_stats_option_id = 'wp-smush-optimization-global-stats';
+	private static $smush_optimization_order = 40;
 
 	private $global_stats;
 	/**
@@ -36,7 +36,7 @@ class Smush_Controller extends Controller {
 		$this->register_filter( 'wp_smush_optimizations', array(
 			$this,
 			'add_smush_optimization',
-		), self::SMUSH_OPTIMIZATION_ORDER, 2 );
+		), self::$smush_optimization_order, 2 );
 		$this->register_filter( 'wp_smush_global_optimization_stats', array( $this, 'add_png2jpg_global_stats' ) );
 		$this->register_filter( 'wp_smush_optimization_global_stats_instance', array(
 			$this,
@@ -70,8 +70,8 @@ class Smush_Controller extends Controller {
 	}
 
 	public function add_png2jpg_global_stats( $stats ) {
-		$stats[ Smush_Optimization::KEY ] = new Media_Item_Optimization_Global_Stats_Persistable(
-			self::GLOBAL_STATS_OPTION_ID,
+		$stats[ Smush_Optimization::get_key() ] = new Media_Item_Optimization_Global_Stats_Persistable(
+			self::$global_stats_option_id,
 			new Smush_Optimization_Global_Stats()
 		);
 
@@ -79,7 +79,7 @@ class Smush_Controller extends Controller {
 	}
 
 	public function create_global_stats_instance( $original, $key ) {
-		if ( $key === Smush_Optimization::KEY ) {
+		if ( $key === Smush_Optimization::get_key() ) {
 			return new Smush_Optimization_Global_Stats();
 		}
 

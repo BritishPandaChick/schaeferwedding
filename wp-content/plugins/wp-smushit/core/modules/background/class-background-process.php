@@ -11,7 +11,7 @@ use Smush\Core\Server_Utils;
  * @extends Async_Request
  */
 abstract class Background_Process extends Async_Request {
-	const TASKS_PER_REQUEST_UNLIMITED = - 1;
+	private static $tasks_per_request_unlimited = - 1;
 
 	/**
 	 * Start time of current process.
@@ -53,7 +53,7 @@ abstract class Background_Process extends Async_Request {
 	 */
 	private $utils;
 
-	private $tasks_per_request = self::TASKS_PER_REQUEST_UNLIMITED;
+	private $tasks_per_request = null;
 	private $server_utils;
 
 	/**
@@ -604,7 +604,7 @@ abstract class Background_Process extends Async_Request {
 	}
 
 	private function task_limit_reached( $processed_tasks_count ) {
-		if ( $this->get_tasks_per_request() === self::TASKS_PER_REQUEST_UNLIMITED ) {
+		if ( $this->get_tasks_per_request() === self::$tasks_per_request_unlimited ) {
 			return false;
 		}
 
@@ -612,7 +612,7 @@ abstract class Background_Process extends Async_Request {
 	}
 
 	public function get_tasks_per_request() {
-		return $this->tasks_per_request;
+		return $this->tasks_per_request ?? self::$tasks_per_request_unlimited;
 	}
 
 	/**
@@ -678,7 +678,7 @@ abstract class Background_Process extends Async_Request {
 	 *
 	 * @return string
 	 */
-	public function action_name( $action ): string {
+	public function action_name( $action ) {
 		return "{$this->identifier}_$action";
 	}
 }

@@ -165,7 +165,7 @@ class Page {
 	/**
 	 * @return Replaceable[]
 	 */
-	private function get_sorted_items(): array {
+	private function get_sorted_items() {
 		/**
 		 * @var Replaceable[] $replaceable
 		 */

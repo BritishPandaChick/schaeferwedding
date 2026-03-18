@@ -367,9 +367,9 @@ class Smush {
 		if ( isNextgen ) {
 			statsHuman.html( formattedSize );
 		} else {
-			statsHuman.html( WP_Smush.helpers.getFormatFromString( formattedSize ) );
+			statsHuman.html( formattedSize );
 			jQuery( '.sui-summary-large.wp-smush-stats-human' )
-				.html( WP_Smush.helpers.getSizeFromString( formattedSize ) );
+				.html( formattedSize );
 		}
 
 		// Update the savings percent.
@@ -993,7 +993,6 @@ class Smush {
 		// Show upsell cdn.
 		const upsellCdn = document.querySelector('.wp-smush-upsell-cdn');
 		if ( upsellCdn ) {
-			upsellCdn.querySelector('p').innerHTML = wp_smush_msgs.processed_cdn_for_free;
 			upsellCdn.classList.remove('sui-hidden');
 		}
 	}

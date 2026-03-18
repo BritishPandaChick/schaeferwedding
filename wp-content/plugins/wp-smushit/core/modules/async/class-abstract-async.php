@@ -29,21 +29,21 @@ abstract class Abstract_Async {
 	 *
 	 * See constructor documentation for more details.
 	 */
-	const LOGGED_IN = 1;
+	private static $logged_in = 1;
 
 	/**
 	 * Constant identifier for a task that should be available to logged-out users
 	 *
 	 * See constructor documentation for more details.
 	 */
-	const LOGGED_OUT = 2;
+	private static $logged_out = 2;
 
 	/**
 	 * Constant identifier for a task that should be available to all users regardless of auth status
 	 *
 	 * See constructor documentation for more details.
 	 */
-	const BOTH = 3;
+	private static $both = 3;
 
 	/**
 	 * This is the argument count for the main action set in the constructor. It
@@ -91,7 +91,10 @@ abstract class Abstract_Async {
 	 *
 	 * @param int $auth_level The authentication level to use (see above).
 	 */
-	public function __construct( $auth_level = self::BOTH ) {
+	public function __construct( $auth_level = null ) {
+		if ( is_null( $auth_level ) ) {
+			$auth_level = self::$both;
+		}
 		if ( empty( $this->action ) ) {
 			throw new Exception( 'Action not defined for class ' . __CLASS__ );
 		}
@@ -99,11 +102,11 @@ abstract class Abstract_Async {
 		// Handle the actual action.
 		add_action( $this->action, array( $this, 'launch' ), $this->priority, $this->argument_count );
 
-		if ( $auth_level & self::LOGGED_IN ) {
+		if ( $auth_level & self::$logged_in ) {
 			add_action( "admin_post_wp_async_$this->action", array( $this, 'handle_postback' ) );
 		}
 
-		if ( $auth_level & self::LOGGED_OUT ) {
+		if ( $auth_level & self::$logged_out ) {
 			add_action( "admin_post_nopriv_wp_async_$this->action", array( $this, 'handle_postback' ) );
 		}
 	}

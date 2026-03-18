@@ -63,7 +63,7 @@ class Admin {
 	 *
 	 * @return array
 	 */
-	public function get_plugin_extra_args( string $plugin ): array {
+	public function get_plugin_extra_args( $plugin ) {
 		if ( ! empty( $plugin ) && ! empty( $this->extra_args[ $plugin ] ) ) {
 			return $this->extra_args[ $plugin ];
 		}
@@ -80,7 +80,7 @@ class Admin {
 	 *
 	 * @return array
 	 */
-	public function get_plugin_screens( string $plugin ): array {
+	public function get_plugin_screens( $plugin ) {
 		if ( ! empty( $plugin ) && ! empty( $this->screens[ $plugin ] ) ) {
 			return $this->screens[ $plugin ];
 		}
@@ -98,7 +98,7 @@ class Admin {
 	 *
 	 * @return void
 	 */
-	public function set_plugin_options( string $plugin, array $options = array() ) {
+	public function set_plugin_options( $plugin, $options = array() ) {
 		if ( empty( $plugin ) ) {
 			return;
 		}
@@ -128,7 +128,7 @@ class Admin {
 	 *
 	 * @return void
 	 */
-	public function set_plugin_screens( string $plugin, array $screens = array() ) {
+	public function set_plugin_screens( $plugin, $screens = array() ) {
 		if ( ! empty( $screens ) ) {
 			foreach ( $screens as $screen ) {
 				$this->screens[ $screen ] = $plugin;
@@ -146,7 +146,7 @@ class Admin {
 	 *
 	 * @return void
 	 */
-	public function set_plugin_extra_args( string $plugin, array $args = array() ) {
+	public function set_plugin_extra_args( $plugin, $args = array() ) {
 		$this->extra_args[ $plugin ] = $args;
 	}
 
@@ -692,7 +692,7 @@ class Admin {
 	 *
 	 * @return array
 	 */
-	private function get_plugin_extra_args_from_screen(): array {
+	private function get_plugin_extra_args_from_screen() {
 		$screen = get_current_screen();
 		// We need screen ID.
 		if ( empty( $screen->id ) ) {

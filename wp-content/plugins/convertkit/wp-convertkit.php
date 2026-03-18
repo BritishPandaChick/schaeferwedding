@@ -9,7 +9,7 @@
  * Plugin Name: Kit (formerly ConvertKit)
  * Plugin URI: https://kit.com/
  * Description: Display Kit (formerly ConvertKit) email subscription forms, landing pages, products, broadcasts and more.
- * Version: 3.0.7
+ * Version: 3.2.1
  * Author: Kit
  * Author URI: https://kit.com/
  * Text Domain: convertkit
@@ -27,7 +27,7 @@ define( 'CONVERTKIT_PLUGIN_NAME', 'ConvertKit' ); // Used for user-agent in API 
 define( 'CONVERTKIT_PLUGIN_FILE', plugin_basename( __FILE__ ) );
 define( 'CONVERTKIT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'CONVERTKIT_PLUGIN_PATH', __DIR__ );
-define( 'CONVERTKIT_PLUGIN_VERSION', '3.0.7' );
+define( 'CONVERTKIT_PLUGIN_VERSION', '3.2.1' );
 define( 'CONVERTKIT_OAUTH_CLIENT_ID', 'HXZlOCj-K5r0ufuWCtyoyo3f688VmMAYSsKg1eGvw0Y' );
 define( 'CONVERTKIT_OAUTH_CLIENT_REDIRECT_URI', 'https://app.kit.com/wordpress/redirect' );
 
@@ -52,7 +52,7 @@ if ( ! class_exists( 'ConvertKit_Review_Request' ) ) {
 require_once CONVERTKIT_PLUGIN_PATH . '/includes/cron-functions.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/includes/functions.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/includes/class-wp-convertkit.php';
-require_once CONVERTKIT_PLUGIN_PATH . '/includes/class-convertkit-ajax.php';
+require_once CONVERTKIT_PLUGIN_PATH . '/includes/class-convertkit-admin-notices.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/includes/class-convertkit-broadcasts-exporter.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/includes/class-convertkit-broadcasts-importer.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/includes/class-convertkit-cache-plugins.php';
@@ -108,7 +108,6 @@ require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-quick-edit.
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-cache-plugins.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-category.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-landing-page.php';
-require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-notices.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-post.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-refresh-resources.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-restrict-content.php';
@@ -116,6 +115,13 @@ require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-settings.ph
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-tinymce.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-admin-setup-wizard.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/class-convertkit-wp-list-table.php';
+require_once CONVERTKIT_PLUGIN_PATH . '/admin/importers/class-convertkit-admin-importer.php';
+require_once CONVERTKIT_PLUGIN_PATH . '/admin/importers/class-convertkit-admin-importer-activecampaign.php';
+require_once CONVERTKIT_PLUGIN_PATH . '/admin/importers/class-convertkit-admin-importer-aweber.php';
+require_once CONVERTKIT_PLUGIN_PATH . '/admin/importers/class-convertkit-admin-importer-campaignmonitor.php';
+require_once CONVERTKIT_PLUGIN_PATH . '/admin/importers/class-convertkit-admin-importer-mc4wp.php';
+require_once CONVERTKIT_PLUGIN_PATH . '/admin/importers/class-convertkit-admin-importer-mailpoet.php';
+require_once CONVERTKIT_PLUGIN_PATH . '/admin/importers/class-convertkit-admin-importer-newsletter.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/section/class-convertkit-admin-section-base.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/section/class-convertkit-admin-section-broadcasts.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/admin/section/class-convertkit-admin-section-form-entries.php';
@@ -142,6 +148,9 @@ require_once CONVERTKIT_PLUGIN_PATH . '/includes/integrations/elementor/class-co
 require_once CONVERTKIT_PLUGIN_PATH . '/includes/integrations/forminator/class-convertkit-forminator-admin-section.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/includes/integrations/forminator/class-convertkit-forminator.php';
 require_once CONVERTKIT_PLUGIN_PATH . '/includes/integrations/forminator/class-convertkit-forminator-settings.php';
+
+// Impeka Integration.
+require_once CONVERTKIT_PLUGIN_PATH . '/includes/integrations/class-convertkit-impeka.php';
 
 // Uncode Integration.
 require_once CONVERTKIT_PLUGIN_PATH . '/includes/integrations/class-convertkit-uncode.php';

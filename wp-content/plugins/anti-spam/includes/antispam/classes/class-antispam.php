@@ -1,20 +1,26 @@
 <?php
+/**
+ * Antispam Module Class
+ *
+ * @package    WBCR\Titan
+ */
 
 namespace WBCR\Titan;
 
-// Exit if accessed directly
-if( !defined('ABSPATH') ) {
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * The file contains a short help info.
+ * Main Antispam module class.
  *
- * @author        Artem Prihodko <webtemyk@ya.ru>
- * @copyright (c) 2020 Creative Motion
- * @version       1.0
+ * Handles anti-spam mode management, AJAX toggling, and spam statistics
+ * retrieval via the Premium API.
+ *
+ * @since 6.5.3
  */
-class Antispam extends Module_Base {
+class Antispam {
 
 	/**
 	 * @see self::app()
@@ -42,116 +48,57 @@ class Antispam extends Module_Base {
 	public $mode;
 
 	/**
-	 * Vulnerabilities constructor.
+	 * Initializes the Antispam module.
 	 *
+	 * Sets up module paths, loads the current anti-spam mode from options,
+	 * and registers the AJAX handler for mode toggling.
 	 */
-	public function __construct()
-	{
-		parent::__construct();
-		self::$app = $this;
+	public function __construct() {
+		self::$app  = $this;
+		$this->mode = get_option( 'titan_antispam_mode', true );
 
-		$this->module_dir = WTITAN_PLUGIN_DIR . "/includes/antispam";
-		$this->module_url = WTITAN_PLUGIN_URL . "/includes/antispam";
-
-		$this->mode = $this->plugin->getOption('antispam_mode', true);
-
-		add_action('wp_ajax_wtitan-change-antispam-mode', [$this, 'change_antispam_mode']);
+		add_action( 'wp_ajax_wtitan-change-antispam-mode', [ $this, 'change_anti_spam_mode' ] );
 	}
 
 	/**
 	 * @return Antispam
 	 * @since  7.0
 	 */
-	public static function app()
-	{
+	public static function app() {
 		return self::$app;
 	}
 
 	/**
-	 * AJAX Enable/Disable anti-spam
+	 * AJAX handler to enable or disable anti-spam protection.
+	 *
+	 * Validates the nonce and user capability, then updates the anti-spam
+	 * mode option. Returns a JSON response with the result.
+	 *
+	 * @return void Outputs JSON response and terminates.
 	 */
-	public function change_antispam_mode()
-	{
-		check_ajax_referer('wtitan_change_antispam_mode');
+	public function change_anti_spam_mode() {
+		check_ajax_referer( 'wtitan_change_antispam_mode' );
 
-		if( !current_user_can('manage_options') ) {
-			wp_send_json(['error_message' => __('You don\'t have enough capability to edit this information.', 'titan-security')]);
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json( [ 'error_message' => __( 'You don\'t have enough capability to edit this information.', 'anti-spam' ) ] );
 		}
 
-		if( isset($_POST['mode']) ) {
+		if ( isset( $_POST['mode'] ) ) {
 
-			$mode_name = sanitize_text_field($_POST['mode']);
+			$mode_name = sanitize_text_field( $_POST['mode'] );
 
-			\WBCR\Titan\Plugin::app()->updatePopulateOption('antispam_mode', $mode_name);
+			update_option( 'titan_antispam_mode', $mode_name );
 
-			if( (bool)$mode_name ) {
-				wp_send_json([
-					'message' => __("Anti-spam successfully enabled", "titan-security"),
-					'mode' => $mode_name,
-				]);
+			if ( (bool) $mode_name ) {
+				wp_send_json(
+					[
+						'message' => __( 'Anti-spam successfully enabled', 'anti-spam' ),
+						'mode'    => $mode_name,
+					]
+				);
 			} else {
-				wp_send_json(['message' => __("Anti-spam successfully disabled", "titan-security")]);
+				wp_send_json( [ 'message' => __( 'Anti-spam successfully disabled', 'anti-spam' ) ] );
 			}
 		}
 	}
-
-	/**
-	 *
-	 * @since  7.0
-	 */
-	public function showPageContent()
-	{
-	}
-
-	/**
-	 * Get data from cache.
-	 *
-	 * If data in the cache, not empty and not expired, then get data from cache. Or get data from server.
-	 *
-	 * @return mixed array
-	 * @since  1.1
-	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
-	 *
-	 */
-
-	public function get_statistic_data()
-	{
-		$key = \WBCR\Titan\Plugin::app()->getPrefix() . 'stats_transient_';
-
-		$cached = get_transient($key);
-
-		if( $cached !== false ) {
-			if( isset($cached->error_code) && isset($cached->error) ) {
-				delete_transient($key);
-
-				return new \WP_Error($cached->error_code, $cached->error);
-			}
-
-			return $cached;
-		}
-
-		if( class_exists('\WBCR\Titan\Premium\Api\Request') ) {
-			$api = new \WBCR\Titan\Premium\Api\Request();
-			$data = $api->get_statistic(7);
-
-			if( is_wp_error($data) ) {
-				set_transient($key, (object)[
-					'error' => $data->get_error_message(),
-					'error_code' => $data->get_error_code(),
-				], self::SERVER_UNAVAILABLE_INTERVAL * HOUR_IN_SECONDS);
-
-				return $data;
-			}
-
-			set_transient($key, $data->response, self::DEFAULT_REQUESTS_INTERVAL * HOUR_IN_SECONDS);
-
-			return $data->response;
-		}
-
-		$obj = new \stdClass();
-		$obj->total = 0;
-
-		return $obj;
-	}
-
 }

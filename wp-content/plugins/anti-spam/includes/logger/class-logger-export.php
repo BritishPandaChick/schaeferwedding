@@ -16,9 +16,6 @@ namespace WBCR\Titan\Logger;
  *      $export_model->download();
  * }
  * ```
- *
- * @author        Alexander Teshabaev <sasha.tesh@gmail.com>
- * @author        Alexander Kovalev <alex.kovalevv@gmail.com>, Github: https://github.com/alexkovalevv
  */
 class Export {
 
@@ -38,7 +35,7 @@ class Export {
 	 * @param null $archive_name
 	 */
 	public function __construct( $archive_name = null ) {
-		if ( $archive_name !== null ) {
+		if ( null !== $archive_name ) {
 			$this->_archive_name = $archive_name;
 		}
 	}
@@ -60,7 +57,7 @@ class Export {
 
 		$log_base_dir = \WBCR\Titan\Logger\Writter::get_base_dir();
 
-		if ( $log_base_dir === false ) {
+		if ( false === $log_base_dir ) {
 			\WBCR\Titan\Logger\Writter::error( sprintf( 'Failed to get log path %s', $log_base_dir ) );
 
 			return false;
@@ -68,14 +65,14 @@ class Export {
 
 		$uploads = wp_get_upload_dir();
 
-		if ( isset( $uploads['error'] ) && $uploads['error'] !== false ) {
+		if ( isset( $uploads['error'] ) && false !== $uploads['error'] ) {
 			\WBCR\Titan\Logger\Writter::error( 'Unable to get save path of ZIP archive from wp_get_upload_dir()' );
 
 			return false;
 		}
 
 		$save_base_path   = isset( $uploads['basedir'] ) ? $uploads['basedir'] : null;
-		$zip_archive_name = sprintf( "titan_debug_report-%s.zip", date( 'Y-m-d' ) );
+		$zip_archive_name = sprintf( 'titan_debug_report-%s.zip', date( 'Y-m-d' ) );
 		$zip_save_path    = $save_base_path . DIRECTORY_SEPARATOR . $zip_archive_name;
 
 		if ( ! $zip->open( $zip_save_path, \ZipArchive::CREATE ) ) {
@@ -84,7 +81,7 @@ class Export {
 			return false;
 		}
 
-		// Add all logs to ZIP archive
+		// Add all logs to ZIP archive.
 		$glob_path = $log_base_dir . '*.log';
 		$log_files = glob( $glob_path );
 
@@ -117,7 +114,7 @@ class Export {
 		}
 
 		if ( isset( $system_info_path ) ) {
-			// Clean-up as this is just temp file
+			// Clean-up as this is just temp file.
 			@unlink( $system_info_path );
 		}
 
@@ -136,7 +133,7 @@ class Export {
 		$space = PHP_EOL . PHP_EOL;
 		$nl    = PHP_EOL;
 
-		$report = 'Plugin version: ' . \WBCR\Titan\Plugin::app()->getPluginVersion() . $nl;
+		$report = 'Plugin version: ' . WTITAN_PLUGIN_VERSION . $nl;
 
 		global $wp_version;
 
@@ -151,7 +148,7 @@ class Export {
 
 		$active_plugins = get_option( 'active_plugins', null );
 
-		if ( $active_plugins !== null ) {
+		if ( null !== $active_plugins ) {
 
 			$prepared_plugins = [];
 
@@ -162,7 +159,7 @@ class Export {
 					$advanced_info      = $all_plugins[ $active_plugin ];
 					$name               = isset( $advanced_info['Name'] ) ? $advanced_info['Name'] : '';
 					$version            = isset( $advanced_info['Version'] ) ? $advanced_info['Version'] : '';
-					$prepared_plugins[] = sprintf( "%s (%s)", $name, $version );
+					$prepared_plugins[] = sprintf( '%s (%s)', $name, $version );
 				}
 			}
 
@@ -205,20 +202,20 @@ class Export {
 
 		$zip_content = @file_get_contents( $zip_save_path );
 
-		if ( $zip_save_path === false ) {
+		if ( false === $zip_save_path ) {
 			\WBCR\Titan\Logger\Writter::error( sprintf( 'Failed to get ZIP %s content as file_get_contents() returned false', $zip_save_path ) );
 
 			return false;
 		}
 
 		if ( $should_clean_up ) {
-			// Delete as ZIP is just for temporary usage
+			// Delete as ZIP is just for temporary usage.
 			@unlink( $zip_save_path );
 		}
 
 		$archive_name = str_replace( '{datetime}', date( 'c' ), $this->_archive_name );
 
-		// Set-up headers to download export file
+		// Set-up headers to download export file.
 		header( 'Content-Description: File Transfer' );
 		header( 'Content-Type: application/zip' );
 		header( 'Content-Disposition: attachment; filename=' . $archive_name );

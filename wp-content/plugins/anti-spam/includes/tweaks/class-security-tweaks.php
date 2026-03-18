@@ -5,45 +5,39 @@ namespace WBCR\Titan\Tweaks;
 /**
  * This class configures the code cleanup settings
  *
- * @author        Webcraftic <wordpress.webraftic@gmail.com>
- * @copyright (c) 2017 Webraftic Ltd
  * @version       1.0
  */
 
-// Exit if accessed directly
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 class Security {
 
-	public $plugin;
-
 	public function __construct() {
-		$this->plugin = \WBCR\Titan\Plugin::app();
-
 		if ( ! is_admin() ) {
-			if ( $this->plugin->getPopulateOption( 'remove_meta_generator' ) ) {
-				// Clean meta generator for Woocommerce
+			if ( get_option( 'titan_remove_meta_generator' ) ) {
+				// Clean meta generator for Woocommerce.
 				if ( class_exists( 'WooCommerce' ) ) {
 					remove_action( 'wp_head', 'woo_version' );
 				}
 
-				// Clean meta generator for SitePress
+				// Clean meta generator for SitePress.
 				if ( class_exists( 'SitePress' ) ) {
 					global $sitepress;
 					remove_action( 'wp_head', [ $sitepress, 'meta_generator_tag' ] );
 				}
 
-				// Clean meta generator for Wordpress core
+				// Clean meta generator for WordPress core.
 				remove_action( 'wp_head', 'wp_generator' );
 				add_filter( 'the_generator', '__return_empty_string' );
 
-				// Clean all meta generators
+				// Clean all meta generators.
 				add_action( 'wp_head', [ $this, 'clean_meta_generators' ], 100 );
 			}
 
-			if ( $this->plugin->getPopulateOption( 'remove_html_comments' ) ) {
+			if ( get_option( 'titan_remove_html_comments' ) ) {
 				add_action( 'wp_loaded', [ $this, 'clean_html_comments' ] );
 			}
 
@@ -52,7 +46,7 @@ class Security {
 			 * Hook into the style loader and remove the version information.
 			 */
 
-			if ( $this->plugin->getPopulateOption( 'remove_style_version' ) ) {
+			if ( get_option( 'titan_remove_style_version' ) ) {
 				add_filter( 'style_loader_src', [ $this, 'hideWordpressVersionInScript' ], 9999, 2 );
 			}
 
@@ -60,46 +54,42 @@ class Security {
 			 * Hook into the script loader and remove the version information.
 			 */
 
-			if ( $this->plugin->getPopulateOption( 'remove_js_version' ) ) {
+			if ( get_option( 'titan_remove_js_version' ) ) {
 				add_filter( 'script_loader_src', [ $this, 'hideWordpressVersionInScript' ], 9999, 2 );
 			}
 
-			if ( $this->plugin->getPopulateOption( 'change_login_errors' ) ) {
-				add_filter( 'login_errors', array( $this, 'changeLoginErrors' ) );
-			}
-
-			if ( $this->plugin->getPopulateOption( 'protect_author_get' ) ) {
-				add_action( 'wp', array( $this, 'protectAuthorGet' ) );
+			if ( get_option( 'titan_protect_author_get' ) ) {
+				add_action( 'wp', [ $this, 'protectAuthorGet' ] );
 			}
 
 			// Removes the server responses a reference to the xmlrpc file.
-			if ( $this->plugin->getPopulateOption( 'remove_x_pingback' ) ) {
-				add_filter( 'template_redirect', array( $this, 'removeXmlRpcPingbackHeaders' ) );
-				add_filter( 'wp_headers', array( $this, 'disableXmlRpcPingback' ) );
+			if ( get_option( 'titan_remove_x_pingback' ) ) {
+				add_filter( 'template_redirect', [ $this, 'removeXmlRpcPingbackHeaders' ] );
+				add_filter( 'wp_headers', [ $this, 'disableXmlRpcPingback' ] );
 
-				// Remove <link rel="pingback" href>
-				add_action( 'template_redirect', array( $this, 'removeXmlRpcTagBufferStart' ), - 1 );
-				add_action( 'get_header', array( $this, 'removeXmlRpcTagBufferStart' ) );
-				add_action( 'wp_head', array( $this, 'removeXmlRpcTagBufferEnd' ), 999 );
+				// Remove <link rel="pingback" href>.
+				add_action( 'template_redirect', [ $this, 'removeXmlRpcTagBufferStart' ], - 1 );
+				add_action( 'get_header', [ $this, 'removeXmlRpcTagBufferStart' ] );
+				add_action( 'wp_head', [ $this, 'removeXmlRpcTagBufferEnd' ], 999 );
 
-				// Remove RSD link from head
+				// Remove RSD link from head.
 				remove_action( 'wp_head', 'rsd_link' );
 
-				// Disable xmlrcp/pingback
+				// Disable xmlrcp/pingback.
 				add_filter( 'xmlrpc_enabled', '__return_false' );
 				add_filter( 'pre_update_option_enable_xmlrpc', '__return_false' );
 				add_filter( 'pre_option_enable_xmlrpc', '__return_zero' );
 				add_filter( 'pings_open', '__return_false' );
 
-				// Force to uncheck pingbck and trackback options
+				// Force to uncheck pingbck and trackback options.
 				add_filter( 'pre_option_default_ping_status', '__return_zero' );
 				add_filter( 'pre_option_default_pingback_flag', '__return_zero' );
 
-				add_filter( 'xmlrpc_methods', array( $this, 'removeXmlRpcMethods' ) );
-				add_action( 'xmlrpc_call', array( $this, 'disableXmlRpcCall' ) );
+				add_filter( 'xmlrpc_methods', [ $this, 'removeXmlRpcMethods' ] );
+				add_action( 'xmlrpc_call', [ $this, 'disable_xml_rpc_call' ] );
 
-				// Hide options on Discussion page
-				add_action( 'admin_enqueue_scripts', array( $this, 'removeXmlRpcHideOptions' ) );
+				// Hide options on Discussion page.
+				add_action( 'admin_enqueue_scripts', [ $this, 'removeXmlRpcHideOptions' ] );
 
 				$this->xmlRpcSetDisabledHeader();
 			}
@@ -119,7 +109,7 @@ class Security {
 		}
 
 		$filename_arr      = explode( '?', basename( $src ) );
-		$exclude_file_list = $this->plugin->getPopulateOption( 'remove_version_exclude', '' );
+		$exclude_file_list = get_option( 'titan_remove_version_exclude', '' );
 		$exclude_files_arr = array_map( 'trim', explode( PHP_EOL, $exclude_file_list ) );
 
 		if ( strpos( $src, 'ver=' ) && ! in_array( str_replace( '?' . $filename_arr[1], '', $src ), $exclude_files_arr, true ) ) {
@@ -134,17 +124,17 @@ class Security {
 	 *
 	 * @param $method
 	 */
-	public function disableXmlRpcCall( $method ) {
-		if ( $method != 'pingback.ping' ) {
+	public function disable_xml_rpc_call( $method ) {
+		if ( 'pingback.ping' != $method ) {
 			return;
 		}
-		wp_die( 'This site does not have pingback.', 'Pingback not Enabled!', array( 'response' => 403 ) );
+		wp_die( 'This site does not have pingback.', 'Pingback not Enabled!', [ 'response' => 403 ] );
 	}
 
 	public function removeXmlRpcMethods( $methods ) {
 		unset( $methods['pingback.ping'] );
 		unset( $methods['pingback.extensions.getPingbacks'] );
-		unset( $methods['wp.getUsersBlogs'] ); // Block brute force discovery of existing users
+		unset( $methods['wp.getUsersBlogs'] ); // Block brute force discovery of existing users.
 		unset( $methods['system.multicall'] );
 		unset( $methods['system.listMethods'] );
 		unset( $methods['system.getCapabilities'] );
@@ -183,7 +173,7 @@ class Security {
 	 * Start buffer for remove <link rel="pingback" href>
 	 */
 	public function removeXmlRpcTagBufferStart() {
-		ob_start( array( $this, "removeXmlRpcTag" ) );
+		ob_start( [ $this, 'removeXmlRpcTag' ] );
 	}
 
 	/**
@@ -211,7 +201,7 @@ class Security {
 					continue;
 				}
 
-				$buffer = str_replace( $found, "", $buffer );
+				$buffer = str_replace( $found, '', $buffer );
 			}
 		}
 
@@ -235,7 +225,7 @@ class Security {
 	 * Set disabled header for any XML-RPC requests
 	 */
 	public function xmlRpcSetDisabledHeader() {
-		// Return immediately if SCRIPT_FILENAME not set
+		// Return immediately if SCRIPT_FILENAME not set.
 		if ( ! isset( $_SERVER['SCRIPT_FILENAME'] ) ) {
 			return;
 		}
@@ -255,23 +245,8 @@ class Security {
 	}
 
 	/**
-	 * Change login error message
-	 *
-	 * @return string
-	 */
-
-	public function changeLoginErrors( $errors ) {
-		if ( ! in_array( $GLOBALS['pagenow'], array( 'wp-login.php' ) ) ) {
-			return $errors;
-		}
-
-		return __( '<strong>ERROR</strong>: Wrong login or password', 'titan-security' );
-	}
-
-	/**
 	 * Protect author get
 	 */
-
 	public function protectAuthorGet() {
 		if ( isset( $_GET['author'] ) ) {
 			wp_redirect( home_url(), 301 );
@@ -281,7 +256,8 @@ class Security {
 	}
 
 	/**
-	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
+	 * Clean meta generator tags from HTML output.
+	 *
 	 * @since  1.5.3
 	 */
 	public function clean_meta_generators() {
@@ -289,7 +265,8 @@ class Security {
 	}
 
 	/**
-	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
+	 * Clean HTML comments from output.
+	 *
 	 * @since  1.0.0
 	 */
 	public function clean_html_comments() {
@@ -303,9 +280,7 @@ class Security {
 	 * @param $html
 	 *
 	 * @return string|string[]|null
-	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
 	 * @since  1.5.3
-	 *
 	 */
 	public function replace_meta_generators( $html ) {
 		$raw_html = $html;
@@ -332,7 +307,7 @@ class Security {
 	public function replace_html_comments( $html ) {
 		$raw_html = $html;
 
-		//CLRF-166 issue fix bug with noindex (\s?\/?noindex)
+		// CLRF-166 issue fix bug with noindex (\s?\/?noindex).
 		$html = preg_replace( '#<!--(?!<!|\s?ngg_resource|\s?\/?noindex)[^\[>].*?-->#s', '', $html );
 
 		// If replacement is completed with an error, user will receive a white screen.
@@ -343,7 +318,6 @@ class Security {
 
 		return $html;
 	}
-
 }
 
 new Security();

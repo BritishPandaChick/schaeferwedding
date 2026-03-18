@@ -29,10 +29,9 @@ function convertStoreSubscriberEmailAsIDInCookie(emailAddress) {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
+			'X-WP-Nonce': convertkit.nonce,
 		},
 		body: new URLSearchParams({
-			action: 'convertkit_store_subscriber_email_as_id_in_cookie',
-			convertkit_nonce: convertkit.nonce,
 			email: emailAddress,
 		}),
 	})
@@ -50,7 +49,7 @@ function convertStoreSubscriberEmailAsIDInCookie(emailAddress) {
 
 			// Emit custom event with subscriber ID.
 			convertKitEmitCustomEvent('convertkit_user_subscribed', {
-				id: result.data.id,
+				id: result.id,
 				email: emailAddress,
 			});
 		})
@@ -156,70 +155,78 @@ function convertKitRecaptchaFormSubmit(token) {
 	// Submit the form.
 	form.submit();
 }
+
+// Scope the function to the window object as webpack will wrap everything in a closure,
+// resulting in the function not being available globally.
+window.convertKitRecaptchaFormSubmit = convertKitRecaptchaFormSubmit;
 /* eslint-enable no-unused-vars */
 
 /**
- * Register events
+ * Register events on frontend.
+ *
+ * @since   3.2.0
  */
-document.addEventListener('DOMContentLoaded', function () {
-	// Removes `ck_subscriber_id` from the URI.
-	convertKitRemoveSubscriberIDFromURL(window.location.href);
+if (typeof convertkit !== 'undefined') {
+	document.addEventListener('DOMContentLoaded', function () {
+		// Removes `ck_subscriber_id` from the URI.
+		convertKitRemoveSubscriberIDFromURL(window.location.href);
 
-	// Store subscriber ID as a cookie from the email address used when a ConvertKit Form is submitted.
-	document.addEventListener('click', function (e) {
-		// Check if the form submit button was clicked, or the span element was clicked and its parent is the form submit button.
+		// Store subscriber ID as a cookie from the email address used when a ConvertKit Form is submitted.
+		document.addEventListener('click', function (e) {
+			// Check if the form submit button was clicked, or the span element was clicked and its parent is the form submit button.
+			if (
+				!e.target.matches('.formkit-submit') &&
+				(!e.target.parentElement ||
+					!e.target.parentElement.matches('.formkit-submit'))
+			) {
+				if (convertkit.debug) {
+					console.log('not a ck form');
+				}
+
+				return;
+			}
+
+			// Get email address.
+			const emailAddress = document.querySelector(
+				'input[name="email_address"]'
+			).value;
+
+			// If the email address is empty, don't attempt to get the subscriber ID by email.
+			if (!emailAddress.length) {
+				if (convertkit.debug) {
+					console.log('email empty');
+				}
+
+				return;
+			}
+
+			// If the email address is invalid, don't attempt to get the subscriber ID by email.
+			const validator =
+				/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+			if (!validator.test(emailAddress.toLowerCase())) {
+				if (convertkit.debug) {
+					console.log('email not an email address');
+				}
+
+				return;
+			}
+
+			// Wait a moment before sending the AJAX request.
+			convertKitSleep(2000);
+			convertStoreSubscriberEmailAsIDInCookie(emailAddress);
+		});
+
+		// Set a cookie if any scripts with data-kit-limit-per-session attribute exist.
 		if (
-			!e.target.matches('.formkit-submit') &&
-			(!e.target.parentElement ||
-				!e.target.parentElement.matches('.formkit-submit'))
+			document.querySelectorAll('script[data-kit-limit-per-session="1"]')
+				.length > 0
 		) {
+			document.cookie = 'ck_non_inline_form_displayed=1; path=/';
 			if (convertkit.debug) {
-				console.log('not a ck form');
+				console.log(
+					'Set `ck_non_inline_form_displayed` cookie for non-inline form limit'
+				);
 			}
-
-			return;
 		}
-
-		// Get email address.
-		const emailAddress = document.querySelector(
-			'input[name="email_address"]'
-		).value;
-
-		// If the email address is empty, don't attempt to get the subscriber ID by email.
-		if (!emailAddress.length) {
-			if (convertkit.debug) {
-				console.log('email empty');
-			}
-
-			return;
-		}
-
-		// If the email address is invalid, don't attempt to get the subscriber ID by email.
-		const validator =
-			/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-		if (!validator.test(emailAddress.toLowerCase())) {
-			if (convertkit.debug) {
-				console.log('email not an email address');
-			}
-
-			return;
-		}
-
-		// Wait a moment before sending the AJAX request.
-		convertKitSleep(2000);
-		convertStoreSubscriberEmailAsIDInCookie(emailAddress);
 	});
-
-	// Set a cookie if any scripts with data-kit-limit-per-session attribute exist.
-	if (
-		document.querySelectorAll('script[data-kit-limit-per-session]').length >
-		0
-	) {
-		document.cookie = 'ck_non_inline_form_displayed=1; path=/';
-		if (convertkit.debug) {
-			console.log(
-				'Set `ck_non_inline_form_displayed` cookie for non-inline form limit'
-			);
-		}
-	}
-});
+}

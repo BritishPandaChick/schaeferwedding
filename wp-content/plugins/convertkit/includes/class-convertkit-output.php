@@ -67,6 +67,7 @@ class ConvertKit_Output {
 	 */
 	public function __construct() {
 
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'init', array( $this, 'get_subscriber_id_from_request' ) );
 		add_action( 'wp', array( $this, 'maybe_tag_subscriber' ) );
 		add_action( 'template_redirect', array( $this, 'output_form' ) );
@@ -77,6 +78,62 @@ class ConvertKit_Output {
 		add_filter( 'hooked_block_convertkit/form', array( $this, 'append_form_block_to_category_archive' ), 10, 1 );
 		add_action( 'wp_footer', array( $this, 'output_global_non_inline_form' ), 1 );
 		add_action( 'wp_footer', array( $this, 'output_scripts_footer' ) );
+
+	}
+
+	/**
+	 * Register REST API routes.
+	 *
+	 * @since   3.1.7
+	 */
+	public function register_routes() {
+
+		// Register route to store the Kit subscriber's email's ID in a cookie.
+		register_rest_route(
+			'kit/v1',
+			'/subscriber/store-email-as-id-in-cookie',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'args'                => array(
+					// Email: Validate email is included in the request, a valid email address
+					// and sanitize the email address.
+					'email' => array(
+						'required'          => true,
+						'validate_callback' => function ( $param ) {
+
+							return is_string( $param ) && is_email( $param );
+
+						},
+						'sanitize_callback' => 'sanitize_email',
+					),
+				),
+				'callback'            => function ( $request ) {
+
+					// Get email address.
+					$email = $request->get_param( 'email' );
+
+					// Get subscriber ID.
+					$subscriber    = new ConvertKit_Subscriber();
+					$subscriber_id = $subscriber->validate_and_store_subscriber_email( $email );
+
+					// Bail if an error occured i.e. API hasn't been configured.
+					if ( is_wp_error( $subscriber_id ) ) {
+						return rest_ensure_response( $subscriber_id );
+					}
+
+					// Return the subscriber ID.
+					return rest_ensure_response(
+						array(
+							'id' => $subscriber_id,
+						)
+					);
+
+				},
+
+				// No authentication required, as this is on the frontend site.
+				'permission_callback' => '__return_true',
+			)
+		);
 
 	}
 
@@ -447,14 +504,23 @@ class ConvertKit_Output {
 			return $content . $form;
 		}
 
-		// Create new element for the Form.
-		$form_node = new DOMDocument();
-		$form_node->loadHTML( $form, LIBXML_HTML_NODEFDTD );
+		// Load the form into the parser.
+		$form_parser = new ConvertKit_HTML_Parser( $form, LIBXML_HTML_NODEFDTD );
+		$form_body   = $form_parser->html->getElementsByTagName( 'body' )->item( 0 );
 
-		// Append the form to the specific element.
-		$element_node->parentNode->insertBefore( $parser->html->importNode( $form_node->documentElement, true ), $element_node->nextSibling ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		// Collect nodes first to avoid live NodeList mutation issues.
+		$nodes_to_insert = array();
+		foreach ( $form_body->childNodes as $child ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$nodes_to_insert[] = $parser->html->importNode( $child, true );
+		}
 
-		// Fetch HTML string.
+		// Inject the form node(s) after the element node e.g. after the paragraph, heading etc.
+		$next_sibling = $element_node->nextSibling; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		foreach ( $nodes_to_insert as $node ) {
+			$element_node->parentNode->insertBefore( $node, $element_node->nextSibling ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
+
+		// Return modified HTML string.
 		return $parser->get_body_html();
 
 	}
@@ -744,27 +810,20 @@ class ConvertKit_Output {
 			return;
 		}
 
-		// Register scripts that we might use.
-		wp_register_script(
-			'convertkit-js',
-			CONVERTKIT_PLUGIN_URL . 'resources/frontend/js/convertkit.js',
-			array(),
-			CONVERTKIT_PLUGIN_VERSION,
-			true
-		);
+		// Enqueue frontend JS.
+		convertkit_enqueue_frontend_js();
+
+		// Define variables.
 		wp_localize_script(
 			'convertkit-js',
 			'convertkit',
 			array(
-				'ajaxurl'       => admin_url( 'admin-ajax.php' ),
+				'ajaxurl'       => rest_url( 'kit/v1/subscriber/store-email-as-id-in-cookie' ),
 				'debug'         => $settings->debug_enabled(),
-				'nonce'         => wp_create_nonce( 'convertkit' ),
+				'nonce'         => wp_create_nonce( 'wp_rest' ),
 				'subscriber_id' => $this->subscriber_id,
 			)
 		);
-
-		// Enqueue.
-		wp_enqueue_script( 'convertkit-js' );
 
 	}
 
@@ -812,6 +871,9 @@ class ConvertKit_Output {
 			return;
 		}
 
+		// Determine if the Non-inline Form Limit per Session setting is enabled.
+		$limit_per_session = $this->settings->non_inline_form_limit_per_session();
+
 		// Get form.
 		$convertkit_forms = new ConvertKit_Resource_Forms();
 
@@ -828,13 +890,13 @@ class ConvertKit_Output {
 			// Add the form to the scripts array so it is included in the output.
 			add_filter(
 				'convertkit_output_scripts_footer',
-				function ( $scripts ) use ( $form ) {
+				function ( $scripts ) use ( $form, $limit_per_session ) {
 
 					$scripts[] = array(
 						'async'                      => true,
 						'data-uid'                   => $form['uid'],
 						'src'                        => $form['embed_js'],
-						'data-kit-limit-per-session' => true,
+						'data-kit-limit-per-session' => $limit_per_session ? '1' : '0',
 					);
 
 					return $scripts;

@@ -64,7 +64,7 @@ class Placeholder_Replacement {
 	 *
 	 * @return string
 	 */
-	private function make_key( $block ): string {
+	private function make_key( $block ) {
 		return $this->prefix . md5( $block );
 	}
 

@@ -140,6 +140,7 @@ function cn_is_plugin_active( $plugin = '', $module = 'caching' ) {
 		'breeze',
 		'contactform7',
 		'divi',
+		'easydigitaldownloads',
 		'elementor',
 		'formidableforms',
 		'hummingbird',
@@ -189,6 +190,12 @@ function cn_is_plugin_active( $plugin = '', $module = 'caching' ) {
 		// divi
 		case 'divi':
 			if ( $module === 'theme' && function_exists( 'is_et_pb_preview' ) && defined( 'ET_CORE_VERSION' ) )
+				$is_plugin_active = true;
+			break;
+
+		// easy digital downloads
+		case 'easydigitaldownloads':
+			if ( $module === 'privacy-consent' && class_exists( 'Easy_Digital_Downloads' ) && function_exists( 'EDD' ) && defined( 'EDD_VERSION' ) && version_compare( EDD_VERSION, '3.0.0', '>=' ) )
 				$is_plugin_active = true;
 			break;
 

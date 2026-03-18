@@ -93,7 +93,7 @@
 	
 	insertHubConnectNotice();
 	
-	$( '.smus-media-notification-skip' ).on( 'click', function ( e ) {
+	$( '#smush-media-notification-skip' ).on( 'click', function ( e ) {
 		e.preventDefault();
 		
 		$.post( ajaxurl, {

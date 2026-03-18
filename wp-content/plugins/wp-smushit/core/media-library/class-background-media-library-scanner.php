@@ -11,7 +11,7 @@ use Smush\Core\Modules\Background\Loopback_Request_Tester;
 use WP_Smush;
 
 class Background_Media_Library_Scanner extends Controller {
-	const OPTIMIZE_ON_COMPLETED_OPTION_KEY = 'wp_smush_run_optimize_on_scan_completed';
+	private static $optimize_on_completed_option_key = 'wp_smush_run_optimize_on_scan_completed';
 	/**
 	 * @var Media_Library_Scanner
 	 */
@@ -131,11 +131,6 @@ class Background_Media_Library_Scanner extends Controller {
 
 	public function background_process_completed() {
 		$this->scanner->after_scan_library();
-
-		if ( $this->enabled_optimize_on_scan_completed() ) {
-			$bg_optimization = WP_Smush::get_instance()->core()->mod->bg_optimization;
-			$bg_optimization->start_bulk_smush_direct();
-		}
 	}
 
 	public function background_process_dead() {
@@ -163,15 +158,15 @@ class Background_Media_Library_Scanner extends Controller {
 	private function set_optimize_on_scan_completed( $status ) {
 		$this->optimize_on_scan_completed = $status;
 		if ( $this->optimize_on_scan_completed ) {
-			update_option( self::OPTIMIZE_ON_COMPLETED_OPTION_KEY, 1, false );
+			update_option( self::$optimize_on_completed_option_key, 1, false );
 		} else {
-			delete_option( self::OPTIMIZE_ON_COMPLETED_OPTION_KEY );
+			delete_option( self::$optimize_on_completed_option_key );
 		}
 	}
 
-	private function enabled_optimize_on_scan_completed() {
+	public function enabled_optimize_on_scan_completed() {
 		if ( null === $this->optimize_on_scan_completed ) {
-			$this->optimize_on_scan_completed = get_option( self::OPTIMIZE_ON_COMPLETED_OPTION_KEY );
+			$this->optimize_on_scan_completed = get_option( self::$optimize_on_completed_option_key );
 		}
 
 		return ! empty( $this->optimize_on_scan_completed );
@@ -187,11 +182,6 @@ class Background_Media_Library_Scanner extends Controller {
 		// Add global stats on completed/cancelled.
 		if ( $is_completed || $is_cancelled ) {
 			$status['global_stats'] = WP_Smush::get_instance()->admin()->get_global_stats_with_bulk_smush_content_and_notice();
-		}
-
-		if ( $is_completed ) {
-			$bg_optimization                      = WP_Smush::get_instance()->core()->mod->bg_optimization;
-			$status['enabled_background_process'] = $bg_optimization->should_use_background();
 		}
 
 		return $status;

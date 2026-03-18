@@ -2,9 +2,9 @@
 
 namespace WBCR\Titan\Tweaks;
 
-require_once( dirname( __FILE__ ) . '/../login-interstitial/class-session.php' );
-require_once( dirname( __FILE__ ) . '/../login-interstitial/class-abstract-login-interstitial.php' );
-require_once( dirname( __FILE__ ) . '/../login-interstitial/class-config-driven.php' );
+require_once __DIR__ . '/../login-interstitial/class-session.php';
+require_once __DIR__ . '/../login-interstitial/class-abstract-login-interstitial.php';
+require_once __DIR__ . '/../login-interstitial/class-config-driven.php';
 
 /**
  * Class \WBCR\Titan\Tweaks\Login_Interstitial
@@ -12,22 +12,22 @@ require_once( dirname( __FILE__ ) . '/../login-interstitial/class-config-driven.
 class Login_Interstitial {
 
 	const SHOW_AFTER_LOGIN = 'titan_after_interstitial';
-	const AJAX = 'titan-login-interstitial-ajax';
+	const AJAX             = 'titan-login-interstitial-ajax';
 
-	const R_USER = 'titan_interstitial_user';
-	const R_TOKEN = 'titan_interstitial_token';
-	const R_SESSION = 'titan_interstitial_session';
-	const R_EXPIRED = 'titan_interstitial_expired';
-	const R_INTERSTITIAL = 'titan_interstitial';
-	const R_ASYNC_ACTION = 'titan_interstitial_async_action';
-	const R_GET_STATE = 'titan_interstitial_get_state';
+	const R_USER              = 'titan_interstitial_user';
+	const R_TOKEN             = 'titan_interstitial_token';
+	const R_SESSION           = 'titan_interstitial_session';
+	const R_EXPIRED           = 'titan_interstitial_expired';
+	const R_INTERSTITIAL      = 'titan_interstitial';
+	const R_ASYNC_ACTION      = 'titan_interstitial_async_action';
+	const R_GET_STATE         = 'titan_interstitial_get_state';
 	const R_SAME_BROWSER_DENY = 'titan_interstitial_browser_deny';
 
-	const C_SAME_BROWSER = 'titan_interstitial_browser';
+	const C_SAME_BROWSER       = 'titan_interstitial_browser';
 	const SAME_BROWSER_PAYLOAD = 'same-browser';
 
 	/** @var \WBCR\Titan\Tweaks\Login_Interstitial_Base[] */
-	private $registered = array();
+	private $registered = [];
 
 	/** @var \WP_Error */
 	private $error;
@@ -56,40 +56,39 @@ class Login_Interstitial {
 			return;
 		}
 
-		uasort( $this->registered, array( $this, '_sort_interstitials' ) );
+		uasort( $this->registered, [ $this, '_sort_interstitials' ] );
 
-		add_action( 'login_enqueue_scripts', array( $this, 'enqueue' ) );
-		add_action( 'wp_login', array( $this, 'wp_login' ), - 1000, 2 );
-		add_action( 'wp_login_errors', array( $this, 'handle_token_expired' ) );
-		add_action( 'login_init', array( $this, 'force_interstitial' ) );
-		add_action( 'login_form', array( $this, 'ferry_after_login' ) );
-		add_filter( 'auth_cookie', array( $this, 'capture_session_token' ), 10, 5 );
+		add_action( 'login_enqueue_scripts', [ $this, 'enqueue' ] );
+		add_action( 'wp_login', [ $this, 'wp_login' ], - 1000, 2 );
+		add_action( 'wp_login_errors', [ $this, 'handle_token_expired' ] );
+		add_action( 'login_init', [ $this, 'force_interstitial' ] );
+		add_action( 'login_form', [ $this, 'ferry_after_login' ] );
+		add_filter( 'auth_cookie', [ $this, 'capture_session_token' ], 10, 5 );
 
-		add_action( 'wp_ajax_' . self::AJAX, array( $this, 'ajax_handler' ) );
-		add_action( 'wp_ajax_nopriv_' . self::AJAX, array( $this, 'ajax_handler' ) );
+		add_action( 'wp_ajax_' . self::AJAX, [ $this, 'ajax_handler' ] );
+		add_action( 'wp_ajax_nopriv_' . self::AJAX, [ $this, 'ajax_handler' ] );
 
 		foreach ( $this->registered as $id => $interstitial ) {
 			if ( $interstitial->has_async_action() ) {
-				add_action( "login_form_titan-{$id}", array( $this, 'async_action' ), 8 );
+				add_action( "login_form_titan-{$id}", [ $this, 'async_action' ], 8 );
 			}
 
-			add_action( "login_form_titan-{$id}", array( $this, 'submit' ), 9 );
-			add_action( "login_form_titan-{$id}", array( $this, 'display' ) );
+			add_action( "login_form_titan-{$id}", [ $this, 'submit' ], 9 );
+			add_action( "login_form_titan-{$id}", [ $this, 'display' ] );
 		}
 	}
 
 	/**
 	 * Register an interstitial.
 	 *
-	 * @param string $slug
+	 * @param string                      $slug
 	 * @param Login_Interstitial|callable $render_or_class
-	 * @param array $opts
+	 * @param array                       $opts
 	 *
 	 * @return bool
 	 * @api
-	 *
 	 */
-	public function register( $slug, $render_or_class, $opts = array() ) {
+	public function register( $slug, $render_or_class, $opts = [] ) {
 
 		if ( $render_or_class instanceof Login_Interstitial ) {
 			$this->registered[ $slug ] = $render_or_class;
@@ -97,17 +96,20 @@ class Login_Interstitial {
 			return true;
 		}
 
-		$opts = wp_parse_args( $opts, array(
-			'force_completion' => true, // Will logout the user's session before displaying the interstitial.
-			'show_to_user'     => true, // Boolean or callable.
-			'wp_login_only'    => false, // Only show the interstitial if the login form is submitted from wp-login.php,
-			'submit'           => false, // Callable called with user when submitting the form.
-			'async_action'     => false, // Callable called when a user clicks a link to perform an interstitial action.
-			'info_message'     => false,
-			'after_submit'     => false,
-			'ajax_handler'     => false,
-			'priority'         => 5,
-		) );
+		$opts = wp_parse_args(
+			$opts,
+			[
+				'force_completion' => true, // Will logout the user's session before displaying the interstitial.
+				'show_to_user'     => true, // Boolean or callable.
+				'wp_login_only'    => false, // Only show the interstitial if the login form is submitted from wp-login.php.
+				'submit'           => false, // Callable called with user when submitting the form.
+				'async_action'     => false, // Callable called when a user clicks a link to perform an interstitial action.
+				'info_message'     => false,
+				'after_submit'     => false,
+				'ajax_handler'     => false,
+				'priority'         => 5,
+			] 
+		);
 
 		$opts['render'] = $render_or_class;
 
@@ -130,7 +132,6 @@ class Login_Interstitial {
 	 *
 	 * @return void
 	 * @api
-	 *
 	 */
 	public function show_interstitial( Login_Interstitial_Session $session ) {
 
@@ -157,7 +158,6 @@ class Login_Interstitial {
 	 *
 	 * @return bool
 	 * @api
-	 *
 	 */
 	public function proceed_to_next( Login_Interstitial_Session $session ) {
 
@@ -174,7 +174,6 @@ class Login_Interstitial {
 	 *
 	 * @return Login_Interstitial_Session|null
 	 * @api
-	 *
 	 */
 	public function get_current_session() {
 		return $this->current_session;
@@ -184,22 +183,24 @@ class Login_Interstitial {
 	 * Get the URL to an async action.
 	 *
 	 * @param Login_Interstitial_Session $session
-	 * @param string $action
+	 * @param string                     $action
 	 *
 	 * @return string
 	 * @api
-	 *
 	 */
 	public function get_async_action_url( Login_Interstitial_Session $session, $action ) {
 
 		$url = $this->get_base_wp_login_url();
-		$url = add_query_arg( array(
-			'action'             => "titan-{$session->get_current_interstitial()}",
-			self::R_USER         => $session->get_user()->ID,
-			self::R_TOKEN        => $session->get_signature_for_payload( $action ),
-			self::R_SESSION      => $session->get_id(),
-			self::R_ASYNC_ACTION => $action,
-		), $url );
+		$url = add_query_arg(
+			[
+				'action'             => "titan-{$session->get_current_interstitial()}",
+				self::R_USER         => $session->get_user()->ID,
+				self::R_TOKEN        => $session->get_signature_for_payload( $action ),
+				self::R_SESSION      => $session->get_id(),
+				self::R_ASYNC_ACTION => $action,
+			],
+			$url 
+		);
 
 		return $url;
 	}
@@ -212,7 +213,6 @@ class Login_Interstitial {
 	 * @param Login_Interstitial_Session $session
 	 *
 	 * @api
-	 *
 	 */
 	public function initialize_same_browser( Login_Interstitial_Session $session ) {
 		self::set_cookie( self::C_SAME_BROWSER, $session->get_signature_for_payload( self::SAME_BROWSER_PAYLOAD ) );
@@ -231,21 +231,25 @@ class Login_Interstitial {
 	 * @internal
 	 */
 	public function enqueue() {
-		wp_register_script( 'titan-login-interstitial-util', WTITAN_PLUGIN_URL . '/includes/tweaks/password-requirements/assets/js/login-interstitial-util.js', array(
-			'jquery',
-			'wp-util'
-		), \WBCR\Titan\Plugin::app()->getPluginVersion() );
+		wp_register_script(
+			'titan-login-interstitial-util',
+			WTITAN_PLUGIN_URL . '/includes/tweaks/password-requirements/assets/js/login-interstitial-util.js',
+			[
+				'jquery',
+				'wp-util',
+			],
+			WTITAN_PLUGIN_VERSION
+		);
 		wp_add_inline_script( 'titan-login-interstitial-util', '(function() { window.wtitanLoginInterstitial = new WTitanLoginInterstitial(); window.wtitanLoginInterstitial.init() })()' );
 	}
 
 	/**
 	 * During the login process, check if we have any interstitials to display, and display them.
 	 *
-	 * @param string $username
+	 * @param string   $username
 	 * @param \WP_User $user
 	 *
 	 * @internal
-	 *
 	 */
 	public function wp_login( $username, $user = null ) {
 		$user = $user ? $user : wp_get_current_user();
@@ -292,12 +296,11 @@ class Login_Interstitial {
 	 *
 	 * @return \WP_Error
 	 * @internal
-	 *
 	 */
 	public function handle_token_expired( $errors ) {
 
 		if ( isset( $_GET[ self::R_EXPIRED ] ) ) {
-			$errors->add( 'titan-login-interstitial-invalid-token', esc_html__( 'Sorry, this request has expired. Please log in again.', 'titan-security' ) );
+			$errors->add( 'titan-login-interstitial-invalid-token', esc_html__( 'Sorry, this request has expired. Please log in again.', 'anti-spam' ) );
 		}
 
 		return $errors;
@@ -351,14 +354,13 @@ class Login_Interstitial {
 	 * Capture the session token to log out the user.
 	 *
 	 * @param string $cookie
-	 * @param int $user_id
-	 * @param int $expiration
+	 * @param int    $user_id
+	 * @param int    $expiration
 	 * @param string $scheme
 	 * @param string $token
 	 *
 	 * @return string
 	 * @internal
-	 *
 	 */
 	public function capture_session_token( $cookie, $user_id, $expiration, $scheme, $token ) {
 		$this->session_token = $token;
@@ -399,7 +401,7 @@ class Login_Interstitial {
 		$requested_slug = substr( $_POST['action'], strlen( 'titan-' ) );
 
 		if ( $slug !== $requested_slug ) {
-			// If we have already completed the action that was requested, then just display
+			// If we have already completed the action that was requested, then just display.
 			// the new interstitial.
 			if ( $session->is_interstitial_completed( $requested_slug ) ) {
 				$this->show_interstitial( $session );
@@ -449,13 +451,13 @@ class Login_Interstitial {
 		$slug   = $session->get_current_interstitial();
 
 		if ( empty( $this->registered[ $slug ] ) ) {
-			$this->display_wp_login_message( new \WP_Error( 'unsupported', esc_html__( 'Unsupported Interstitial. Please login again.', 'titan-security' ) ) );
+			$this->display_wp_login_message( new \WP_Error( 'unsupported', esc_html__( 'Unsupported Interstitial. Please login again.', 'anti-spam' ) ) );
 		}
 
 		$interstitial = $this->registered[ $slug ];
 
 		if ( ! $interstitial->has_async_action() ) {
-			$this->display_wp_login_message( new \WP_Error( 'unsupported', esc_html__( 'Unsupported Interstitial. Please login again.', 'titan-security' ) ) );
+			$this->display_wp_login_message( new \WP_Error( 'unsupported', esc_html__( 'Unsupported Interstitial. Please login again.', 'anti-spam' ) ) );
 		}
 
 		if ( isset( $_REQUEST[ self::R_SAME_BROWSER_DENY ] ) ) {
@@ -464,9 +466,9 @@ class Login_Interstitial {
 			die;
 		}
 
-		$args = array(
+		$args = [
 			'same_browser' => false,
-		);
+		];
 
 		if ( isset( $_COOKIE[ self::C_SAME_BROWSER ] ) && true === $session->verify_signature_for_payload( self::SAME_BROWSER_PAYLOAD, $_COOKIE[ self::C_SAME_BROWSER ] ) ) {
 			$args['same_browser'] = true;
@@ -481,7 +483,7 @@ class Login_Interstitial {
 		$result = $interstitial->handle_async_action( $session, $action, $args );
 
 		if ( null === $result ) {
-			$this->display_wp_login_message( new \WP_Error( 'unsupported', esc_html__( 'Unsupported Interstitial. Please login again.', 'titan-security' ) ) );
+			$this->display_wp_login_message( new \WP_Error( 'unsupported', esc_html__( 'Unsupported Interstitial. Please login again.', 'anti-spam' ) ) );
 		}
 
 		if ( is_wp_error( $result ) ) {
@@ -489,20 +491,26 @@ class Login_Interstitial {
 		}
 
 		if ( true === $result ) {
-			$result = array();
+			$result = [];
 		}
 
 		if ( $args['same_browser'] && empty( $result['allow_same_browser'] ) ) {
-			$this->do_next_step( $session, array(
-				'delete'        => false,
-				'allow_interim' => false,
-			) );
+			$this->do_next_step(
+				$session,
+				[
+					'delete'        => false,
+					'allow_interim' => false,
+				] 
+			);
 		}
 
-		$result = wp_parse_args( $result, array(
-			'message' => esc_html__( 'Action processed. Please continue in your original browser.', 'titan-security' ),
-			'title'   => esc_html__( 'Action Processed', 'titan-security' ),
-		) );
+		$result = wp_parse_args(
+			$result,
+			[
+				'message' => esc_html__( 'Action processed. Please continue in your original browser.', 'anti-spam' ),
+				'title'   => esc_html__( 'Action Processed', 'anti-spam' ),
+			] 
+		);
 
 		$this->display_wp_login_message( $result );
 	}
@@ -519,32 +527,36 @@ class Login_Interstitial {
 
 		if ( is_wp_error( $session ) ) {
 			if ( $get_state && is_user_logged_in() ) {
-				wp_send_json_success( array(
-					'logged_in' => true,
-				) );
+				wp_send_json_success(
+					[
+						'logged_in' => true,
+					] 
+				);
 			}
 
-			wp_send_json_error( array( 'message' => $session->get_error_message() ) );
+			wp_send_json_error( [ 'message' => $session->get_error_message() ] );
 		}
 
 		if ( $get_state ) {
-			wp_send_json_success( array(
-				'current'   => $session->get_current_interstitial(),
-				'completed' => $session->get_completed_interstitials(),
-				'state'     => $session->get_state(),
-			) );
+			wp_send_json_success(
+				[
+					'current'   => $session->get_current_interstitial(),
+					'completed' => $session->get_completed_interstitials(),
+					'state'     => $session->get_state(),
+				] 
+			);
 		}
 
 		$slug = $session->get_current_interstitial();
 
 		if ( empty( $this->registered[ $slug ] ) ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Invalid Interstitial Action', 'titan-security' ) ) );
+			wp_send_json_error( [ 'message' => esc_html__( 'Invalid Interstitial Action', 'anti-spam' ) ] );
 		}
 
 		$interstitial = $this->registered[ $slug ];
 
 		if ( ! $interstitial->has_ajax_handlers() ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Invalid Interstitial Action', 'titan-security' ) ) );
+			wp_send_json_error( [ 'message' => esc_html__( 'Invalid Interstitial Action', 'anti-spam' ) ] );
 		}
 
 		$data = $_POST;
@@ -585,7 +597,6 @@ class Login_Interstitial {
 	 * @param Login_Interstitial_Session $session
 	 *
 	 * @internal
-	 *
 	 */
 	protected function login_html( Login_Interstitial_Session $session ) {
 
@@ -602,7 +613,7 @@ class Login_Interstitial {
 		add_filter( 'jetpack_sso_allowed_actions', '__return_empty_array' );
 
 		if ( ! function_exists( 'login_header' ) ) {
-			require_once( dirname( __FILE__ ) . '/functions-login-header.php' );
+			require_once __DIR__ . '/functions-login-header.php';
 		}
 
 		login_header();
@@ -611,40 +622,43 @@ class Login_Interstitial {
 		?>
 
 		<?php if ( $this->error ) : ?>
-            <div id="login-error" class="message" style="border-left-color: #dc3232;">
+			<div id="login-error" class="message" style="border-left-color: #dc3232;">
 				<?php echo $this->error->get_error_message(); ?>
-            </div>
-		<?php elseif ( $message = $interstitial->get_info_message( $session ) ): ?>
-            <p class="message"><?php echo $message; ?></p>
+			</div>
+		<?php elseif ( $message = $interstitial->get_info_message( $session ) ) : ?>
+			<p class="message"><?php echo $message; ?></p>
 		<?php endif; ?>
 
-        <form name="titan-<?php echo esc_attr( $action ); ?>" id="titan-<?php echo esc_attr( $action ); ?>"
-              action="<?php echo esc_url( $wp_login_url ); ?>" method="post" autocomplete="off">
+		<form name="titan-<?php echo esc_attr( $action ); ?>" id="titan-<?php echo esc_attr( $action ); ?>"
+				action="<?php echo esc_url( $wp_login_url ); ?>" method="post" autocomplete="off">
 
 			<?php $interstitial->render( $session, compact( 'wp_login_url' ) ); ?>
 
-            <input type="hidden" name="action" value="<?php echo esc_attr( "titan-{$action}" ); ?>">
+			<input type="hidden" name="action" value="<?php echo esc_attr( "titan-{$action}" ); ?>">
 
-            <input type="hidden" name="<?php echo esc_attr( self::R_USER ) ?>"
-                   value="<?php echo esc_attr( $user->ID ); ?>">
-            <input type="hidden" name="<?php echo esc_attr( self::R_TOKEN ) ?>"
-                   value="<?php echo esc_attr( $session->get_signature() ); ?>">
-            <input type="hidden" name="<?php echo esc_attr( self::R_SESSION ) ?>"
-                   value="<?php echo esc_attr( $session->get_id() ); ?>">
-        </form>
+			<input type="hidden" name="<?php echo esc_attr( self::R_USER ); ?>"
+					value="<?php echo esc_attr( $user->ID ); ?>">
+			<input type="hidden" name="<?php echo esc_attr( self::R_TOKEN ); ?>"
+					value="<?php echo esc_attr( $session->get_signature() ); ?>">
+			<input type="hidden" name="<?php echo esc_attr( self::R_SESSION ); ?>"
+					value="<?php echo esc_attr( $session->get_id() ); ?>">
+		</form>
 
-        <p id="backtoblog">
-            <a href="<?php echo esc_url( home_url( '/' ) ); ?>"
-               title="<?php esc_attr_e( 'Are you lost?', 'titan-security' ); ?>">
-				<?php echo esc_html( sprintf( __( '&larr; Back to %s', 'titan-security' ), get_bloginfo( 'title', 'display' ) ) ); ?>
-            </a>
-        </p>
+		<p id="backtoblog">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"
+				title="<?php esc_attr_e( 'Page Not Available', 'anti-spam' ); ?>">
+				<?php
+				/* translators: %s: site name */
+				echo esc_html( sprintf( __( '&larr; Back to %s', 'anti-spam' ), get_bloginfo( 'title', 'display' ) ) );
+				?>
+			</a>
+		</p>
 
-        </div>
+		</div>
 		<?php do_action( 'login_footer' ); ?>
-        <div class="clear"></div>
-        </body>
-        </html>
+		<div class="clear"></div>
+		</body>
+		</html>
 		<?php
 	}
 
@@ -654,7 +668,7 @@ class Login_Interstitial {
 	private function interim_login() {
 
 		if ( ! function_exists( 'login_header' ) ) {
-			require_once( dirname( __FILE__ ) . '/includes/function.login-header.php' );
+			require_once __DIR__ . '/includes/function.login-header.php';
 		}
 
 		$GLOBALS['interim_login'] = 'success';
@@ -664,26 +678,28 @@ class Login_Interstitial {
 			wp_enqueue_script( 'customize-base' );
 		}
 
-		login_header( '', '<p class="message">' . __( 'You have logged in successfully.' ) . '</p>' );
+		login_header( '', '<p class="message">' . __( 'You have logged in successfully.', 'anti-spam' ) . '</p>' );
 		?>
-        </div>
+		</div>
 		<?php
 
-		do_action( 'login_footer' ); ?>
+		do_action( 'login_footer' );
+		?>
 
 		<?php if ( $customize_login ) : ?>
-            <script type="text/javascript">
-                setTimeout(function () {
-                    new wp.customize.Messenger({
-                        url: '<?php echo wp_customize_url(); ?>',
-                        channel: 'login',
-                    }).send('login');
-                }, 1000);
-            </script>
+			<script type="text/javascript">
+				setTimeout(function () {
+					new wp.customize.Messenger({
+						url: '<?php echo wp_customize_url(); ?>',
+						channel: 'login',
+					}).send('login');
+				}, 1000);
+			</script>
 		<?php endif; ?>
 
-        </body></html>
-		<?php die;
+		</body></html>
+		<?php
+		die;
 	}
 
 	/**
@@ -693,32 +709,35 @@ class Login_Interstitial {
 	 */
 	private function display_wp_login_message( $message ) {
 		if ( ! function_exists( 'login_header' ) ) {
-			require_once( dirname( __FILE__ ) . '/includes/function.login-header.php' );
+			require_once __DIR__ . '/includes/function.login-header.php';
 		}
 
 		login_header();
 
 		?>
 		<?php if ( is_wp_error( $message ) ) : ?>
-            <div id="login-error" class="message" style="border-left-color: #dc3232;">
+			<div id="login-error" class="message" style="border-left-color: #dc3232;">
 				<?php echo $message->get_error_message(); ?>
-            </div>
-		<?php elseif ( ! empty( $message['message'] ) ): ?>
-            <p class="message"><?php echo $message['message']; ?></p>
+			</div>
+		<?php elseif ( ! empty( $message['message'] ) ) : ?>
+			<p class="message"><?php echo $message['message']; ?></p>
 		<?php endif; ?>
 
-        <p id="backtoblog">
-            <a href="<?php echo esc_url( home_url( '/' ) ); ?>"
-               title="<?php esc_attr_e( 'Are you lost?', 'titan-security' ); ?>">
-				<?php echo esc_html( sprintf( __( '&larr; Back to %s', 'titan-security' ), get_bloginfo( 'title', 'display' ) ) ); ?>
-            </a>
-        </p>
+		<p id="backtoblog">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"
+				title="<?php esc_attr_e( 'Page Not Available', 'anti-spam' ); ?>">
+				<?php
+				/* translators: %s: site name */
+				echo esc_html( sprintf( __( '&larr; Back to %s', 'anti-spam' ), get_bloginfo( 'title', 'display' ) ) );
+				?>
+			</a>
+		</p>
 
-        </div>
+		</div>
 		<?php do_action( 'login_footer' ); ?>
-        <div class="clear"></div>
-        </body>
-        </html>
+		<div class="clear"></div>
+		</body>
+		</html>
 		<?php
 		die;
 	}
@@ -727,99 +746,102 @@ class Login_Interstitial {
 	 * Display a confirmation button for an async action.
 	 *
 	 * @param Login_Interstitial_Session $session
-	 * @param string $action
+	 * @param string                     $action
 	 */
 	private function display_async_action_confirmation( Login_Interstitial_Session $session, $action ) {
 		if ( ! function_exists( 'login_header' ) ) {
-			require_once( dirname( __FILE__ ) . '/includes/function.login-header.php' );
+			require_once __DIR__ . '/includes/function.login-header.php';
 		}
 
 		$form_action = $this->get_async_action_url( $session, $action );
 
 		login_header();
 		?>
-        <style type="text/css">
-            .login h2
-            {
-                margin-bottom: 10px;
-                font-size: 14px;
-            }
+		<style type="text/css">
+			.login h2
+			{
+				margin-bottom: 10px;
+				font-size: 14px;
+			}
 
-            .titan-login-interstitial-confirm-async-action
-            {
-                vertical-align: top;
-                display: block;
-                text-decoration: none;
-                height: 28px;
-                margin: 0 0 15px 0;
-                cursor: pointer;
-                -webkit-appearance: none;
-                border-radius: 3px;
-                white-space: nowrap;
-                box-sizing: border-box;
-                background: #0083E3;
-                color: #fff;
-                text-shadow: none;
-                padding: 20px 30px;
-                line-height: 0;
-                box-shadow: none;
-                font-weight: 300;
-                font-size: 1.2em;
-                border: none;
-                width: 100%;
-                text-align: center;
-            }
+			.titan-login-interstitial-confirm-async-action
+			{
+				vertical-align: top;
+				display: block;
+				text-decoration: none;
+				height: 28px;
+				margin: 0 0 15px 0;
+				cursor: pointer;
+				-webkit-appearance: none;
+				border-radius: 3px;
+				white-space: nowrap;
+				box-sizing: border-box;
+				background: #0083E3;
+				color: #fff;
+				text-shadow: none;
+				padding: 20px 30px;
+				line-height: 0;
+				box-shadow: none;
+				font-weight: 300;
+				font-size: 1.2em;
+				border: none;
+				width: 100%;
+				text-align: center;
+			}
 
-            .titan-login-interstitial-confirm-async-action:last-child
-            {
-                margin-bottom: 0;
-            }
+			.titan-login-interstitial-confirm-async-action:last-child
+			{
+				margin-bottom: 0;
+			}
 
-            .titan-login-interstitial-confirm-async-action:hover,
-            .titan-login-interstitial-confirm-async-action:focus
-            {
-                background: #006799;
-                color: #fff;
-            }
+			.titan-login-interstitial-confirm-async-action:hover,
+			.titan-login-interstitial-confirm-async-action:focus
+			{
+				background: #006799;
+				color: #fff;
+			}
 
-            .titan-login-interstitial-confirm-async-action.titan-login-interstitial-confirm-async-action--deny
-            {
-                background: #d54e21;
-            }
+			.titan-login-interstitial-confirm-async-action.titan-login-interstitial-confirm-async-action--deny
+			{
+				background: #d54e21;
+			}
 
-            .titan-login-interstitial-confirm-async-action.titan-login-interstitial-confirm-async-action--deny:hover,
-            .titan-login-interstitial-confirm-async-action.titan-login-interstitial-confirm-async-action--deny:focus
-            {
-                background: #983818;
-            }
-        </style>
-        <form action="<?php echo esc_url( $form_action ); ?>" method="post" autocomplete="off">
+			.titan-login-interstitial-confirm-async-action.titan-login-interstitial-confirm-async-action--deny:hover,
+			.titan-login-interstitial-confirm-async-action.titan-login-interstitial-confirm-async-action--deny:focus
+			{
+				background: #983818;
+			}
+		</style>
+		<form action="<?php echo esc_url( $form_action ); ?>" method="post" autocomplete="off">
 
-            <h2><?php esc_html_e( 'Please Verify the Login Request', 'titan-security' ); ?></h2>
+			<h2><?php esc_html_e( 'Please Verify the Login Request', 'anti-spam' ); ?></h2>
 
 			<?php do_action( 'titan_login_interstitial_async_action_confirmation_before_confirm', $session, $action ); ?>
 
-            <button class="titan-login-interstitial-confirm-async-action">
-				<?php esc_html_e( 'Confirm Login', 'titan-security' ); ?>
-            </button>
-            <button name="<?php echo esc_attr( self::R_SAME_BROWSER_DENY ); ?>"
-                    class="titan-login-interstitial-confirm-async-action titan-login-interstitial-confirm-async-action--deny">
-				<?php esc_html_e( 'Deny Login', 'titan-security' ); ?>
-            </button>
-        </form>
+			<button class="titan-login-interstitial-confirm-async-action">
+				<?php esc_html_e( 'Confirm Login', 'anti-spam' ); ?>
+			</button>
+			<button name="<?php echo esc_attr( self::R_SAME_BROWSER_DENY ); ?>"
+					class="titan-login-interstitial-confirm-async-action titan-login-interstitial-confirm-async-action--deny">
+				<?php esc_html_e( 'Deny Login', 'anti-spam' ); ?>
+			</button>
+		</form>
 
-        <p id="backtoblog">
-            <a href="<?php echo esc_url( home_url( '/' ) ); ?>"
-               title="<?php esc_attr_e( 'Are you lost?', 'titan-security' ); ?>">
-				<?php echo esc_html( sprintf( __( '&larr; Back to %s', 'titan-security' ), get_bloginfo( 'title', 'display' ) ) ); ?>
-            </a>
-        </p>
+		<p id="backtoblog">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"
+				title="<?php esc_attr_e( 'Page Not Available', 'anti-spam' ); ?>">
+				<?php
+				/* translators: %s: site name */
+				echo esc_html( sprintf( __( '&larr; Back to %s', 'anti-spam' ), get_bloginfo( 'title', 'display' ) ) );
+				?>
+			</a>
+		</p>
 
-        </div>
+		</div>
 		<?php do_action( 'login_footer' ); ?>
-        <div class="clear"></div>
-        </body>
-        </html>
+		<div class="clear"></div>
+		</body>
+		</html>
 		<?php
 		die;
 	}
@@ -830,13 +852,16 @@ class Login_Interstitial {
 	 * If there are more steps, show the next step,  otherwise log the user in.
 	 *
 	 * @param Login_Interstitial_Session $session
-	 * @param array $args
+	 * @param array                      $args
 	 */
-	private function do_next_step( Login_Interstitial_Session $session, array $args = array() ) {
-		$args = wp_parse_args( $args, array(
-			'delete'        => true,
-			'allow_interim' => true,
-		) );
+	private function do_next_step( Login_Interstitial_Session $session, array $args = [] ) {
+		$args = wp_parse_args(
+			$args,
+			[
+				'delete'        => true,
+				'allow_interim' => true,
+			] 
+		);
 
 		if ( $session->get_current_interstitial() ) {
 			$this->show_interstitial( $session );
@@ -853,7 +878,7 @@ class Login_Interstitial {
 	 * Handle when all of the interstitials have been processed.
 	 *
 	 * @param Login_Interstitial_Session $session
-	 * @param array $args
+	 * @param array                      $args
 	 */
 	private function handle_interstitials_completed( Login_Interstitial_Session $session, array $args ) {
 
@@ -869,7 +894,7 @@ class Login_Interstitial {
 		if ( ! is_user_logged_in() ) {
 			wp_set_auth_cookie( $user->ID, $session->is_remember_me(), $secure );
 
-			remove_action( 'wp_login', array( $this, 'wp_login' ), - 1000 );
+			remove_action( 'wp_login', [ $this, 'wp_login' ], - 1000 );
 			do_action( 'wp_login', $user->user_login, $user );
 
 			/**
@@ -895,7 +920,7 @@ class Login_Interstitial {
 			$requested   = '';
 		}
 
-		if ( ! $redirect_to || $redirect_to === 'wp-admin/' || $redirect_to === admin_url() ) {
+		if ( ! $redirect_to || 'wp-admin/' === $redirect_to || admin_url() === $redirect_to ) {
 			// If the user doesn't belong to a blog, send them to user admin. If the user can't edit posts, send them to their profile.
 			if ( is_multisite() && ! get_active_blog_for_user( $user->ID ) && ! is_super_admin( $user->ID ) ) {
 				$redirect_to = user_admin_url();
@@ -960,7 +985,7 @@ class Login_Interstitial {
 	 */
 	private function get_applicable_interstitials( $user ) {
 
-		$applicable = array();
+		$applicable = [];
 
 		foreach ( $this->registered as $action => $interstitial ) {
 			if ( $this->is_interstitial_applicable( $action, $user ) ) {
@@ -974,7 +999,7 @@ class Login_Interstitial {
 	/**
 	 * Is the interstitial applicable to the given user.
 	 *
-	 * @param string $action
+	 * @param string   $action
 	 * @param \WP_User $user
 	 *
 	 * @return bool
@@ -1003,7 +1028,7 @@ class Login_Interstitial {
 	 */
 	private function get_and_verify_session( $return_error = false ) {
 
-		$error = new \WP_Error( 'titan-login-interstitial-invalid-token', esc_html__( 'Sorry, this request has expired. Please log in again.', 'titan-security' ) );
+		$error = new \WP_Error( 'titan-login-interstitial-invalid-token', esc_html__( 'Sorry, this request has expired. Please log in again.', 'anti-spam' ) );
 
 		if ( ! isset( $_REQUEST[ self::R_USER ], $_REQUEST[ self::R_TOKEN ], $_REQUEST[ self::R_SESSION ] ) ) {
 			return $return_error ? $error : $this->redirect_invalid_token();
@@ -1033,7 +1058,7 @@ class Login_Interstitial {
 	 */
 	private function get_and_verify_session_for_async_action( $return_error = false ) {
 
-		$error = new \WP_Error( 'titan-login-interstitial-invalid-token', esc_html__( 'Sorry, this request has expired. Please log in again.', 'titan-security' ) );
+		$error = new \WP_Error( 'titan-login-interstitial-invalid-token', esc_html__( 'Sorry, this request has expired. Please log in again.', 'anti-spam' ) );
 
 		if ( ! isset( $_REQUEST[ self::R_USER ], $_REQUEST[ self::R_TOKEN ], $_REQUEST[ self::R_SESSION ], $_REQUEST[ self::R_ASYNC_ACTION ] ) ) {
 			return $return_error ? $error : $this->redirect_invalid_token();
@@ -1096,16 +1121,19 @@ class Login_Interstitial {
 	 *
 	 * @param string $name
 	 * @param string $value
-	 * @param array $args
+	 * @param array  $args
 	 */
-	public static function set_cookie( $name, $value, $args = array() ) {
+	public static function set_cookie( $name, $value, $args = [] ) {
 
-		$args = wp_parse_args( array(
-			'length'    => 0,
-			'http_only' => true,
-		), $args );
+		$args = wp_parse_args(
+			[
+				'length'    => 0,
+				'http_only' => true,
+			],
+			$args 
+		);
 
-		$expires = $args['length'] ? current_time( 'timestamp', true ) + $args['length'] : 0;
+		$expires = $args['length'] ? time() + $args['length'] : 0;
 
 		setcookie( $name, $value, $expires, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), $args['http_only'] );
 	}
@@ -1116,6 +1144,6 @@ class Login_Interstitial {
 	 * @param string $name
 	 */
 	public static function clear_cookie( $name ) {
-		setcookie( $name, ' ', current_time( 'timestamp', true ) - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, false );
+		setcookie( $name, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, false );
 	}
 }

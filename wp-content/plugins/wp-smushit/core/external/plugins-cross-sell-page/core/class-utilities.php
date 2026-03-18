@@ -41,36 +41,15 @@ class Utilities {
 	}
 
 	/**
-	 * Returns the list of free plugins.
-	 *
-	 * @return array
-	 */
-	public function get_free_plugins(): array {
-		$plugins = $this->get_plugins_list();
-		return is_array( $plugins ) && ! empty( $plugins['free-plugins'] ) ? $plugins['free-plugins'] : array();
-	}
-
-	/**
-	 * Returns the list of pro plugins.
-	 *
-	 * @return array
-	 */
-	public function get_pro_plugins(): array {
-		$plugins = $this->get_plugins_list();
-		return is_array( $plugins ) && ! empty( $plugins['pro-plugins'] ) ? $plugins['pro-plugins'] : array();
-	}
-
-	/**
 	 * Retrieves the path of a plugin by its slug.
 	 *
 	 * @param string $plugin_slug The plugin slug.
 	 * @return string
 	 */
-	public function get_plugin_path_by_slug( string $plugin_slug = '' ): string {
-		$free_plugins = $this->get_free_plugins();
-		$free_plugins = is_array( $free_plugins ) && ! empty( $free_plugins['free-plugins'] ) ? $free_plugins['free-plugins'] : $free_plugins;
+	public function get_plugin_path_by_slug( $plugin_slug = '' ) {
+		$plugins_list = $this->get_plugins_list();
 
-		return $this->get_value_from_associative_array( 'path', $free_plugins, array( 'slug' => $plugin_slug ) );
+		return $this->get_value_from_associative_array( 'path', $plugins_list, array( 'slug' => $plugin_slug ) );
 	}
 
 	/**
@@ -82,7 +61,7 @@ class Utilities {
 	 * @param string $operator    How to combine the criteria ('AND' or 'OR').
 	 * @return mixed              The value for the specified key if found, or null.
 	 */
-	public function get_value_from_associative_array( string $key = '', array $input_list = array(), array $args = array(), string $operator = 'AND' ) {
+	public function get_value_from_associative_array( $key = '', $input_list = array(), $args = array(), $operator = 'AND' ) {
 		if ( empty( $key ) || empty( $input_list ) ) {
 			return null;
 		}
@@ -112,7 +91,7 @@ class Utilities {
 	 * @param string $file The plugin file path.
 	 * @return bool
 	 */
-	public function is_plugin_installed( string $file = '' ): bool {
+	public function is_plugin_installed( $file = '' ) {
 		// Include necessary plugin functions.
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -130,7 +109,7 @@ class Utilities {
 	 * @param bool   $force_refresh Optional. Whether to force a refresh of the data from the API.
 	 * @return array|false Plugin data or false on failure.
 	 */
-	public function get_plugin_stats( string $plugin_slug = '', bool $force_refresh = false ): mixed {
+	public function get_plugin_stats( $plugin_slug = '', $force_refresh = false ) {
 		if ( empty( $plugin_slug ) ) {
 			return false;
 		}
@@ -201,7 +180,7 @@ class Utilities {
 	 * @param string $plugin_slug Optional. Clear cache for specific plugin. If empty, clears all plugin stats.
 	 * @return bool True on success
 	 */
-	public function clear_plugin_stats_cache( string $plugin_slug = '' ): bool {
+	public function clear_plugin_stats_cache( $plugin_slug = '' ) {
 		global $wpdb;
 
 		// If plugin slug provided, clear only that plugin's cache.
@@ -223,7 +202,7 @@ class Utilities {
 	 * @param bool  $strict  If true, value must not have extra keys/properties.
 	 * @return bool
 	 */
-	public function validate_schema( $value, $schema, bool $strict = false ): bool {
+	public function validate_schema( $value, $schema, $strict = false ) {
 		// If schema is a simple type (string), perform a type check.
 		if ( is_string( $schema ) ) {
 			return $this->validate_type( $value, $schema );
@@ -270,7 +249,7 @@ class Utilities {
 	 * @param string $type  The expected type (e.g., 'int', 'string', 'bool', 'array', 'object').
 	 * @return bool
 	 */
-	public function validate_type( $value, string $type ): bool {
+	public function validate_type( $value, $type ) {
 		switch ( $type ) {
 			case 'int':
 			case 'integer':

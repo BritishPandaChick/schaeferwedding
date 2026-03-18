@@ -96,7 +96,7 @@ class Rest {
 	 * @since 3.8.6
 	 */
 	public function register_configs_route() {
-		$configs_handler = new Configs();
+		$configs_handler = Configs::get_instance();
 		register_rest_route(
 			'wp-smush/v1',
 			'/preset_configs/',

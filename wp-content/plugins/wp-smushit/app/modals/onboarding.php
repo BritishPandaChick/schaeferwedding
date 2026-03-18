@@ -15,13 +15,12 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 $should_show_tracking_confirmation = ! is_multisite();
-$is_pro                            = WP_Smush::is_pro();
-$lossy_title                       = $is_pro ? __( 'Ultra Smush', 'wp-smushit' ) : __( 'Super Smush', 'wp-smushit' );
-$lossy_description                 = $is_pro ? esc_html__( 'Optimize images up to 5x more than Super Smush with our professional grade multi-pass lossy compression.', 'wp-smushit' )
-												: esc_html__( 'Optimize images up to 2x more than regular smush with our multi-pass lossy compression.', 'wp-smushit' );
-$lossy_action_label                = $is_pro ? __( 'Enable Ultra Smush', 'wp-smushit' ) : __( 'Enable Super Smush', 'wp-smushit' );
+// Lossy feature.
+$lossy_title        = __( 'Super Smush', 'wp-smushit' );
+$lossy_description  = esc_html__( 'Optimize images up to 2x more than regular smush with our multi-pass lossy compression.', 'wp-smushit' );
+$lossy_action_label = __( 'Enable Super Smush', 'wp-smushit' );
 // Pro features.
-$total_cdn_locations = Admin::CDN_POP_LOCATIONS;
+$total_cdn_locations = Admin::get_cdn_pop_locations();
 $upsell_url          = $this->get_utm_link(
 	array(
 		'utm_campaign' => 'smush_wizard',
@@ -60,7 +59,7 @@ $pro_features        = array(
 );
 ?>
 
-<script type="text/template" id="smush-onboarding" data-cta-url="<?php echo esc_js( $cta_url ); ?>" data-type="<?php echo WP_Smush::is_pro() ? 'pro' : 'free'; ?>">
+<script type="text/template" id="smush-onboarding" data-cta-url="<?php echo esc_js( $cta_url ); ?>" data-type="free">
 	<div class="sui-box-header sui-flatten sui-content-center sui-spacing-sides--90">
 		<?php if ( ! apply_filters( 'wpmudev_branding_hide_branding', false ) ) : ?>
 		<figure class="sui-box-banner" aria-hidden="true">
@@ -134,7 +133,7 @@ $pro_features        = array(
 						<span id="{{{ data.slide }}}-label">
 							<?php
 								/* translators: %1$: start bold tag  %2$: end of the bold tag */
-								echo sprintf( esc_html__( 'Share %1$sanonymous%2$s usage data to help us improve your Smush experience (recommended).', 'wp-smushit' ), '<strong>', '</strong>' );
+								printf( esc_html__( 'Share %1$sanonymous%2$s usage data to help us improve your Smush experience (recommended).', 'wp-smushit' ), '<strong>', '</strong>' );
 							?>
 						</span>
 					</label>
@@ -204,7 +203,7 @@ $pro_features        = array(
 						<a class="sui-button sui-button-blue smush-btn-pro-upsell" target="_blank" href="<?php echo esc_url( $upsell_url ); ?>">
 							<?php
 							/* translators: %s: plugin discount */
-							esc_html_e( 'SALE - Limited Offer', 'wp-smushit' );
+							esc_html_e( 'Get Smush Pro', 'wp-smushit' );
 							?>
 						</a>
 						<button type="submit" class="sui-button sui-button-grey sui-button-icon-left" data-modal-close="">
@@ -277,11 +276,9 @@ $pro_features        = array(
 			<button onclick="WP_Smush.onboarding.goTo('lazy_load')" class="<# if ( 'lazy_load' === data.slide ) { #>sui-current<# } #>" <# if ( 'lazy_load' === data.slide ) { #>disabled<# } #>>
 				<?php esc_html_e( 'Lazy Load', 'wp-smushit' ); ?>
 			</button>
-			<?php if ( ! WP_Smush::is_pro() ) : ?>
-				<button onclick="WP_Smush.onboarding.goTo('pro_upsell')" class="<# if ( 'pro_upsell' === data.slide ) { #>sui-current<# } #>" <# if ( 'pro_upsell' === data.slide ) { #>disabled<# } #>>
-				<?php esc_html_e( 'Upgrade to Smush Pro', 'wp-smushit' ); ?>
+			<button onclick="WP_Smush.onboarding.goTo('pro_upsell')" class="<# if ( 'pro_upsell' === data.slide ) { #>sui-current<# } #>" <# if ( 'pro_upsell' === data.slide ) { #>disabled<# } #>>
+			<?php esc_html_e( 'Upgrade to Smush Pro', 'wp-smushit' ); ?>
 			</button>
-			<?php endif; ?>
 		</div>
 	</div>
 </script>

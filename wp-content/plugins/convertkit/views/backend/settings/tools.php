@@ -102,6 +102,84 @@
 	</div><!-- .postbox -->
 
 	<?php
+	// Importers.
+	foreach ( $importers as $importer ) {
+		?>
+		<div id="import-<?php echo esc_attr( $importer['name'] ); ?>" class="postbox">
+			<h2>
+				<?php
+				printf(
+					/* translators: %s: Importer title */
+					esc_html__( '%s: Migrate Configuration', 'convertkit' ),
+					esc_html( $importer['title'] )
+				);
+				?>
+			</h2>
+
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %s: Importer title */
+					esc_html__( 'Automatically replace %s form shortcodes and blocks with Kit form shortcodes and blocks.', 'convertkit' ),
+					esc_html( $importer['title'] )
+				);
+				?>
+				<br />
+			</p>
+
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th>
+							<?php
+							printf(
+								/* translators: %s: Importer title */
+								esc_html__( '%s Form', 'convertkit' ),
+								esc_html( $importer['title'] )
+							);
+							?>
+						</th>
+						<th><?php esc_html_e( 'Kit Form', 'convertkit' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php
+					foreach ( $importer['forms'] as $importer_form_id => $importer_form_title ) {
+						?>
+						<tr>
+							<td><?php echo esc_html( $importer_form_title ); ?></td>
+							<td>
+								<select name="_wp_convertkit_integration_<?php echo esc_attr( $importer['name'] ); ?>_settings[<?php echo esc_attr( $importer_form_id ); ?>]">
+									<?php
+									foreach ( $forms->get() as $form ) {
+										?>
+										<option value="<?php echo esc_attr( $form['id'] ); ?>"><?php echo esc_html( $form['name'] ); ?></option>
+										<?php
+									}
+									?>
+								</select>
+							</td>
+						</tr>
+						<?php
+					}
+					?>
+				</tbody>
+			</table>
+
+			<p>
+				<?php
+				submit_button(
+					__( 'Migrate', 'convertkit' ),
+					'primary',
+					'convertkit-import-' . $importer['name'],
+					false
+				);
+				?>
+			</p>
+		</div><!-- .postbox -->
+		<?php
+	}
+
 	wp_nonce_field( 'convertkit-settings-tools', '_convertkit_settings_tools_nonce' );
 	?>
 </div><!-- .metabox-holder -->

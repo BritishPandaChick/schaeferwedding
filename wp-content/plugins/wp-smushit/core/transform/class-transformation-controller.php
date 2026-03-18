@@ -8,7 +8,7 @@ use Smush\Core\Server_Utils;
 use Smush\Core\Url_Utils;
 
 class Transformation_Controller extends Controller {
-	const MIN_TRANSFORMABLE_IMAGE_DIMENSION = 32;
+	private static $min_transformable_image_dimension = 32;
 
 	/**
 	 * @var Transformer
@@ -123,4 +123,14 @@ class Transformation_Controller extends Controller {
 
 		return apply_filters( 'wp_smush_should_transform_rest', $should_transform_rest, $response, $request );
 	}
+
+	/**
+	 * Get min_transformable_image_dimension.
+	 *
+	 * @return int
+	 */
+	public static function get_min_transformable_image_dimension() {
+		return self::$min_transformable_image_dimension;
+	}
+
 }

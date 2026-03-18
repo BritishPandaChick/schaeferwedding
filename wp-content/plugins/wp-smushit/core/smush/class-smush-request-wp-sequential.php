@@ -26,7 +26,7 @@ class Smush_Request_WP_Sequential extends Smush_Request {
 		parent::__construct( $streaming_enabled, $extra_headers );
 	}
 
-	public function do_requests( array $files_data ) {
+	public function do_requests( $files_data ) {
 		$responses = array();
 		foreach ( $files_data as $size_key => $file_data ) {
 			$responses[ $size_key ] = $this->do_request( $file_data, $size_key );
@@ -49,7 +49,7 @@ class Smush_Request_WP_Sequential extends Smush_Request {
 	 *
 	 * @return array|\WP_Error
 	 */
-	private function make_request_with_backoff( array $request ) {
+	private function make_request_with_backoff( $request ) {
 		return $this->backoff->set_wait( $this->retry_wait )
 		                     ->set_max_attempts( $this->retry_attempts )
 		                     ->enable_jitter()
@@ -85,7 +85,7 @@ class Smush_Request_WP_Sequential extends Smush_Request {
 	/**
 	 * @param int $retry_attempts
 	 */
-	public function set_retry_attempts( int $retry_attempts ) {
+	public function set_retry_attempts( $retry_attempts ) {
 		$this->retry_attempts = $retry_attempts;
 	}
 

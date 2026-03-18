@@ -4,7 +4,6 @@ namespace Elementor\Modules\AtomicWidgets;
 
 use Elementor\Core\Base\Module as BaseModule;
 use Elementor\Core\Experiments\Manager as Experiments_Manager;
-use Elementor\Core\Utils\Assets_Config_Provider;
 use Elementor\Elements_Manager;
 use Elementor\Modules\AtomicWidgets\DynamicTags\Dynamic_Tags_Module;
 use Elementor\Modules\AtomicWidgets\Elements\Atomic_Youtube\Atomic_Youtube;
@@ -17,10 +16,11 @@ use Elementor\Modules\AtomicWidgets\Elements\Atomic_Button\Atomic_Button;
 use Elementor\Modules\AtomicWidgets\Elements\Atomic_Divider\Atomic_Divider;
 use Elementor\Modules\AtomicWidgets\Elements\Atomic_Svg\Atomic_Svg;
 use Elementor\Modules\AtomicWidgets\Elements\Atomic_Tabs\Atomic_Tabs;
-use Elementor\Modules\AtomicWidgets\Elements\Atomic_Tabs\Atomic_Tab_List;
-use Elementor\Modules\AtomicWidgets\Elements\Atomic_Tabs\Atomic_Tab_Link;
-use Elementor\Modules\AtomicWidgets\Elements\Atomic_Tabs\Atomic_Tabs_Content;
+use Elementor\Modules\AtomicWidgets\Elements\Atomic_Tabs\Atomic_Tabs_Menu;
+use Elementor\Modules\AtomicWidgets\Elements\Atomic_Tabs\Atomic_Tab;
+use Elementor\Modules\AtomicWidgets\Elements\Atomic_Tabs\Atomic_Tabs_Content_Area;
 use Elementor\Modules\AtomicWidgets\ImportExport\Atomic_Import_Export;
+use Elementor\Modules\AtomicWidgets\Elements\Loader\Frontend_Assets_Loader;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Combine_Array_Transformer;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Export\Image_Src_Export_Transformer;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Image_Src_Transformer;
@@ -28,6 +28,7 @@ use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Image_Transformer
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Import\Image_Src_Import_Transformer;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Import_Export_Plain_Transformer;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Settings\Classes_Transformer;
+use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Settings\Date_Time_Transformer;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Settings\Link_Transformer;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Plain_Transformer;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Styles\Background_Color_Overlay_Transformer;
@@ -65,6 +66,7 @@ use Elementor\Modules\AtomicWidgets\PropTypes\Box_Shadow_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Border_Radius_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Border_Width_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Color_Stop_Prop_Type;
+use Elementor\Modules\AtomicWidgets\PropTypes\Date_Time_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Filters\Backdrop_Filter_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Filters\Filter_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Gradient_Color_Stop_Prop_Type;
@@ -93,11 +95,19 @@ use Elementor\Modules\AtomicWidgets\Styles\Atomic_Widget_Styles;
 use Elementor\Modules\AtomicWidgets\Styles\Size_Constants;
 use Elementor\Modules\AtomicWidgets\Styles\Style_Schema;
 use Elementor\Modules\AtomicWidgets\Database\Atomic_Widgets_Database_Updater;
+use Elementor\Modules\AtomicWidgets\Elements\Atomic_Tabs\Atomic_Tab_Content;
+use Elementor\Modules\AtomicWidgets\PropTypeMigrations\Migrations_Orchestrator;
 use Elementor\Plugin;
 use Elementor\Widgets_Manager;
 use Elementor\Modules\AtomicWidgets\Library\Atomic_Widgets_Library;
+use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Settings\Query_Transformer;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Styles\Perspective_Origin_Transformer;
+use Elementor\Modules\AtomicWidgets\PropTypes\Primitives\Number_Prop_Type;
+use Elementor\Modules\AtomicWidgets\PropTypes\Primitives\String_Prop_Type;
+use Elementor\Modules\AtomicWidgets\PropTypes\Query_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Transform\Perspective_Origin_Prop_Type;
+use Elementor\Modules\AtomicWidgets\Utils\Utils;
+use Elementor\Core\Base\Document;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -106,8 +116,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Module extends BaseModule {
 	const EXPERIMENT_NAME = 'e_atomic_elements';
 	const ENFORCE_CAPABILITIES_EXPERIMENT = 'atomic_widgets_should_enforce_capabilities';
-	const EXPERIMENT_CUSTOM_CSS = 'atomic_custom_css';
-	const EXPERIMENT_NESTED = 'e_nested_elements';
+	const EXPERIMENT_EDITOR_MCP = 'editor_mcp';
+	const EXPERIMENT_BC_MIGRATIONS = 'e_bc_migrations';
 
 	const PACKAGES = [
 		'editor-canvas',
@@ -117,6 +127,8 @@ class Module extends BaseModule {
 		'editor-props', // TODO: Need to be registered and not enqueued.
 		'editor-styles', // TODO: Need to be registered and not enqueued.
 		'editor-styles-repository',
+		'editor-interactions',
+		'editor-templates',
 	];
 
 	public function get_name() {
@@ -128,6 +140,7 @@ class Module extends BaseModule {
 
 		if ( self::is_active() ) {
 			$this->register_experimental_features();
+			Migrations_Orchestrator::register_feature_flag_hooks();
 		}
 
 		if ( Plugin::$instance->experiments->is_feature_active( self::EXPERIMENT_NAME ) ) {
@@ -147,10 +160,12 @@ class Module extends BaseModule {
 			add_filter( 'elementor/editor/localize_settings', fn ( $settings ) => $this->add_supported_units( $settings ) );
 			add_filter( 'elementor/widgets/register', fn ( Widgets_Manager $widgets_manager ) => $this->register_widgets( $widgets_manager ) );
 			add_filter( 'elementor/usage/elements/element_title', fn ( $title, $type ) => $this->get_element_usage_name( $title, $type ), 10, 2 );
+			add_filter( 'elementor/document/load/data', fn ( $data, $document ) => $this->backward_compatibility_migrations( $data, $document ), 10, 2 );
 
 			add_action( 'elementor/elements/elements_registered', fn ( $elements_manager ) => $this->register_elements( $elements_manager ) );
 			add_action( 'elementor/editor/after_enqueue_scripts', fn () => $this->enqueue_scripts() );
-			add_action( 'elementor/frontend/after_register_scripts', fn () => $this->register_frontend_scripts() );
+			add_action( 'elementor/frontend/before_register_scripts', fn () => $this->register_frontend_scripts() );
+			add_action( 'elementor/frontend/after_enqueue_styles', fn () => $this->add_inline_styles() );
 
 			add_action( 'elementor/atomic-widgets/settings/transformers/register', fn ( $transformers ) => $this->register_settings_transformers( $transformers ) );
 			add_action( 'elementor/atomic-widgets/styles/transformers/register', fn ( $transformers ) => $this->register_styles_transformers( $transformers ) );
@@ -189,21 +204,21 @@ class Module extends BaseModule {
 			'release_status' => Experiments_Manager::RELEASE_STATUS_DEV,
 		] );
 
-		Plugin::$instance->experiments->add_feature( [
-			'name' => self::EXPERIMENT_CUSTOM_CSS,
-			'title' => esc_html__( 'V4 Custom CSS', 'elementor' ),
-			'description' => esc_html__( 'Create endless custom styling.', 'elementor' ),
+		Plugin::$instance->experiments->add_feature([
+			'name' => self::EXPERIMENT_EDITOR_MCP,
+			'title' => esc_html__( 'Editor MCP for atomic widgets', 'elementor' ),
+			'description' => esc_html__( 'Editor MCP for atomic widgets.', 'elementor' ),
 			'hidden' => true,
-			'default' => Experiments_Manager::STATE_INACTIVE,
+			'default' => Experiments_Manager::STATE_ACTIVE,
 			'release_status' => Experiments_Manager::RELEASE_STATUS_DEV,
-		] );
+		]);
 
 		Plugin::$instance->experiments->add_feature([
-			'name' => self::EXPERIMENT_NESTED,
-			'title' => esc_html__( 'Nested Elements', 'elementor' ),
-			'description' => esc_html__( 'Enable nested elements.', 'elementor' ),
+			'name' => self::EXPERIMENT_BC_MIGRATIONS,
+			'title' => esc_html__( 'Backward compatibility migrations', 'elementor' ),
+			'description' => esc_html__( 'Enable automatic prop type migrations for atomic widgets', 'elementor' ),
 			'hidden' => true,
-			'default' => Experiments_Manager::STATE_INACTIVE,
+			'default' => Experiments_Manager::STATE_ACTIVE,
 			'release_status' => Experiments_Manager::RELEASE_STATUS_DEV,
 		]);
 	}
@@ -242,22 +257,22 @@ class Module extends BaseModule {
 		$elements_manager->register_element_type( new Div_Block() );
 		$elements_manager->register_element_type( new Flexbox() );
 
-		if ( Plugin::$instance->experiments->is_feature_active( self::EXPERIMENT_NESTED ) ) {
-			$elements_manager->register_element_type( new Atomic_Tabs() );
-			$elements_manager->register_element_type( new Atomic_Tab_List() );
-			$elements_manager->register_element_type( new Atomic_Tab_Link() );
-			$elements_manager->register_element_type( new Atomic_Tabs_Content() );
-		}
+		$elements_manager->register_element_type( new Atomic_Tabs() );
+		$elements_manager->register_element_type( new Atomic_Tabs_Menu() );
+		$elements_manager->register_element_type( new Atomic_Tab() );
+		$elements_manager->register_element_type( new Atomic_Tabs_Content_Area() );
+		$elements_manager->register_element_type( new Atomic_Tab_Content() );
 	}
 
 	private function register_settings_transformers( Transformers_Registry $transformers ) {
 		$transformers->register_fallback( new Plain_Transformer() );
-
 		$transformers->register( Classes_Prop_Type::get_key(), new Classes_Transformer() );
 		$transformers->register( Image_Prop_Type::get_key(), new Image_Transformer() );
 		$transformers->register( Image_Src_Prop_Type::get_key(), new Image_Src_Transformer() );
 		$transformers->register( Link_Prop_Type::get_key(), new Link_Transformer() );
+		$transformers->register( Query_Prop_Type::get_key(), new Query_Transformer() );
 		$transformers->register( Attributes_Prop_Type::get_key(), new Attributes_Transformer() );
+		$transformers->register( Date_Time_Prop_Type::get_key(), new Date_Time_Transformer() );
 	}
 
 	private function register_styles_transformers( Transformers_Registry $transformers ) {
@@ -360,40 +375,49 @@ class Module extends BaseModule {
 	private function render_panel_category_chip() {
 		?><# if ( 'v4-elements' === name )  { #>
 		<span class="elementor-panel-heading-category-chip">
-				<?php echo esc_html__( 'Alpha', 'elementor' ); ?><i class="eicon-info"></i>
+				<?php echo esc_html__( 'Beta', 'elementor' ); ?><i class="eicon-info"></i>
 				<span class="e-promotion-react-wrapper" data-promotion="v4_chip"></span>
 			</span>
 		<# } #><?php
 	}
 
 	private function register_frontend_scripts() {
-		$assets_config_provider = ( new Assets_Config_Provider() )
-			->set_path_resolver( function ( $name ) {
-				return ELEMENTOR_ASSETS_PATH . "js/packages/{$name}/{$name}.asset.php";
-			} );
+		$loader = new Frontend_Assets_Loader();
+		$loader->register_scripts();
+	}
 
-		$assets_config_provider->load( 'frontend-handlers' );
+	private function add_inline_styles() {
+		$inline_css = '.e-heading-base a, .e-paragraph-base a { all: unset; cursor: pointer; }';
+		wp_add_inline_style( 'elementor-frontend', $inline_css );
+	}
 
-		$frontend_handlers_package_config = $assets_config_provider->get( 'frontend-handlers' );
-
-		if ( ! $frontend_handlers_package_config ) {
-			return;
+	private function backward_compatibility_migrations( array $data, $document ): array {
+		if ( ! Plugin::$instance->experiments->is_feature_active( self::EXPERIMENT_BC_MIGRATIONS ) ) {
+			return $data;
 		}
 
-		wp_register_script(
-			$frontend_handlers_package_config['handle'],
-			$this->get_js_assets_url( 'packages/frontend-handlers/frontend-handlers' ),
-			$frontend_handlers_package_config['deps'],
-			ELEMENTOR_VERSION,
-			true
+		$orchestrator = Migrations_Orchestrator::make( $this->get_migrations_base_path() );
+
+		$orchestrator->migrate_document(
+			$data,
+			$document->get_post()->ID,
+			function( $migrated_data ) use ( $document ) {
+				$document->update_json_meta(
+					Document::ELEMENTOR_DATA_META_KEY,
+					$migrated_data
+				);
+			}
 		);
 
-		wp_register_script(
-			'elementor-youtube-handler',
-			$this->get_js_assets_url( 'youtube-handler' ),
-			[ $frontend_handlers_package_config['handle'] ],
-			ELEMENTOR_VERSION,
-			true
-		);
+		return $data;
+	}
+
+	private function get_migrations_base_path(): string {
+		// define this in wp-config.php to use local migrations i.e. __DIR__ . '/wp-content/plugins/elementor/migrations/'
+		if ( defined( 'ELEMENTOR_MIGRATIONS_PATH' ) ) {
+			return ELEMENTOR_MIGRATIONS_PATH;
+		}
+
+		return 'https://migrations.elementor.com/';
 	}
 }

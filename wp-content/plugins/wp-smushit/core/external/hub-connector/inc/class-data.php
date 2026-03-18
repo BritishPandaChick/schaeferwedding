@@ -353,7 +353,7 @@ class Data {
 	 *
 	 * @return array
 	 */
-	public function profile_data( bool $force = false ) {
+	public function profile_data( $force = false ) {
 		// Get profile data.
 		$profile = Options::get_transient( 'profile' );
 
@@ -397,7 +397,7 @@ class Data {
 	 * @since 1.0.7
 	 * @return array
 	 */
-	public function membership_projects(): array {
+	public function membership_projects() {
 		$type = $this->membership_type();
 
 		if ( 'full' === $type ) {
@@ -430,7 +430,7 @@ class Data {
 	 * @since 1.0.7
 	 * @return array
 	 */
-	public function membership_excluded_projects(): array {
+	public function membership_excluded_projects() {
 		$excluded = array();
 		$data     = $this->membership_data();
 		if ( false === empty( $data['membership_excluded_projects'] ) && is_array( $data['membership_excluded_projects'] ) ) {
@@ -451,7 +451,7 @@ class Data {
 	 *
 	 * @return bool
 	 */
-	public function membership_has_access( string $access ): bool {
+	public function membership_has_access( $access ) {
 		$data     = $this->membership_data();
 		$accesses = $data['membership_access'];
 

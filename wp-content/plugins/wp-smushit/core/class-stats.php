@@ -504,11 +504,11 @@ class Stats {
 		$unsmushed_query = array(
 			'relation' => 'AND',
 			array(
-				'key'     => Smush_Optimization::SMUSH_META_KEY,
+				'key'     => Smush_Optimization::get_smush_meta_key(),
 				'compare' => 'NOT EXISTS',
 			),
 			array(
-				'key'     => Media_Item::IGNORED_META_KEY,
+				'key'     => Media_Item::get_ignored_meta_key(),
 				'compare' => 'NOT EXISTS',
 			),
 		);
@@ -937,12 +937,12 @@ class Stats {
 
 		global $wpdb;
 		$ignored_query = "SELECT DISTINCT post_id FROM $wpdb->postmeta WHERE meta_key = %s";
-		$args[]        = Error_Handler::IGNORE_KEY;
+		$args[]        = Error_Handler::get_ignore_key();
 
 		// Animated files are considered ignored
 		$ignored_query .= ' OR meta_key = %s AND meta_value = %s';
-		$args[]        = Error_Handler::ERROR_KEY;
-		$args[]        = Error_Handler::ANIMATED_ERROR_CODE;
+		$args[]        = Error_Handler::get_error_key();
+		$args[]        = Error_Handler::get_animated_error_code();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
 		$images = $wpdb->get_col( $wpdb->prepare( $ignored_query, $args ) );
@@ -961,10 +961,10 @@ class Stats {
 	private function get_skipped_count() {
 		global $wpdb;
 
-		$animated_key = Media_Item::ANIMATED_META_KEY;
-		$ignored_key  = Media_Item::IGNORED_META_KEY;
+		$animated_key = Media_Item::get_animated_meta_key();
+		$ignored_key  = Media_Item::get_ignored_meta_key();
 
-		$error_meta_key       = Error_Handler::ERROR_KEY;
+		$error_meta_key       = Error_Handler::get_error_key();
 		$animated_error_value = 'animated';
 
 		$mime_types = ( new Smush_File() )->get_supported_mime_types();
@@ -1084,11 +1084,11 @@ class Stats {
 		/**
 		 * @var $smush_stats Smush_Optimization_Global_Stats
 		 */
-		$smush_stats   = $global_stats->get_persistable_stats_for_optimization( Smush_Optimization::KEY )
+		$smush_stats   = $global_stats->get_persistable_stats_for_optimization( Smush_Optimization::get_key() )
 		                              ->get_stats();
-		$resize_stats  = $global_stats->get_persistable_stats_for_optimization( Resize_Optimization::KEY )
+		$resize_stats  = $global_stats->get_persistable_stats_for_optimization( Resize_Optimization::get_key() )
 		                              ->get_stats();
-		$png2jpg_stats = $global_stats->get_persistable_stats_for_optimization( Png2Jpg_Optimization::KEY )
+		$png2jpg_stats = $global_stats->get_persistable_stats_for_optimization( Png2Jpg_Optimization::get_key() )
 		                              ->get_stats();
 
 		return array(

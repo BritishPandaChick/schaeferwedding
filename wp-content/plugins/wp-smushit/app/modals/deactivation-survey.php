@@ -43,7 +43,7 @@ $docs_link = Helper::get_utm_link(
 							printf(
 								/* translators: %s: Support link */
 								esc_html__( 'Please tell us why. Your feedback helps us improve. %s', 'wp-smushit' ),
-								WP_Smush::is_pro() ? '<a id="smush-request-assistance-link" style="text-decoration:underline" target="_blank" href="' . esc_url( $docs_link ) . '">' . esc_html__( 'Need Help?', 'wp-smushit' ) . '</a>' : ''
+								''
 							);
 							?>
 						</p>

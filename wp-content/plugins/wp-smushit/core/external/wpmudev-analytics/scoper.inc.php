@@ -57,7 +57,7 @@ return [
 	//
 	// For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#patchers
 	'patchers'                => [
-		static function ( string $filePath, string $prefix, string $content ): string {
+		static function ( $filePath, $prefix, $content ) {
 			$class_names = array(
 				'ConsumerStrategies_AbstractConsumer',
 				'ConsumerStrategies_FileConsumer',

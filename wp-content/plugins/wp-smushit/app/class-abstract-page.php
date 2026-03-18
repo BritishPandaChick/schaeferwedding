@@ -145,9 +145,7 @@ abstract class Abstract_Page {
 		// Check for any stored API message and show it.
 		add_action( 'wp_smush_header_notices', array( $this, 'show_api_message' ) );
 
-		add_action( 'admin_notices', array( $this, 'smush_dash_required' ) );
-		add_action( 'network_admin_notices', array( $this, 'smush_dash_required' ) );
-		add_action( 'wp_smush_render_setting_row', array( $this, 'render_row' ), 10, 4 );
+		add_action( 'wp_smush_render_setting_row', array( $this, 'render_row' ), 10, 5 );
 
 		add_filter( 'admin_body_class', array( $this, 'smush_body_classes' ) );
 
@@ -218,52 +216,6 @@ abstract class Abstract_Page {
 		</div>
 		<?php
 		delete_site_option( 'smush_deactivated' );
-	}
-
-	/**
-	 * Show notice when Smush Pro is installed only with a key.
-	 */
-	public function smush_dash_required() {
-		if ( WP_Smush::is_pro() || ! is_super_admin() || ( class_exists( 'WPMUDEV_Dashboard' ) && WPMUDEV_Dashboard::$api->has_key() ) ) {
-			return;
-		}
-
-		// Do not show on free versions of the plugin.
-		if ( false !== strpos( WP_SMUSH_DIR, 'wp-smushit' ) ) {
-			return;
-		}
-
-		$function = is_multisite() ? 'network_admin_url' : 'admin_url';
-
-		$url = wp_nonce_url(
-			$function( 'update.php?action=install-plugin&plugin=install_wpmudev_dash' ),
-			'install-plugin_install_wpmudev_dash'
-		);
-		?>
-		<div class="notice smush-notice">
-			<div class="smush-notice-logo">
-				<img
-					src="<?php echo esc_url( WP_SMUSH_URL . 'app/assets/images/incsub-logo.png' ); ?>"
-					srcset="<?php echo esc_url( WP_SMUSH_URL . 'app/assets/images/incsub-logo@2x.png' ); ?> 2x"
-					alt="<?php esc_html_e( 'Smush CDN', 'wp-smushit' ); ?>"
-				>
-			</div>
-			<div class="smush-notice-message">
-				<?php esc_html_e( 'Smush Pro requires the WPMU DEV Dashboard plugin to unlock pro features. Please make sure you have installed, activated and logged into the Dashboard.', 'wp-smushit' ); ?>
-			</div>
-			<div class="smush-notice-cta">
-				<?php if ( class_exists( 'WPMUDEV_Dashboard' ) && ! WPMUDEV_Dashboard::$api->has_key() ) : ?>
-					<a href="<?php echo esc_url( network_admin_url( 'admin.php?page=wpmudev' ) ); ?>" class="smush-notice-act button-primary" target="_blank">
-						<?php esc_html_e( 'Log In', 'wp-smushit' ); ?>
-					</a>
-				<?php else : ?>
-					<a href="<?php echo esc_url( $url ); ?>" class="smush-notice-act button-primary">
-						<?php esc_html_e( 'Install Plugin', 'wp-smushit' ); ?>
-					</a>
-				<?php endif; ?>
-			</div>
-		</div>
-		<?php
 	}
 
 	/**
@@ -442,7 +394,7 @@ abstract class Abstract_Page {
 		}
 
 		$is_pre_3_22_site      = get_site_option( 'wp_smush_pre_3_22_site' );
-		$is_new_free_site      = ! Membership::get_instance()->is_pro() && ! $is_pre_3_22_site;
+		$is_new_free_site      = ! $is_pre_3_22_site;
 		$onboarding_modal_name = $is_new_free_site ? 'onboarding-free' : 'onboarding';
 
 		$this->modals[ $onboarding_modal_name ] = array(
@@ -489,9 +441,7 @@ abstract class Abstract_Page {
 			return;
 		}
 
-		$cta_url = WP_Smush::is_pro()
-			? Helper::get_page_url( 'smush-lazy-preload#lazyload-image-resizing-settings-row' )
-			: $this->get_utm_link( array( 'utm_campaign' => 'smush_welcome_modal_auto-resize' ), 'https://wpmudev.com/project/wp-smush-pro/' );
+		$cta_url = $this->get_utm_link( array( 'utm_campaign' => 'smush_welcome_modal_auto-resize' ), 'https://wpmudev.com/project/wp-smush-pro/' );
 
 		// Load new feature modal.
 		$this->modals['updated'] = array(
@@ -936,8 +886,8 @@ abstract class Abstract_Page {
 	 * @param bool   $disable  Disable row/option.
 	 * @param bool   $upsell   Is the row an upsell.
 	 */
-	public function render_row( $name, $value, $disable = false, $upsell = false ) {
-		$this->view( 'settings-row', compact( 'name', 'value', 'disable', 'upsell' ) );
+	public function render_row( $name, $value, $disable = false, $upsell = false, $show_pro_tag = false ) {
+		$this->view( 'settings-row', compact( 'name', 'value', 'disable', 'upsell', 'show_pro_tag' ) );
 	}
 
 	/**
@@ -972,7 +922,6 @@ abstract class Abstract_Page {
 			'smushReact',
 			array(
 				'hideBranding' => apply_filters( 'wpmudev_branding_hide_branding', false ),
-				'isPro'        => WP_Smush::is_pro(),
 				'links'        => array(
 					'configsPage'   => network_admin_url( 'admin.php?page=smush-settings&view=configs' ),
 					'accordionImg'  => WP_SMUSH_URL . 'app/assets/images/smush-config-icon@2x.png',
@@ -987,7 +936,7 @@ abstract class Abstract_Page {
 					'hubBaseURL'     => defined( 'WPMUDEV_CUSTOM_API_SERVER' ) && WPMUDEV_CUSTOM_API_SERVER ? trailingslashit( WPMUDEV_CUSTOM_API_SERVER ) . 'api/hub/v1/package-configs' : null,
 					// Hard-coding these because the Free version doesn't have the WDP ID header in wp-smushit.php.
 					'pluginData'     => array(
-						'name' => 'Smush' . ( WP_Smush::is_pro() ? ' Pro' : '' ),
+						'name' => 'Smush',
 						'id'   => '912164',
 					),
 					'pluginRequests' => array(
@@ -1039,30 +988,7 @@ abstract class Abstract_Page {
 	}
 
 	public function get_connect_site_link() {
-		if ( WP_Smush::is_pro() || WP_Smush::is_expired() ) {
-			// Do not show connect site link for pro or expired users.
-			return;
-		}
-
-		if ( ! class_exists( '\WPMUDEV_Dashboard' ) ) {
-			return add_query_arg(
-				array(
-					'utm_source'   => 'smush',
-					'utm_medium'   => 'plugin',
-					'utm_campaign' => 'smush_ultra_existing',
-				),
-				'https://wpmudev.com/hub2/connect/'
-			);
-		}
-
-		$dashboard_path = 'admin.php?page=wpmudev';
-		if ( ! is_multisite() ) {
-			return admin_url( $dashboard_path );
-		}
-
-		if ( is_super_admin() ) {
-			return network_admin_url( $dashboard_path );
-		}
+		_deprecated_function( __METHOD__, '3.23.5' );
 	}
 
 	public static function should_show_new_feature_hotspot() {

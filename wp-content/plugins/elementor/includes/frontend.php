@@ -172,6 +172,10 @@ class Frontend extends App {
 		// Hack to avoid enqueue post CSS while it's a `the_excerpt` call.
 		add_filter( 'get_the_excerpt', [ $this, 'start_excerpt_flag' ], 1 );
 		add_filter( 'get_the_excerpt', [ $this, 'end_excerpt_flag' ], 20 );
+
+		if ( version_compare( get_bloginfo( 'version' ), '6.9', '>=' ) ) {
+			add_filter( 'wp_should_output_buffer_template_for_enhancement', '__return_false', 1 );
+		}
 	}
 
 	/**
@@ -242,13 +246,13 @@ class Frontend extends App {
 	/**
 	 * @since 2.0.12
 	 * @access public
-	 * @param string|array $class
+	 * @param string|array $class_name
 	 */
-	public function add_body_class( $class ) {
-		if ( is_array( $class ) ) {
-			$this->body_classes = array_merge( $this->body_classes, $class );
+	public function add_body_class( $class_name ) {
+		if ( is_array( $class_name ) ) {
+			$this->body_classes = array_merge( $this->body_classes, $class_name );
 		} else {
-			$this->body_classes[] = $class;
+			$this->body_classes[] = $class_name;
 		}
 	}
 
@@ -451,6 +455,8 @@ class Frontend extends App {
 			true
 		);
 
+		$this->register_frontend_handlers();
+
 		/**
 		 * After frontend register scripts.
 		 *
@@ -550,7 +556,7 @@ class Frontend extends App {
 
 		wp_register_style(
 			'elementor-frontend',
-			$this->get_frontend_file_url( "frontend{$direction_suffix}{$min_suffix}.css", $has_custom_breakpoints ),
+			$this->get_frontend_file_url( "frontend{$min_suffix}.css", $has_custom_breakpoints ),
 			[],
 			$has_custom_breakpoints ? null : ELEMENTOR_VERSION
 		);
@@ -583,6 +589,21 @@ class Frontend extends App {
 		 * @since 1.2.0
 		 */
 		do_action( 'elementor/frontend/after_register_styles' );
+	}
+
+	/**
+	 * Register frontend handlers.
+	 *
+	 * Registers all the frontend handlers for widgets and elements.
+	 *
+	 * Fired by `wp_enqueue_scripts` action.
+	 *
+	 * @since 3.25.0
+	 * @access public
+	 */
+	public function register_frontend_handlers() {
+		Plugin::$instance->widgets_manager->register_frontend_handlers();
+		Plugin::$instance->elements_manager->register_frontend_handlers();
 	}
 
 	/**
@@ -671,6 +692,11 @@ class Frontend extends App {
 
 					$css_file = Post_CSS::create( get_the_ID() );
 					$css_file->enqueue();
+				}
+			} else {
+				$post_id = Plugin::$instance->preview->get_post_id();
+				if ( $post_id ) {
+					do_action( 'elementor/post/render', $post_id );
 				}
 			}
 

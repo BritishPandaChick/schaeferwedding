@@ -31,7 +31,7 @@ class Integrations extends Abstract_Page implements Interface_Page {
 	 * Register meta boxes.
 	 */
 	public function register_meta_boxes() {
-		$class = WP_Smush::is_pro() ? 'smush-integrations-wrapper wp-smush-pro' : 'smush-integrations-wrapper';
+		$class = 'smush-integrations-wrapper';
 
 		$this->add_meta_box(
 			'integrations',
@@ -67,7 +67,6 @@ class Integrations extends Abstract_Page implements Interface_Page {
 			'integrations/meta-box',
 			array(
 				'basic_features'    => Settings::$basic_features,
-				'is_pro'            => WP_Smush::is_pro(),
 				'integration_group' => $this->settings->get_integrations_fields(),
 				'settings'          => $this->settings->get(),
 			)

@@ -64,9 +64,9 @@ class Hummingbird_Integration extends Controller {
 		$webp_server_activated = $webp_module_activated && ! $webp_direct_activated;
 
 		$smush_features = array(
-			'smush_basic'       => Settings::LEVEL_LOSSLESS === $lossy_level,
-			'smush_super'       => Settings::LEVEL_SUPER_LOSSY === $lossy_level,
-			'smush_ultra'       => Settings::LEVEL_ULTRA_LOSSY === $lossy_level,
+			'smush_basic'       => Settings::get_level_lossless() === $lossy_level,
+			'smush_super'       => Settings::get_level_super_lossy() === $lossy_level,
+			'smush_ultra'       => Settings::get_level_ultra_lossy() === $lossy_level,
 			'smush_lazy'        => $smush_settings->is_lazyload_active(),
 			'smush_cdn'         => $cdn_module_activated,
 			'smush_webp'        => $webp_module_activated,

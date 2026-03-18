@@ -11,7 +11,7 @@ abstract class Login_Interstitial_Base {
 	 * Should this interstitial be shown to the given user.
 	 *
 	 * @param \WP_User $user
-	 * @param bool $is_requested
+	 * @param bool     $is_requested
 	 *
 	 * @return bool
 	 */
@@ -34,7 +34,7 @@ abstract class Login_Interstitial_Base {
 	 * Render the interstitial.
 	 *
 	 * @param Login_Interstitial_Session $session
-	 * @param array $args
+	 * @param array                      $args
 	 *
 	 * @return void
 	 */
@@ -72,7 +72,7 @@ abstract class Login_Interstitial_Base {
 	 * Handle submitting the interstitial.
 	 *
 	 * @param Login_Interstitial_Session $session
-	 * @param array $data
+	 * @param array                      $data
 	 *
 	 * @return \WP_Error|null
 	 */
@@ -95,8 +95,8 @@ abstract class Login_Interstitial_Base {
 	 * Handle an async action.
 	 *
 	 * @param Login_Interstitial_Session $session
-	 * @param string $action
-	 * @param array $args
+	 * @param string                     $action
+	 * @param array                      $args
 	 *
 	 * @return true|array|\WP_Error|void
 	 *      True if success.
@@ -121,7 +121,7 @@ abstract class Login_Interstitial_Base {
 	 * Handle an ajax request.
 	 *
 	 * @param Login_Interstitial_Session $session
-	 * @param array $data
+	 * @param array                      $data
 	 */
 	public function handle_ajax( Login_Interstitial_Session $session, array $data ) {
 	}
@@ -141,7 +141,7 @@ abstract class Login_Interstitial_Base {
 	 * Execute code after the interstitial has been submitted.
 	 *
 	 * @param Login_Interstitial_Session $session
-	 * @param array $data
+	 * @param array                      $data
 	 */
 	public function after_submit( Login_Interstitial_Session $session, array $data ) {
 	}

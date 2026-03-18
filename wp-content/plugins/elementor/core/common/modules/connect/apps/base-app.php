@@ -288,10 +288,10 @@ abstract class Base_App {
 	 * @since 2.3.0
 	 * @access public
 	 */
-	public function get( $key, $default = null ) {
+	public function get( $key, $default_value = null ) {
 		$this->init_data();
 
-		return isset( $this->data[ $key ] ) ? $this->data[ $key ] : $default;
+		return isset( $this->data[ $key ] ) ? $this->data[ $key ] : $default_value;
 	}
 
 	/**
@@ -330,8 +330,8 @@ abstract class Base_App {
 	 * @since 2.3.0
 	 * @access protected
 	 */
-	protected function add( $key, $value, $default = '' ) {
-		$new_value = $this->get( $key, $default );
+	protected function add( $key, $value, $default_value = '' ) {
+		$new_value = $this->get( $key, $default_value );
 
 		if ( is_array( $new_value ) ) {
 			$new_value[] = $value;
@@ -531,7 +531,7 @@ abstract class Base_App {
 	 *
 	 * @return false|string
 	 */
-	private function generate_signature( $payload = [] ) {
+	protected function generate_signature( $payload = [] ) {
 		return hash_hmac(
 			'sha256',
 			wp_json_encode( $payload, JSON_NUMERIC_CHECK ),
@@ -800,7 +800,7 @@ abstract class Base_App {
 		}
 	}
 
-	private function get_generated_urls( $endpoint ) {
+	protected function get_generated_urls( $endpoint ) {
 		$base_urls = $this->get_api_url();
 
 		if ( ! is_array( $base_urls ) ) {

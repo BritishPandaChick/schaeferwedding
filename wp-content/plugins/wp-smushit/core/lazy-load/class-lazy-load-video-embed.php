@@ -14,7 +14,7 @@ use Smush\Core\Url_Utils;
 defined( 'WPINC' ) || exit;
 
 class Lazy_Load_Video_Embed {
-	const CLASS_SMUSH_VIDEO = 'smush-lazyload-video';
+	private static $class_smush_video = 'smush-lazyload-video';
 
 	/**
 	 * @var Video_Embed
@@ -84,10 +84,10 @@ class Lazy_Load_Video_Embed {
 
 		$this->iframe_element->set_wrapper_markup( $wrapper_before, $wrapper_after );
 		$this->convert_src_to_data_src();
-		$this->iframe_element->add_attribute( new Element_Attribute( 'src', Lazy_Load_Transform::TEMP_SRC ) );
+		$this->iframe_element->add_attribute( new Element_Attribute( 'src', Lazy_Load_Transform::get_temp_src() ) );
 	}
 
-	private function generate_video_wrapper_parts(): ?array {
+	private function generate_video_wrapper_parts() {
 		// Try the cover attribute.
 		$wrapper_markup = $this->generate_video_wrapper_parts_from_cover_attribute();
 		if ( ! empty( $wrapper_markup ) ) {
@@ -118,7 +118,7 @@ class Lazy_Load_Video_Embed {
 		}
 	}
 
-	private function generate_video_wrapper_parts_with_custom_url(): ?array {
+	private function generate_video_wrapper_parts_with_custom_url() {
 		list( $video_width, $video_height ) = $this->get_video_dimensions( $this->iframe_element );
 		if ( ! $video_width && ! $video_height ) {
 			return null;
@@ -129,7 +129,7 @@ class Lazy_Load_Video_Embed {
 		return $this->generate_video_wrapper_markup_parts( $aspect_ratio, $video_thumbnail_url );
 	}
 
-	private function generate_video_wrapper_parts_from_cached_video_thumbnail(): ?array {
+	private function generate_video_wrapper_parts_from_cached_video_thumbnail() {
 		list( $video_width, $video_height ) = $this->get_video_dimensions( $this->iframe_element );
 		if ( ! $video_width && ! $video_height ) {
 			return null;
@@ -148,7 +148,7 @@ class Lazy_Load_Video_Embed {
 		return $this->generate_video_wrapper_markup_parts( $aspect_ratio, $video_thumbnail_url, $fallback_background_image_attribute );
 	}
 
-	private function generate_video_wrapper_parts_from_cover_attribute(): ?array {
+	private function generate_video_wrapper_parts_from_cover_attribute() {
 		$embed_provider = $this->get_embed_provider();
 		list( $video_width, $video_height ) = $this->get_video_dimensions( $this->iframe_element );
 		$video_thumbnail = $this->get_video_thumbnail_from_attribute( $this->iframe_element, $video_width, $video_height );
@@ -168,7 +168,7 @@ class Lazy_Load_Video_Embed {
 		);
 	}
 
-	private function generate_video_wrapper_markup_parts( $aspect_ratio, $video_thumbnail_url, $fallback_background_image_attribute = '' ): ?array {
+	private function generate_video_wrapper_markup_parts( $aspect_ratio, $video_thumbnail_url, $fallback_background_image_attribute = '' ) {
 		$embed_provider             = $this->get_embed_provider();
 		$wrapper_classes            = $this->generate_wrapper_classes();
 		$background_image_attribute = $this->get_background_image_attribute( $video_thumbnail_url );
@@ -222,8 +222,8 @@ class Lazy_Load_Video_Embed {
 	private function generate_wrapper_classes() {
 		$embed_provider = $this->get_embed_provider();
 		$classes        = array(
-			Lazy_Load_Transform::LAZYLOAD_CLASS,
-			self::CLASS_SMUSH_VIDEO,
+			Lazy_Load_Transform::get_lazyload_class(),
+			self::$class_smush_video,
 			'smush-lazyload-' . $embed_provider->get_name(),
 		);
 
@@ -250,7 +250,7 @@ class Lazy_Load_Video_Embed {
 	 *
 	 * @return string
 	 */
-	private function get_next_gen_fallback_background_image_attribute( Video_Thumbnail $video_thumbnail ): string {
+	private function get_next_gen_fallback_background_image_attribute( $video_thumbnail ) {
 		$fallback_thumb_url = $video_thumbnail->get_fallback_url();
 		$has_next_gen_url   = $video_thumbnail->has_next_gen_url();
 

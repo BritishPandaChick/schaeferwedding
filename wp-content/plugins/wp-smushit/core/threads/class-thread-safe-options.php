@@ -246,7 +246,7 @@ class Thread_Safe_Options {
 	 *
 	 * @return array
 	 */
-	private function get_table_columns( $site_option ): array {
+	private function get_table_columns( $site_option ) {
 		global $wpdb;
 
 		$table        = $wpdb->options;

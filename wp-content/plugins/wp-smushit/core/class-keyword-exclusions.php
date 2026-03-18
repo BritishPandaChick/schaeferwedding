@@ -3,9 +3,9 @@
 namespace Smush\Core;
 
 class Keyword_Exclusions {
-	const ID_PREFIX    = '#';
-	const CLASS_PREFIX = '.';
-	const FILE_PREFIX  = '@';
+	private static $id_prefix = '#';
+	private static $class_prefix = '.';
+	private static $file_prefix = '@';
 
 	/**
 	 * Excluded keywords.
@@ -110,11 +110,11 @@ class Keyword_Exclusions {
 		$excluded_url_keywords = array_reduce(
 			$this->excluded_keywords,
 			function ( $url_keywords, $keyword ) {
-				if ( ! str_starts_with( $keyword, self::FILE_PREFIX ) ) {
+				if ( ! str_starts_with( $keyword, self::$file_prefix ) ) {
 					return $url_keywords;
 				}
 
-				$keyword = ltrim( $keyword, self::FILE_PREFIX . ' \r\t\v\0' );
+				$keyword = ltrim( $keyword, self::$file_prefix . ' \r\t\v\0' );
 				if ( ! empty( $keyword ) ) {
 					$url_keywords[] = $keyword;
 				}
@@ -149,9 +149,9 @@ class Keyword_Exclusions {
 		$common_excluded_keywords = array_filter(
 			$this->excluded_keywords,
 			function ( $keyword ) {
-				$is_id_or_class_name = str_starts_with( $keyword, self::ID_PREFIX )
-										|| str_starts_with( $keyword, self::CLASS_PREFIX );
-				$is_url_keyword      = str_starts_with( $keyword, self::FILE_PREFIX );
+				$is_id_or_class_name = str_starts_with( $keyword, self::$id_prefix )
+										|| str_starts_with( $keyword, self::$class_prefix );
+				$is_url_keyword      = str_starts_with( $keyword, self::$file_prefix );
 
 				return ! $is_id_or_class_name && ! $is_url_keyword;
 			}
@@ -277,7 +277,7 @@ class Keyword_Exclusions {
 		$excluded_classes = array_filter(
 			$this->excluded_keywords,
 			function ( $keyword ) {
-				return str_starts_with( $keyword, self::CLASS_PREFIX );
+				return str_starts_with( $keyword, self::$class_prefix );
 			}
 		);
 
@@ -307,7 +307,7 @@ class Keyword_Exclusions {
 		$excluded_ids = array_filter(
 			$this->excluded_keywords,
 			function ( $keyword ) {
-				return str_starts_with( $keyword, self::ID_PREFIX );
+				return str_starts_with( $keyword, self::$id_prefix );
 			}
 		);
 
@@ -322,7 +322,7 @@ class Keyword_Exclusions {
 	 * @return string
 	 */
 	private function add_id_prefix( $id_name ) {
-		return self::ID_PREFIX . $id_name;
+		return self::$id_prefix . $id_name;
 	}
 
 	/**
@@ -333,6 +333,6 @@ class Keyword_Exclusions {
 	 * @return string
 	 */
 	private function add_class_prefix( $class_name ) {
-		return self::CLASS_PREFIX . $class_name;
+		return self::$class_prefix . $class_name;
 	}
 }

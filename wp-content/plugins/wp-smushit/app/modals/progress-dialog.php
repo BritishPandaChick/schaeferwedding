@@ -39,10 +39,13 @@ if ( ! defined( 'WPINC' ) ) {
 				</p>
 
 				<?php
-					$this->view( 'bulk/limit-reached-notice', array(
-						'smush_type' => 'directory-smush',
-					) );
-				?>
+					$this->view(
+						'bulk/limit-reached-notice',
+						array(
+							'smush_type' => 'directory-smush',
+						)
+					);
+					?>
 
 				<div class="sui-progress-block sui-progress-can-close">
 					<div class="sui-progress">
@@ -73,7 +76,7 @@ if ( ! defined( 'WPINC' ) ) {
 							<span class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></span>
 							<p>
 								<?php
-								$support_url = WP_Smush::is_pro() ? 'https://wpmudev.com/hub2/support/#get-support' : 'https://wordpress.org/support/plugin/wp-smushit/';
+								$support_url = 'https://wordpress.org/support/plugin/wp-smushit/';
 
 								printf(
 									/* translators: error message placeholder */

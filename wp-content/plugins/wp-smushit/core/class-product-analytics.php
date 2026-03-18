@@ -3,14 +3,13 @@
 namespace Smush\Core;
 
 use Smush\Core\Threads\Thread_Safe_Options;
-use WP_Smush;
 use WPMUDEV_Analytics;
 use WPMUDEV_Analytics_V4;
 
 class Product_Analytics {
-	const PROJECT_TOKEN = '5d545622e3a040aca63f2089b0e6cae7';
-	const EVENT_DATA_OPTION_ID = 'wp_smush_event_data';
-	const EVENT_COUNT_KEY = 'wp_smush_event_count_%s';
+	private static $project_token = '5d545622e3a040aca63f2089b0e6cae7';
+	private static $event_data_option_id = 'wp_smush_event_data';
+	private static $event_count_key = 'wp_smush_event_count_%s';
 	/**
 	 * @var WPMUDEV_Analytics
 	 */
@@ -113,7 +112,7 @@ class Product_Analytics {
 		if ( empty( $this->get_unique_id() ) ) {
 			return '';
 		}
-		return self::PROJECT_TOKEN;
+		return self::$project_token;
 	}
 
 	private function has_valid_domain( $url ) {
@@ -139,7 +138,7 @@ class Product_Analytics {
 			'mysql_version'      => $this->server_utils->get_mysql_version(),
 			'php_version'        => phpversion(),
 			'plugin'             => 'Smush',
-			'plugin_type'        => WP_Smush::is_pro() ? 'pro' : 'free',
+			'plugin_type'        => 'free',
 			'plugin_version'     => WP_SMUSH_VERSION,
 			'server_type'        => $this->server_utils->get_server_type(),
 			'memory_limit'       => $this->format_utils->convert_to_megabytes( $this->server_utils->get_memory_limit() ),
@@ -192,7 +191,7 @@ class Product_Analytics {
 		if ( method_exists( $this, "get_event_count_key_$event" ) ) {
 			return call_user_func( array( $this, "get_event_count_key_$event" ), $event, $properties );
 		} else {
-			return sprintf( self::EVENT_COUNT_KEY, $event );
+			return sprintf( self::$event_count_key, $event );
 		}
 	}
 
@@ -227,12 +226,12 @@ class Product_Analytics {
 			$event_key = $error_type . '_' . $error_code;
 		}
 
-		return sprintf( self::EVENT_COUNT_KEY, sanitize_key( $event_key ) );
+		return sprintf( self::$event_count_key, sanitize_key( $event_key ) );
 	}
 
 	private function track_with_limit( $event, $properties, $limit_per_day ) {
 		$thread_safe_options       = new Thread_Safe_Options();
-		$option_id                 = self::EVENT_DATA_OPTION_ID;
+		$option_id                 = self::$event_data_option_id;
 		$event_count_key           = $this->get_event_count_key( $event, $properties );
 		$event_count_timestamp_key = $event_count_key . '_timestamp';
 		$event_count               = (int) $thread_safe_options->get_value( $option_id, $event_count_key, 0 );
@@ -240,9 +239,11 @@ class Product_Analytics {
 		$not_tracked_in_24_hours   = $this->time_utils->get_time() - $event_count_timestamp > DAY_IN_SECONDS;
 
 		if ( $not_tracked_in_24_hours || $event_count < $limit_per_day ) {
-			$this->track( $event, array_merge( array(
-				'Total Error Count' => empty( $event_count_timestamp ) ? 1 : $event_count,
-			), $properties ) );
+			if ( 'smush_error_encountered' === $event ) {
+				$properties['Total Error Count'] = empty( $event_count_timestamp ) ? 1 : $event_count;
+			}
+
+			$this->track( $event, $properties );
 
 			if ( $not_tracked_in_24_hours ) {
 				// Reset the count if it has been more than 24 hours
@@ -277,4 +278,14 @@ class Product_Analytics {
 	public function get_time_utils() {
 		return $this->time_utils;
 	}
+
+	/**
+	 * Get event_data_option_id.
+	 *
+	 * @return string
+	 */
+	public static function get_event_data_option_id() {
+		return self::$event_data_option_id;
+	}
+
 }

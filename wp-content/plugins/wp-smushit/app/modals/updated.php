@@ -41,11 +41,9 @@ if ( ! defined( 'WPINC' ) ) {
 			<div class="sui-box-body sui-content-center sui-spacing-sides--30 sui-spacing-top--40 sui-spacing-bottom--30">
 				<h3 class="sui-box-title sui-lg" id="smush-title-updated-dialog" style="white-space: normal">
 					<?php esc_html_e( 'New: Advanced Image Sizing', 'wp-smushit' ); ?>
-					<?php if ( ! WP_Smush::is_pro() ) : ?>
-                        <span class="sui-tag sui-tag-pro" style="font-size: 10px; line-height: 12px;">
-                            <?php esc_html_e( 'Pro', 'wp-smushit' ); ?>
-                        </span>
-                    <?php endif; ?>
+					<span class="sui-tag sui-tag-pro" style="font-size: 10px; line-height: 12px;">
+						<?php esc_html_e( 'Pro', 'wp-smushit' ); ?>
+					</span>
 				</h3>
 
 
@@ -76,22 +74,16 @@ if ( ! defined( 'WPINC' ) ) {
 			<?php
 
 			$cta_config = array(
-				'label'     => __( 'Go to Image sizing', 'wp-smushit' ),
-				'target'    => '_self',
+				'label'     => __( 'Get Smush Pro ', 'wp-smushit' ),
+				'target'    => '_blank',
 				'classes'   => array(
 					'sui-button',
 					'wp-smush-upgrade-modal-cta',
 					'sui-button-grey',
+					'sui-button-purple',
 				),
-				'show_icon' => false,
+				'show_icon' => true,
 			);
-
-			if ( ! WP_Smush::is_pro() ) {
-				$cta_config['target']    = '_blank';
-				$cta_config['label']     = __( ' UNLOCK PRO – ON SALE ', 'wp-smushit' );
-				$cta_config['classes'][] = 'sui-button-purple';
-				$cta_config['show_icon'] = true;
-			}
 
 			$class_string = implode( ' ', $cta_config['classes'] );
 			?>

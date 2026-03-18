@@ -84,18 +84,8 @@ class ConvertKit_Admin_Setup_Wizard_Landing_Page extends ConvertKit_Admin_Setup_
 	 */
 	public function __construct() {
 
-		// Define details for each step in the setup process.
-		$this->steps = array(
-			1 => array(
-				'name'        => __( 'Setup', 'convertkit' ),
-				'next_button' => array(
-					'label' => __( 'Create', 'convertkit' ),
-				),
-			),
-			2 => array(
-				'name' => __( 'Done', 'convertkit' ),
-			),
-		);
+		// Define the steps for the setup wizard.
+		add_filter( 'convertkit_admin_setup_wizard_steps_convertkit-landing-page-setup', array( $this, 'define_steps' ) );
 
 		add_action( 'convertkit_admin_setup_wizard_process_form_convertkit-landing-page-setup', array( $this, 'process_form' ) );
 		add_action( 'convertkit_admin_setup_wizard_load_screen_data_convertkit-landing-page-setup', array( $this, 'load_screen_data' ) );
@@ -106,11 +96,35 @@ class ConvertKit_Admin_Setup_Wizard_Landing_Page extends ConvertKit_Admin_Setup_
 	}
 
 	/**
+	 * Define the steps for the setup wizard.
+	 *
+	 * @since   3.1.8
+	 *
+	 * @param   array $steps     The steps for the setup wizard.
+	 * @return  array
+	 */
+	public function define_steps( $steps ) {
+
+		return array(
+			'start'  => array(
+				'name'        => __( 'Setup', 'convertkit' ),
+				'next_button' => array(
+					'label' => __( 'Create', 'convertkit' ),
+				),
+			),
+			'finish' => array(
+				'name' => __( 'Done', 'convertkit' ),
+			),
+		);
+
+	}
+
+	/**
 	 * Process posted data from the submitted form.
 	 *
 	 * @since   2.5.5
 	 *
-	 * @param   int $step   Current step.
+	 * @param   string $step   Current step.
 	 */
 	public function process_form( $step ) {
 
@@ -124,7 +138,7 @@ class ConvertKit_Admin_Setup_Wizard_Landing_Page extends ConvertKit_Admin_Setup_
 		}
 
 		// Don't process form data if we're not on the second step.
-		if ( $step !== 2 ) {
+		if ( $step !== 'finish' ) {
 			return;
 		}
 
@@ -144,7 +158,7 @@ class ConvertKit_Admin_Setup_Wizard_Landing_Page extends ConvertKit_Admin_Setup_
 
 		// If an error occured creating the Page, go back a step to show the error.
 		if ( is_wp_error( $this->result ) ) {
-			$this->step  = ( $this->step - 1 );
+			$this->step  = $this->get_step_key_by_number( $this->get_current_step_number() - 1 );
 			$this->error = $this->result->get_error_message();
 		}
 
@@ -155,7 +169,7 @@ class ConvertKit_Admin_Setup_Wizard_Landing_Page extends ConvertKit_Admin_Setup_
 	 *
 	 * @since   2.5.5
 	 *
-	 * @param   int $step   Current step.
+	 * @param   string $step   Current step.
 	 */
 	public function load_screen_data( $step ) {
 
@@ -198,26 +212,40 @@ class ConvertKit_Admin_Setup_Wizard_Landing_Page extends ConvertKit_Admin_Setup_
 		);
 
 		// Don't load data if not on the first step.
-		if ( $step !== 1 ) {
+		if ( $step !== 'start' ) {
 			return;
 		}
 
 		// Fetch Landing Pages.
 		$this->landing_pages = new ConvertKit_Resource_Landing_Pages( 'landing_page_wizard' );
 
-		// Refresh Landing Page resources, in case the user just created their first Product or Tag
-		// in ConvertKit.
-		$this->landing_pages->refresh();
+		// Refresh Landing Page resources, in case the user just created their first Landing Page in Kit.
+		$result = $this->landing_pages->refresh();
 
-		// If no Landing Pages exist in ConvertKit, change the next button label and make it a link to reload
-		// the screen.
-		if ( ! $this->landing_pages->exist() ) {
-			unset( $this->steps[1]['next_button'] );
+		// Bail if an error occured.
+		if ( is_wp_error( $result ) ) {
+			// Change the next button label and make it a link to reload the screen.
+			unset( $this->steps['start']['next_button'] );
 			$this->current_url = add_query_arg(
 				array(
 					'page'         => $this->page_name,
 					'ck_post_type' => $this->post_type,
-					'step'         => 1,
+					'step'         => 'start',
+				),
+				admin_url( 'options.php' )
+			);
+			return;
+		}
+
+		// If no Landing Pages exist in ConvertKit, change the next button label and make it a link to reload
+		// the screen.
+		if ( ! $this->landing_pages->exist() ) {
+			unset( $this->steps['start']['next_button'] );
+			$this->current_url = add_query_arg(
+				array(
+					'page'         => $this->page_name,
+					'ck_post_type' => $this->post_type,
+					'step'         => 'start',
 				),
 				admin_url( 'options.php' )
 			);

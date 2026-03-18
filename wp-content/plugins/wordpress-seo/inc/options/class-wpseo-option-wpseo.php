@@ -147,12 +147,17 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 		'site_kit_tracking_last_interaction_stage'             => '',
 		'site_kit_tracking_setup_widget_temporarily_dismissed' => 'no',
 		'site_kit_tracking_setup_widget_permanently_dismissed' => 'no',
-		'google_site_kit_feature_enabled'                      => false,
+		'google_site_kit_feature_enabled'                      => false, // No longer used.
 		'ai_free_sparks_started_on'                            => null,
 		'enable_llms_txt'                                      => false,
 		'last_updated_on'                                      => false,
 		'default_seo_title'                                    => [],
 		'default_seo_meta_desc'                                => [],
+		'first_activated_by'                                   => 0,
+		'enable_schema_aggregation_endpoint'                   => false,
+		'schema_aggregation_endpoint_enabled_on'               => null,
+		'enable_task_list'                                     => true,
+		'enable_schema'                                        => true,
 	];
 
 	/**
@@ -353,6 +358,7 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 				case 'site_kit_tracking_setup_widget_temporarily_dismissed':
 				case 'site_kit_tracking_setup_widget_permanently_dismissed':
 				case 'ai_free_sparks_started_on':
+				case 'schema_aggregation_endpoint_enabled_on':
 					if ( isset( $dirty[ $key ] ) ) {
 						$clean[ $key ] = sanitize_text_field( $dirty[ $key ] );
 					}
@@ -410,6 +416,16 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 					$clean[ $key ] = false;
 					if ( isset( $dirty[ $key ] ) ) {
 						if ( $dirty[ $key ] === false || WPSEO_Utils::validate_int( $dirty[ $key ] ) ) {
+							$clean[ $key ] = $dirty[ $key ];
+						}
+					}
+					break;
+
+				case 'first_activated_by':
+					// A slight change from the other integer fields, as we want to allow '0' here, but don't want to have much impact elsewhere.
+					$clean[ $key ] = false;
+					if ( isset( $dirty[ $key ] ) ) {
+						if ( $dirty[ $key ] === false || WPSEO_Utils::validate_int( $dirty[ $key ] ) !== false ) {
 							$clean[ $key ] = $dirty[ $key ];
 						}
 					}
@@ -536,6 +552,9 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 				 *  'site_kit_connected',
 				 *  'google_site_kit_feature_enabled',
 				 *  'enable_llms_txt',
+				 *  'enable_schema_aggregation_endpoint'
+				 *  'enable_task_list',
+				 *  'enable_schema',
 				 *  and most of the feature variables.
 				 */
 				default:
@@ -606,6 +625,9 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 			'algolia_integration_active'         => false,
 			'google_site_kit_feature_enabled'    => false,
 			'enable_llms_txt'                    => false,
+			'enable_task_list'                   => false,
+			'enable_schema_aggregation_endpoint' => false,
+			'enable_schema'                      => false,
 		];
 
 		// We can reuse this logic from the base class with the above defaults to parse with the correct feature values.

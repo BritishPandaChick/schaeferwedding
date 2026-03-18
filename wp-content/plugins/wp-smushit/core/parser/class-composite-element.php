@@ -35,21 +35,21 @@ class Composite_Element implements Replaceable {
 	/**
 	 * @return string
 	 */
-	public function get_markup(): string {
+	public function get_markup() {
 		return $this->markup;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function get_tag(): string {
+	public function get_tag() {
 		return $this->tag;
 	}
 
 	/**
 	 * @return Element[]
 	 */
-	public function get_elements(): array {
+	public function get_elements() {
 		return $this->elements;
 	}
 

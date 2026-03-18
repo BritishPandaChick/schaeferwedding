@@ -95,18 +95,16 @@ class Dashboard extends Abstract_Summary_Page implements Interface_Page {
 		/**
 		 * Meta boxes on the right side.
 		 */
-		if ( ! WP_Smush::is_pro() ) {
-			$this->add_meta_box(
-				'dashboard/upsell/upsell',
-				__( 'Smush Pro', 'wp-smushit' ),
-				array( $this, 'upsell_meta_box' ),
-				array( $this, 'upsell_meta_box_header' ),
-				null,
-				'box-dashboard-right'
-			);
-		}
+		$this->add_meta_box(
+			'dashboard/upsell/upsell',
+			__( 'Smush Pro', 'wp-smushit' ),
+			array( $this, 'upsell_meta_box' ),
+			array( $this, 'upsell_meta_box_header' ),
+			null,
+			'box-dashboard-right'
+		);
 
-		if ( self::should_render( Settings::LAZY_PRELOAD_MODULE_NAME ) ) {
+		if ( self::should_render( Settings::get_lazy_preload_module_name() ) ) {
 			$this->add_meta_box(
 				'dashboard/lazy-preload',
 				__( 'Lazy Load & Preload', 'wp-smushit' ),
@@ -182,20 +180,13 @@ class Dashboard extends Abstract_Summary_Page implements Interface_Page {
 			$this->upgrade_url
 		);
 
-		$bg_optimization               = WP_Smush::get_instance()->core()->mod->bg_optimization;
-		$background_processing_enabled = $bg_optimization->should_use_background();
-		$background_in_processing      = $background_processing_enabled && $bg_optimization->is_in_processing();
-		$background_scan_status        = Background_Media_Library_Scanner::get_instance()->get_background_process()->get_status();
+		$background_scan_status = Background_Media_Library_Scanner::get_instance()->get_background_process()->get_status();
 
 		$args = array(
-			'total_count'                     => (int) $array_utils->get_array_value( $global_stats, 'count_total' ),
-			'uncompressed'                    => (int) $array_utils->get_array_value( $global_stats, 'remaining_count' ),
-			'upsell_url'                      => $upsell_url,
-			'background_processing_enabled'   => $background_processing_enabled,
-			'background_in_processing'        => $background_in_processing,
-			'background_in_processing_notice' => $bg_optimization->get_in_process_notice(),
-			'bulk_background_process_dead'    => $background_processing_enabled && $bg_optimization->is_dead(),
-			'scan_background_process_dead'    => $background_scan_status->is_dead(),
+			'total_count'                  => (int) $array_utils->get_array_value( $global_stats, 'count_total' ),
+			'uncompressed'                 => (int) $array_utils->get_array_value( $global_stats, 'remaining_count' ),
+			'upsell_url'                   => $upsell_url,
+			'scan_background_process_dead' => $background_scan_status->is_dead(),
 		);
 
 		$this->view( 'dashboard/bulk/meta-box', $args );
@@ -226,7 +217,6 @@ class Dashboard extends Abstract_Summary_Page implements Interface_Page {
 		$args = array(
 			'basic_features' => Settings::$basic_features,
 			'fields'         => $integration_fields,
-			'is_pro'         => WP_Smush::is_pro(),
 			'settings'       => $this->settings->get(),
 			'upsell_url'     => $upsell_url,
 		);

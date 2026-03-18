@@ -53,14 +53,11 @@ abstract class Abstract_Summary_Page extends Abstract_Page {
 				)
 			);
 
-			// If not a pro user.
-			if ( ! WP_Smush::is_pro() ) {
-				/**
-				 * Allows to hook in additional containers after stats box for free version
-				 * Pro Version has a full width settings box, so we don't want to do it there.
-				 */
-				do_action( 'wp_smush_after_stats_box' );
-			}
+			/**
+			 * Allows to hook in additional containers after stats box for free version
+			 * Pro Version has a full width settings box, so we don't want to do it there.
+			 */
+			do_action( 'wp_smush_after_stats_box' );
 		}
 	}
 
@@ -105,8 +102,7 @@ abstract class Abstract_Summary_Page extends Abstract_Page {
 	}
 
 	public function add_preload_images_status() {
-		$is_preload_images_active = $this->settings->is_lcp_preload_enabled();
-		$utm_link                 = $this->get_utm_link(
+		$utm_link = $this->get_utm_link(
 			array(
 				'utm_campaign' => 'smush_preload-critical-images_summary',
 			)
@@ -117,24 +113,12 @@ abstract class Abstract_Summary_Page extends Abstract_Page {
 				<?php esc_html_e( 'Preload Critical Images', 'wp-smushit' ); ?>
 			</span>
 			<span class="sui-list-detail">
-				<?php if ( ! WP_Smush::is_pro() ) : ?>
-					<a href="<?php echo esc_url( $utm_link ); ?>" target="_blank" class="smush-upgrade-text">
-						<?php esc_html_e( 'Upgrade', 'wp-smushit' ); ?>
-					</a>
-					<span class="sui-tooltip sui-tooltip-constrained sui-tooltip-top-right" style="--tooltip-width: 360px;" data-tooltip="<?php esc_attr_e( "Preload helps to improve the Largest Contentful Paint (LCP) metric by optimizing images that often form the main viewport content. Since LCP measures the rendering time of the largest visible element, Smush helps to achieve Google's recommended 2.5-second benchmark for good user experience.", 'wp-smushit' ); ?>">
-						<span class="sui-tag sui-tag-sm sui-tag-purple"><?php esc_html_e( 'Pro', 'wp-smushit' ); ?></span>
-					</span>
-				<?php elseif ( $is_preload_images_active ): ?>
-					<span class="wp-smush-preload-images-status sui-tag sui-tag-green">
-						<?php esc_html_e( 'Active', 'wp-smushit' ); ?>
-					</span>
-				<?php else: ?>
-					<a href="<?php echo esc_url( $this->get_url( 'smush-lazy-preload&view=preload' ) ); ?>">
-						<span class="wp-smush-preload-images-status sui-tag" style="cursor: pointer;">
-							<?php esc_html_e( 'Inactive', 'wp-smushit' ); ?>
-						</span>
-					</a>
-				<?php endif; ?>
+				<a href="<?php echo esc_url( $utm_link ); ?>" target="_blank" class="smush-upgrade-text">
+					<?php esc_html_e( 'Upgrade', 'wp-smushit' ); ?>
+				</a>
+				<span class="sui-tooltip sui-tooltip-constrained sui-tooltip-top-right" style="--tooltip-width: 360px;" data-tooltip="<?php esc_attr_e( "Preload helps to improve the Largest Contentful Paint (LCP) metric by optimizing images that often form the main viewport content. Since LCP measures the rendering time of the largest visible element, Smush helps to achieve Google's recommended 2.5-second benchmark for good user experience.", 'wp-smushit' ); ?>">
+					<span class="sui-tag sui-tag-sm sui-tag-purple"><?php esc_html_e( 'Pro', 'wp-smushit' ); ?></span>
+				</span>
 			</span>
 		</li>
 		<?php
@@ -146,6 +130,10 @@ abstract class Abstract_Summary_Page extends Abstract_Page {
 	 * @since 2.8.6
 	 */
 	public function cdn_stats_ui() {
+		if ( ! CDN_Helper::get_instance()->is_cdn_active() ) {
+			return;
+		}
+
 		$status = CDN_Helper::get_instance()->get_cdn_status_string();
 		if ( 'disabled' === $status ) {
 			return;

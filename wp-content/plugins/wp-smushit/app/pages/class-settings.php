@@ -261,7 +261,7 @@ class Settings extends Abstract_Page implements Interface_Page {
 	 * @return void
 	 */
 	public function render_translations_settings() {
-		$translation_link = WP_Smush::is_pro() ? 'https://wpmudev.com/translate/projects/wp-smushit/' : 'https://translate.wordpress.org/projects/wp-plugins/wp-smushit';
+		$translation_link = 'https://translate.wordpress.org/projects/wp-plugins/wp-smushit';
 
 		$site_locale = get_locale();
 

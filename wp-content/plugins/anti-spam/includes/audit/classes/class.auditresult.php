@@ -2,7 +2,7 @@
 
 namespace WBCR\Titan;
 
-// Exit if accessed directly
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -12,8 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @package WBCR\Titan
  *
- * @author        Artem Prihodko <webtemyk@ya.ru>
- * @copyright (c) 2020 Creative Motion
  * @version       1.0
  */
 class AuditResult implements \JsonSerializable {
@@ -63,7 +61,7 @@ class AuditResult implements \JsonSerializable {
 	 * @param string $description
 	 * @param string $severity
 	 * @param string $fix
-	 * @param bool $hided
+	 * @param bool   $hided
 	 */
 	public function __construct( $title, $description, $severity, $fix, $hided = false ) {
 		$this->title       = $title;
@@ -74,14 +72,15 @@ class AuditResult implements \JsonSerializable {
 		$this->hided       = $hided;
 	}
 
-    public function jsonSerialize(): mixed {
-        return [
-            'title'       => $this->title,
-            'description' => $this->description,
-            'timestamp'   => $this->timestamp,
-            'severity'    => $this->severity,
-            'fix'         => $this->fix,
-            'hided'       => $this->hided,
-        ];
-    }
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		return [
+			'title'       => $this->title,
+			'description' => $this->description,
+			'timestamp'   => $this->timestamp,
+			'severity'    => $this->severity,
+			'fix'         => $this->fix,
+			'hided'       => $this->hided,
+		];
+	}
 }

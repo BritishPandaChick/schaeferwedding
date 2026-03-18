@@ -20,7 +20,6 @@ use Elementor\Widget_Base;
 use Elementor\Core\Settings\Page\Manager as PageManager;
 use ElementorPro\Modules\Library\Widgets\Template;
 use Elementor\Core\Utils\Promotions\Filtered_Promotions_Manager;
-use Elementor\Modules\AtomicWidgets\Module as Atomic_Widgets_Module;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -610,6 +609,10 @@ abstract class Document extends Controls_Stack {
 		if ( $autosave_id ) {
 			$document = Plugin::$instance->documents->get( $autosave_id );
 		} elseif ( $create ) {
+			if ( ! function_exists( 'wp_create_post_autosave' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/post.php';
+			}
+
 			$autosave_id = wp_create_post_autosave( [
 				'post_ID' => $this->post->ID,
 				'post_type' => $this->post->post_type,
@@ -640,7 +643,7 @@ abstract class Document extends Controls_Stack {
 	 *
 	 * @access public
 	 *
-	 * @param array    $actions An array of row action links.
+	 * @param array $actions An array of row action links.
 	 *
 	 * @return array An updated array of row action links.
 	 */
@@ -1050,6 +1053,8 @@ abstract class Document extends Controls_Stack {
 	 * @param bool $with_html_content
 	 *
 	 * @return array
+	 *
+	 * @throws \Exception If elements retrieval fails or data processing errors occur.
 	 */
 	public function get_elements_raw_data( $data = null, $with_html_content = false ) {
 		if ( ! static::get_property( 'has_elements' ) ) {
@@ -1058,6 +1063,21 @@ abstract class Document extends Controls_Stack {
 
 		if ( is_null( $data ) ) {
 			$data = $this->get_elements_data();
+		}
+
+		/**
+		 * Filters document elements data after loading.
+		 *
+		 * Allows modification of elements data when loading (not saving).
+		 * Useful for migrations, transformations, or data enrichment.
+		 *
+		 * @since 3.35.0
+		 *
+		 * @param array                         $data      The elements data array.
+		 * @param \Elementor\Core\Base\Document $document  The document instance.
+		 */
+		if ( ! $this->is_saving ) {
+			$data = apply_filters( 'elementor/document/load/data', $data, $this );
 		}
 
 		// Change the current documents, so widgets can use `documents->get_current` and other post data
@@ -1457,7 +1477,7 @@ abstract class Document extends Controls_Stack {
 	 * @access public
 	 *
 	 * @param string $key   Meta data key.
-	 * @param mixed $value Meta data value.
+	 * @param mixed  $value Meta data value.
 	 *
 	 * @return bool|int
 	 */
@@ -1794,9 +1814,9 @@ abstract class Document extends Controls_Stack {
 
 	/**
 	 * @since 2.1.3
-	 * @access protected
+	 * @access public
 	 */
-	protected function print_elements( $elements_data ) {
+	public function print_elements( $elements_data ) {
 		$is_element_cache_active = 'disable' !== get_option( 'elementor_element_cache_ttl', '' );
 		if ( ! $is_element_cache_active ) {
 			ob_start();

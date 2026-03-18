@@ -14,6 +14,7 @@ return [
 		'elementor-v2-editor-responsive',
 		'elementor-v2-editor-ui',
 		'elementor-v2-env',
+		'elementor-v2-events',
 		'elementor-v2-http-client',
 		'elementor-v2-icons',
 		'elementor-v2-locations',
@@ -23,6 +24,7 @@ return [
 		'elementor-v2-utils',
 		'elementor-v2-wp-media',
 		'react',
+		'react-dom',
 		'wp-i18n',
 	],
 ];

@@ -17,7 +17,7 @@ class Smush_Request_WP_Multiple extends Smush_Request {
 		$this->server_utils = new Server_Utils();
 	}
 
-	public function do_requests( array $files_data ) {
+	public function do_requests( $files_data ) {
 		$responses = array();
 		$requests  = $this->prepare_requests( $files_data );
 
@@ -77,7 +77,7 @@ class Smush_Request_WP_Multiple extends Smush_Request {
 	 *
 	 * @return array
 	 */
-	private function prepare_requests( array $files_data ): array {
+	private function prepare_requests( $files_data ) {
 		$requests = array();
 		foreach ( $files_data as $size_key => $file_data ) {
 			list( $file_path ) = $this->get_file_path_and_url( $file_data );

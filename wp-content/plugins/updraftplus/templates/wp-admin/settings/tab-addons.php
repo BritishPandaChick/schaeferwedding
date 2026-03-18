@@ -1,5 +1,6 @@
 <?php
 
+if (!defined('ABSPATH')) exit;
 if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed');
 
 global $updraftplus, $updraftplus_checkout_embed;
@@ -23,9 +24,9 @@ if ($updraftplus_checkout_embed) {
 				<div class="updraft_premium_cta__summary">
 					<h2 id="premium-upgrade-header">UpdraftPlus <strong>Premium</strong></h2>
 					<ul class="updraft_premium_description_list">
-						<li><a target="_blank" href="<?php echo esc_url(apply_filters('updraftplus_com_link', "https://teamupdraft.com/updraftplus/features/?utm_source=udp-plugin&utm_medium=referral&utm_campaign=paac&utm_content=full-feature-list&utm_creative_format=text"));?>"><?php esc_html_e('Full feature list', 'updraftplus');?></a></li>
-						<li><a target="_blank" href="<?php echo esc_url(apply_filters('updraftplus_com_link', "https://teamupdraft.com/contact/?utm_source=udp-plugin&utm_medium=referral&utm_campaign=paac&utm_content=ask-a-pre-sales-question&utm_creative_format=text"));?>"><?php esc_html_e('Ask a pre-sales question', 'updraftplus');?></a></li>
-						<li><a target="_blank" href="<?php echo esc_url(apply_filters('updraftplus_com_link', "https://teamupdraft.com/support/?utm_source=udp-plugin&utm_medium=referral&utm_campaign=paac&utm_content=support&utm_creative_format=text"));?>"><?php esc_html_e('Support', 'updraftplus');?></a></li>
+						<li><a target="_blank" href="<?php echo esc_url($updraftplus->get_url('premium_features'));?>"><?php esc_html_e('Full feature list', 'updraftplus');?></a></li>
+						<li><a target="_blank" href="<?php echo esc_url($updraftplus->get_url('pre_sales_question'));?>"><?php esc_html_e('Ask a pre-sales question', 'updraftplus');?></a></li>
+						<li><a target="_blank" href="<?php echo esc_url($updraftplus->get_url('premium_support'));?>"><?php esc_html_e('Support', 'updraftplus');?></a></li>
 						<li><a target="_blank" href="https://teamupdraft.com/?utm_source=udp-plugin&utm_medium=referral&utm_campaign=paac&utm_content=other-great-plugins&utm_creative_format=text"><?php esc_html_e('Other great plugins', 'updraftplus');?></a></li>
 						<li><a target="_blank" href="https://www.simbahosting.co.uk/s3/shop/"><?php esc_html_e('WooCommerce plugins', 'updraftplus');?></a></li>
 					</ul>
@@ -60,7 +61,7 @@ if ($updraftplus_checkout_embed) {
 
 	<section class="premium-upgrade-purchase-success" <?php if (!$user_bought_udp) echo 'style="display: none;"';?>>
 		<h3><span class="dashicons dashicons-yes"></span><?php esc_html_e('You successfully purchased UpdraftPremium.', 'updraftplus');?></h3>
-		<p><a target="_blank" href="<?php echo esc_url(apply_filters('updraftplus_com_link', "https://updraftplus.com/support/installing-updraftplus-premium-your-add-on/"));?>"> <?php esc_html_e('Follow this link to the installation instructions (particularly step 1).', 'updraftplus');?></a></p>
+		<p><a target="_blank" href="<?php echo esc_url(apply_filters('updraftplus_com_link', "https://teamupdraft.com/documentation/updraftplus/getting-started/how-to-install-updraftplus-premium/"));?>"> <?php esc_html_e('Follow this link to the installation instructions (particularly step 1).', 'updraftplus');?></a></p>
 	</section>
 
 	<?php if (!$user_bought_udp) : ?>
@@ -302,7 +303,7 @@ if ($updraftplus_checkout_embed) {
 						<h4><?php esc_html_e('UpdraftVault storage', 'updraftplus');?></h4>
 						<p>
 							<?php esc_html_e('UpdraftPlus has its own embedded storage option, providing a zero-hassle way to download, store and manage all your backups from one place.', 'updraftplus');?>
-							<a href="<?php echo esc_url(apply_filters('updraftplus_com_link', 'https://teamupdraft.com/updraftplus/updraftvault/?utm_source=udp-plugin&utm_medium=referral&utm_campaign=paac&utm_content=find-out-more&utm_creative_format=text'));?>"><?php esc_html_e('Premium / Find out more', 'updraftplus');?></a>
+							<a href="<?php echo esc_url($updraftplus->get_url('premium_updraftvault'));?>"><?php esc_html_e('Premium / Find out more', 'updraftplus');?></a>
 						</p>
 						
 					</td>

@@ -3,7 +3,7 @@
 namespace Smush\Core;
 
 class Cron_Controller extends Controller {
-	const CRON_HOOK = 'wp_smush_daily_cron';
+	private static $cron_hook = 'wp_smush_daily_cron';
 
 	/**
 	 * Static instance
@@ -31,8 +31,8 @@ class Cron_Controller extends Controller {
 	 * Schedule cron
 	 */
 	public function schedule_cron() {
-		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			wp_schedule_event( time(), 'daily', self::CRON_HOOK );
+		if ( ! wp_next_scheduled( self::$cron_hook ) ) {
+			wp_schedule_event( time(), 'daily', self::$cron_hook );
 		}
 	}
 
@@ -40,6 +40,16 @@ class Cron_Controller extends Controller {
 	 * Unschedule cron
 	 */
 	public function unschedule_cron() {
-		wp_clear_scheduled_hook( self::CRON_HOOK );
+		wp_clear_scheduled_hook( self::$cron_hook );
 	}
+
+	/**
+	 * Get cron_hook.
+	 *
+	 * @return string
+	 */
+	public static function get_cron_hook() {
+		return self::$cron_hook;
+	}
+
 }

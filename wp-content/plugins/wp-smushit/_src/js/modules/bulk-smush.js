@@ -170,7 +170,33 @@ import SmushProcess from '../common/progressbar';
 				upsell_cdn.classList.remove( 'sui-hidden' );
 			}
 		}
+
+		isBulkSmushInProgress() {
+			return this.#bulkSmushObj?.ids?.length > 0 && this.#bulkSmushObj.button?.hasClass( 'wp-smush-started' );
+		}
+
+		getTotalEnqueuedImages() {
+			return this.#bulkSmushObj?.total || 0;
+		}
+
+		getCompletionPercentage() {
+			const bulkSmushObj = this.#bulkSmushObj;
+			if ( ! bulkSmushObj ) {
+				return 0;
+			}
+			const totalEnqueuedImages = this.getTotalEnqueuedImages();
+			const smushed = Number( bulkSmushObj.smushed ) || 0;
+			const errors = Array.isArray( bulkSmushObj.errors ) ? bulkSmushObj.errors.length : 0;
+			const processedImages = smushed + errors;
+
+			if ( totalEnqueuedImages > 0 ) {
+				return Math.ceil( ( processedImages * 100 ) / totalEnqueuedImages );
+			}
+
+			return 0;
+		}
 	}
 
-	new WP_Smush_Bulk();
+	WP_Smush.bulk = new WP_Smush_Bulk();
+
 }( jQuery ) );

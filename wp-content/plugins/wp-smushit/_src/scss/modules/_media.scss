@@ -5,6 +5,8 @@
 @import "~@wpmudev/shared-ui/scss/colors";
 @import "~@wpmudev/shared-ui/scss/variables";
 
+// Override body class
+$sui-version: 'smush-media';
 $sui-wrap-class: false;
 
 @import "~@wpmudev/shared-ui/scss/mixins";
@@ -24,9 +26,62 @@ $sui-wrap-class: false;
 // Margin for buttons.
 .sui-smush-media {
 	.button {
-		margin-right: 5px;
 		&:last-of-type {
 			margin-right: 0;
+		}
+	}
+
+	&.smush-status-links {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 5px;
+
+		.smush-stats-details {
+			height: 24px;
+			span {
+				&.stats-toggle {
+					color: #666666;
+					font-size: 18px;
+					margin-left: 4px;
+					font-weight: 500;
+
+					&::before {
+						content: '+';
+					}
+				}
+			}
+			&.smush-stats-expanded {
+				.stats-toggle::before {
+					content: '-';
+				}
+
+				&.sui-tooltip[data-tooltip] {
+					&::after,
+					&::before {
+						display: none;
+					}
+				}
+			}
+		}
+
+		&:has(.wp-smush-restore) {
+
+
+			.smush-stats-details +,
+			.wp-smush-resmush + {
+				.smush-ignore-image {
+					margin-right: 30px;
+				}
+			}
+		}
+	}
+}
+
+td {
+	&.smushit {
+		&.column-smushit {
+			padding: 8px 0px;
 		}
 	}
 }
@@ -249,3 +304,13 @@ $sui-wrap-class: false;
 	}
 }
 
+.wp-smush-restore {
+	&.button {
+		&.disabled {
+			cursor: help !important;
+			background: #eaeaea !important;
+			border: none !important;
+			color: #828282 !important;
+		}
+	}
+}

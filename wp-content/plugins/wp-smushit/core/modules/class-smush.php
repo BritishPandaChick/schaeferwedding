@@ -28,7 +28,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Class Smush
  */
 class Smush extends Abstract_Module {
-	const ERROR_SSL_CERT = 'ssl_cert_error';
+	private static $error_ssl_cert = 'ssl_cert_error';
 
 	/**
 	 * Meta key to save smush result to db.
@@ -102,21 +102,6 @@ class Smush extends Abstract_Module {
 	 * @return bool
 	 */
 	public function show_warning() {
-		// If it's a free setup, Go back right away!
-		if ( ! WP_Smush::is_pro() ) {
-			return false;
-		}
-
-		// Return. If we don't have any headers.
-		if ( ! isset( $this->api_headers ) ) {
-			return false;
-		}
-
-		// Show warning, if function says it's premium and api says not premium.
-		if ( isset( $this->api_headers['is_premium'] ) && ! (int) $this->api_headers['is_premium'] ) {
-			return true;
-		}
-
 		return false;
 	}
 
@@ -284,13 +269,8 @@ class Smush extends Abstract_Module {
 		$file_size = file_exists( $file_path ) ? filesize( $file_path ) : '';
 
 		// Check if premium user.
-		if ( WP_Smush::is_pro() ) {
-			$max_size        = WP_SMUSH_PREMIUM_MAX_BYTES;
-			$size_limit_code = 'size_pro_limit';
-		} else {
-			$size_limit_code = 'size_limit';
-			$max_size        = WP_SMUSH_MAX_BYTES;
-		}
+		$max_size        = WP_SMUSH_MAX_BYTES;
+		$size_limit_code = 'size_limit';
 
 		// Check if file exists.
 		if ( 0 === (int) $file_size ) {
@@ -436,7 +416,7 @@ class Smush extends Abstract_Module {
 		$data = $this->parse_response( $response );
 
 		if ( is_wp_error( $data ) ) {
-			if ( $data->get_error_code() === self::ERROR_SSL_CERT ) {
+			if ( $data->get_error_code() === self::$error_ssl_cert ) {
 				// Switch to http protocol.
 				$this->settings->set_setting( 'wp-smush-use_http', 1 );
 			}
@@ -524,7 +504,7 @@ class Smush extends Abstract_Module {
 
 			if ( strpos( $error, 'SSL CA cert' ) !== false ) {
 				return new WP_Error(
-					self::ERROR_SSL_CERT,
+					self::$error_ssl_cert,
 					$error
 				);
 			} else if ( strpos( $error, 'timed out' ) !== false ) {
@@ -616,7 +596,7 @@ class Smush extends Abstract_Module {
 	 *
 	 * @return array
 	 */
-	public function array_fill_placeholders( array $placeholders, array $data ) {
+	public function array_fill_placeholders( $placeholders, $data ) {
 		$placeholders['percent']     = $data['compression'];
 		$placeholders['bytes']       = $data['bytes_saved'];
 		$placeholders['size_before'] = $data['before_size'];
@@ -967,7 +947,7 @@ class Smush extends Abstract_Module {
 		// Check if the file is ignored or animated.
 		$is_ignored = (int) get_post_meta( $attachment_id, 'wp-smush-ignore-bulk', true );
 		if ( $is_ignored > 0 ) {
-			$type = Core::STATUS_ANIMATED === $is_ignored ? 'animated' : 'ignored';
+			$type = Core::get_status_animated() === $is_ignored ? 'animated' : 'ignored';
 			$ref_errors->add( $type, Error_Handler::get_error_message( $type ), array( 'file_name' => $file_name ) );
 			return $this->no_smushit( $attachment_id, $ref_errors );
 		}
@@ -1028,7 +1008,7 @@ class Smush extends Abstract_Module {
 		// Check file size limit.
 		$size_exceeded = Helper::size_limit_exceeded( $attachment_id );
 		if ( $size_exceeded ) {
-			$error_code = WP_Smush::is_pro() ? 'size_pro_limit' : 'size_limit';
+			$error_code = 'size_limit';
 			$ref_errors->add( $error_code, sprintf( Error_Handler::get_error_message( $error_code ), size_format( $size_exceeded ) ), array( 'file_name' => $file_name ) );
 			return $this->no_smushit( $attachment_id, $ref_errors );
 		}
@@ -1552,13 +1532,13 @@ class Smush extends Abstract_Module {
 			$headers['webp'] = 'true';
 		}
 
-		// Check if premium member, add API key.
-		$api_key = Helper::get_wpmudev_apikey();
-		if ( ! empty( $api_key ) && WP_Smush::is_pro() ) {
-			$headers['apikey'] = $api_key;
-		}
+		$headers = array_merge( $headers, $this->get_api_key_headers() );
 
 		return $headers;
+	}
+
+	protected function get_api_key_headers() {
+		return array();
 	}
 
 	/**

@@ -10,6 +10,7 @@
  * @var bool   $value    Setting value.
  * @var bool   $disable  Disabled status.
  * @var bool   $upsell   Upsell status.
+ * @var bool   $show_pro_tag   Show pro tag status.
  */
 
 use Smush\Core\Settings;
@@ -20,15 +21,18 @@ if ( ! defined( 'WPINC' ) ) {
 
 $default_settings = Settings::get_instance()->get_defaults();
 $custom_fields     = array(
-	'lossy'                    => 'bulk/lossy-level',
-	Settings::NEXT_GEN_CDN_KEY => 'cdn/next-gen-conversion-setting',
+	'lossy' => 'bulk/lossy-level',
 );
+
 ?>
 
 <div class="sui-box-settings-row <?php echo $upsell ? 'sui-box-upsell-row' : ''; ?> <?php echo $disable && ! $upsell ? 'sui-disabled' : ''; ?> <?php echo esc_attr( $name ); ?>-settings-row" id="<?php echo esc_attr( $name ); ?>-settings-row">
 	<div class="sui-box-settings-col-1">
 		<span class="sui-settings-label <?php echo 'gutenberg' === $name ? 'sui-settings-label-with-tag' : ''; ?>">
 			<?php echo esc_html( Settings::get_setting_data( $name, 'short-label' ) ); ?>
+			<?php if ( ! empty( $show_pro_tag ) ) : ?>
+				<span class="sui-tag sui-tag-pro"><?php esc_html_e( 'Pro', 'wp-smushit' ); ?></span>
+			<?php endif; ?>
 			<?php do_action( 'smush_setting_column_tag', $name ); ?>
 		</span>
 		<span class="sui-description">

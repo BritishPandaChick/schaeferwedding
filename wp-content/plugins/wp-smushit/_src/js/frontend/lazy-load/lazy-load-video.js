@@ -9,7 +9,7 @@ import { isSmushLazySizesInstance } from './helper/lazysizes';
 	const PLAY_BUTTON_CLASS = 'smush-play-btn';
 	const DEFAULT_ALLOW_ATTR = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
 	const USER_INTERACTION_EVENT = 'ontouchstart' in window ? 'touchstart' : 'pointerdown';
-	const FALLBACK_VIDEO_RENDER_DELAY = window?.smush_video_render_delay || 0;
+	const FALLBACK_VIDEO_RENDER_DELAY = Number( window?.smush_video_render_delay ) || 0;
 
 	/**
 	 * LazyLoadVideo Class
@@ -37,7 +37,11 @@ import { isSmushLazySizesInstance } from './helper/lazysizes';
 
 			// Unified fallback for delayed video rendering.
 			const maybeTriggerVideoRenderingFallbackForMobile = () => {
-				if ( ! FALLBACK_VIDEO_RENDER_DELAY || FALLBACK_VIDEO_RENDER_DELAY < 0 ) {
+				if ( FALLBACK_VIDEO_RENDER_DELAY <= 0 ) {
+					const hasAutoPlayVideo = document.querySelector( `.${ VIDEO_WRAPPER_CLASS }.${ AUTO_PLAY_CLASS }` );
+					if ( hasAutoPlayVideo ) {
+						this.enableVideoRenderingForMobile();
+					}
 					return;
 				}
 

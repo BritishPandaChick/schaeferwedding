@@ -93,7 +93,7 @@ class Page_Parser {
 	 *
 	 * @return int[]
 	 */
-	private function get_composite_sub_element_positions( array $composite_elements, $sub_element_positions ): array {
+	private function get_composite_sub_element_positions( $composite_elements, $sub_element_positions ) {
 		foreach ( $composite_elements as $composite_element ) {
 			foreach ( $composite_element->get_elements() as $sub_element ) {
 				$sub_element_position = $sub_element->get_position();
@@ -111,7 +111,7 @@ class Page_Parser {
 	 *
 	 * @return array
 	 */
-	private function remove_composite_sub_elements( $elements, $composite_sub_element_positions ): array {
+	private function remove_composite_sub_elements( $elements, $composite_sub_element_positions ) {
 		if ( empty( $composite_sub_element_positions ) || ! is_array( $composite_sub_element_positions ) || ! is_array( $elements ) ) {
 			return $elements;
 		}

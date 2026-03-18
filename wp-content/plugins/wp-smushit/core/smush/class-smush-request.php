@@ -5,9 +5,7 @@ namespace Smush\Core\Smush;
 use Smush\Core\Array_Utils;
 use Smush\Core\File_System;
 use Smush\Core\File_Utils;
-use Smush\Core\Helper;
 use Smush\Core\Settings;
-use WP_Smush;
 
 /**
  * Calls the API and returns the response.
@@ -69,7 +67,7 @@ abstract class Smush_Request {
 		return $this->on_complete;
 	}
 
-	public function set_on_complete( $on_complete ): Smush_Request {
+	public function set_on_complete( $on_complete ) {
 		$this->on_complete = $on_complete;
 
 		return $this;
@@ -114,8 +112,8 @@ abstract class Smush_Request {
 		$headers['lossy'] = $this->settings->get_lossy_level_setting();
 
 		// Check if premium member, add API key.
-		$api_key = Helper::get_wpmudev_apikey();
-		if ( ! empty( $api_key ) && WP_Smush::is_pro() ) {
+		$api_key = $this->settings->get_api_key();
+		if ( ! empty( $api_key ) ) {
 			$headers['apikey'] = $api_key;
 
 			$is_large_file = $this->file_utils->is_large_file( $file_path );
@@ -140,7 +138,7 @@ abstract class Smush_Request {
 	 *
 	 * @return array
 	 */
-	protected function get_file_path_and_url( $file_data ): array {
+	protected function get_file_path_and_url( $file_data ) {
 		if ( is_string( $file_data ) ) {
 			$file_path = $file_data;
 			$file_url  = '';
@@ -155,7 +153,7 @@ abstract class Smush_Request {
 		return $this->extra_headers;
 	}
 
-	public function set_extra_headers( $extra_headers ): Smush_Request {
+	public function set_extra_headers( $extra_headers ) {
 		$this->extra_headers = $extra_headers;
 		return $this;
 	}
@@ -174,7 +172,7 @@ abstract class Smush_Request {
 	 *
 	 * @return mixed
 	 */
-	abstract public function do_requests( array $files_data );
+	abstract public function do_requests( $files_data );
 
 	abstract public function is_supported();
 }

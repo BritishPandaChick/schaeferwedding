@@ -108,7 +108,10 @@ $cache_nextgen_group = array(
 
 if ( ! class_exists( '\Smush\Core\LCP\LCP_Helper' ) ) {
 	/* @noinspection PhpIncludeInspection */
-	include_once plugin_dir_path( __FILE__ ) . '/core/lcp/class-lcp-helper.php';
+	$lcp_helper_file_path = plugin_dir_path( __FILE__ ) . '/core/lcp/class-lcp-helper.php';
+	if ( file_exists( $lcp_helper_file_path ) ) {
+		include_once $lcp_helper_file_path;
+	}
 }
 
 if ( ! is_multisite() ) {
@@ -136,7 +139,9 @@ if ( ! is_multisite() ) {
 
 	delete_transient( 'wp-smush-conflict_check' );
 
-	LCP_Helper::delete_all_lcp_data();
+	if ( class_exists( '\Smush\Core\LCP\LCP_Helper' ) ) {
+		LCP_Helper::delete_all_lcp_data();
+	}
 }
 
 // Delete Directory Smush stats.
@@ -184,7 +189,9 @@ if ( is_multisite() ) {
 				}
 
 				wp_cache_delete( 'get_image_sizes', 'smush_image_sizes' );
-				LCP_Helper::delete_all_lcp_data();
+				if ( class_exists( '\Smush\Core\LCP\LCP_Helper' ) ) {
+					LCP_Helper::delete_all_lcp_data();
+				}
 			}
 			restore_current_blog();
 		}

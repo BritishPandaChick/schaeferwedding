@@ -1,5 +1,6 @@
 <?php
-
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.rename_rename -- false positive; it's actually safe to use native PHP's fwrite(), rename() usage is intentional and safe within this context
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- using the native PHP fclose() function instead of the WP Filesystem API.
 if (!defined('ABSPATH')) die('No direct access.');
 
 /**
@@ -80,7 +81,7 @@ class UpdraftPlus_Filesystem_Functions {
 			
 			if ($wp_filesystem->errors->get_error_code()) {
 				echo '<div class="restore-credential-errors">';
-				echo '<p class="restore-credential-errors--link"><em><a href="' . esc_url(apply_filters('updraftplus_com_link', "https://updraftplus.com/faqs/asked-ftp-details-upon-restorationmigration-updates/")) . '" target="_blank">' . esc_html__('Why am I seeing this?', 'updraftplus') . '</a></em></p>';
+				echo '<p class="restore-credential-errors--link"><em><a href="' . esc_url(apply_filters('updraftplus_com_link', "https://teamupdraft.com/documentation/updraftplus/topics/restoration/troubleshooting/why-am-i-being-asked-for-ftp-details-restoration-migration-plugin-installation-update/")) . '" target="_blank">' . esc_html__('Why am I seeing this?', 'updraftplus') . '</a></em></p>';
 				echo '<div class="restore-credential-errors--list">';
 				foreach ($wp_filesystem->errors->get_error_messages() as $message) show_message($message);
 				echo '</div>';

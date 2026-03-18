@@ -49,16 +49,12 @@ function convertKitRefreshResources(button) {
 	button.classList.add('is-refreshing');
 
 	// Perform AJAX request to refresh resource.
-	fetch(convertkit_admin_refresh_resources.ajaxurl, {
+	fetch(convertkit_admin_refresh_resources.ajaxurl + resource, {
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
+			'Content-Type': 'application/json',
+			'X-WP-Nonce': convertkit_admin_refresh_resources.nonce,
 		},
-		body: new URLSearchParams({
-			action: 'convertkit_admin_refresh_resources',
-			nonce: convertkit_admin_refresh_resources.nonce,
-			resource, // e.g. forms, landing_pages, tags.
-		}),
 	})
 		.then(function (response) {
 			// Convert response JSON string to object.
@@ -70,9 +66,9 @@ function convertKitRefreshResources(button) {
 			}
 
 			// Show an error if the request wasn't successful.
-			if (!response.success) {
+			if (typeof response.code !== 'undefined') {
 				// Show error notice.
-				convertKitRefreshResourcesOutputErrorNotice(response.data);
+				convertKitRefreshResourcesOutputErrorNotice(response.message);
 
 				// Enable button and remove is-refreshing class.
 				button.disabled = false;
@@ -102,7 +98,7 @@ function convertKitRefreshResources(button) {
 				case 'restrict_content':
 					// Populate select `optgroup`` from response data, which comprises of Tags and Products.
 					// Tags.
-					response.data.tags.forEach(function (item) {
+					response.tags.forEach(function (item) {
 						document
 							.querySelector(
 								field + ' optgroup[data-resource=tags]'
@@ -118,7 +114,7 @@ function convertKitRefreshResources(button) {
 					});
 
 					// Products.
-					response.data.products.forEach(function (item) {
+					response.products.forEach(function (item) {
 						document
 							.querySelector(
 								field + ' optgroup[data-resource=products]'
@@ -136,7 +132,7 @@ function convertKitRefreshResources(button) {
 
 				default:
 					// Populate select options from response data.
-					response.data.forEach(function (item) {
+					response.forEach(function (item) {
 						// Define label.
 						let label = '';
 						switch (resource) {
@@ -201,7 +197,7 @@ function convertKitRefreshResources(button) {
  */
 function convertKitRefreshResourcesRemoveNotices() {
 	// If we're editing a Page, Post or Custom Post Type in Gutenberg, use wp.data.dispatch to remove the error.
-	if (typeof wp !== 'undefined' && typeof wp.blockEditor !== 'undefined') {
+	if (convertKitEditingPostInGutenberg()) {
 		// Gutenberg Editor.
 		wp.data.dispatch('core/notices').removeNotice('convertkit-error');
 		return;
@@ -226,7 +222,7 @@ function convertKitRefreshResourcesOutputErrorNotice(message) {
 	message = 'ConvertKit: ' + message;
 
 	// If we're editing a Page, Post or Custom Post Type in Gutenberg, use wp.data.dispatch to show the error.
-	if (typeof wp !== 'undefined' && typeof wp.blockEditor !== 'undefined') {
+	if (convertKitEditingPostInGutenberg()) {
 		// Gutenberg Editor.
 		wp.data
 			.dispatch('core/notices')

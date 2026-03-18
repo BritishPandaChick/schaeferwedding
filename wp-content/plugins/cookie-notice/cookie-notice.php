@@ -2,7 +2,7 @@
 /*
 Plugin Name: Cookie Notice & Compliance for GDPR / CCPA
 Description: Cookie Notice allows you to you elegantly inform users that your site uses cookies and helps you comply with GDPR, CCPA and other data privacy laws.
-Version: 2.5.8
+Version: 2.5.14
 Author: Hu-manity.co
 Author URI: https://hu-manity.co/
 Plugin URI: https://cookie-compliance.co/
@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) )
  * Cookie Notice class.
  *
  * @class Cookie_Notice
- * @version	2.5.8
+ * @version	2.5.14
  */
 class Cookie_Notice {
 
@@ -131,18 +131,20 @@ class Cookie_Notice {
 			'csp_notice'			=> false
 		],
 		'privacy_consent' => [
-			'wordpress_active'				=> true,
-			'wordpress_active_type'			=> 'all',
-			'contactform7_active'			=> false,
-			'contactform7_active_type'		=> 'all',
-			'mailchimp_active'				=> false,
-			'mailchimp_active_type'			=> 'all',
-			'wpforms_active'				=> false,
-			'wpforms_active_type'			=> 'all',
-			'woocommerce_active'			=> false,
-			'woocommerce_active_type'		=> 'all',
-			'formidableforms_active'		=> false,
-			'formidableforms_active_type'	=> 'all'
+			'wordpress_active'					=> true,
+			'wordpress_active_type'				=> 'all',
+			'contactform7_active'				=> false,
+			'contactform7_active_type'			=> 'all',
+			'mailchimp_active'					=> false,
+			'mailchimp_active_type'				=> 'all',
+			'wpforms_active'					=> false,
+			'wpforms_active_type'				=> 'all',
+			'woocommerce_active'				=> false,
+			'woocommerce_active_type'			=> 'all',
+			'formidableforms_active'			=> false,
+			'formidableforms_active_type'		=> 'all',
+			'easydigitaldownloads_active'		=> false,
+			'easydigitaldownloads_active_type'	=> 'all'
 		],
 		'data'	=> [
 			'status'				=> '',
@@ -150,7 +152,7 @@ class Cookie_Notice {
 			'threshold_exceeded'	=> false,
 			'activation_datetime'	=> 0
 		],
-		'version'	=> '2.5.8'
+		'version'	=> '2.5.14'
 	];
 
 	/**
@@ -321,6 +323,10 @@ class Cookie_Notice {
 	 * @return false|array
 	 */
 	public function update_legacy_options( $options ) {
+		// bail out if options are missing or invalid to avoid PHP 8 fatal on non-array values
+		if ( ! is_array( $options ) )
+			return $this->defaults['general'];
+
 		$options_changed = false;
 
 		// check legacy parameters that were yes/no strings
@@ -1061,7 +1067,8 @@ class Cookie_Notice {
 	 */
 	public function cookies_accepted_shortcode( $args, $content ) {
 		if ( $this->cookies_accepted() ) {
-			$scripts = html_entity_decode( trim( wp_kses( $content, $this->get_allowed_html( 'body' ) ) ) );
+			// Only sanitize with wp_kses - do not decode entities from user-generated content
+			$scripts = trim( wp_kses( $content, $this->get_allowed_html( 'body' ) ) );
 
 			if ( ! empty( $scripts ) ) {
 				if ( preg_match_all( '/' . get_shortcode_regex() . '/', $content ) )
@@ -1168,7 +1175,7 @@ class Cookie_Notice {
 		// combine shortcode arguments
 		$args = shortcode_atts( $defaults, $args );
 
-		$shortcode = '<a href="' . esc_url( $args['link'] ) . '" target="' . esc_attr( $options['link_target'] ) . '" id="cn-more-info" class="cn-privacy-policy-link cn-link' . esc_attr( $args['class'] !== '' ? ' ' . $args['class'] : '' ) . '">' . esc_html( $args['title'] ) . '</a>';
+		$shortcode = '<a href="' . esc_url( $args['link'] ) . '" target="' . esc_attr( $options['link_target'] ) . '" id="cn-more-info" class="cn-privacy-policy-link cn-link' . esc_attr( $args['class'] !== '' ? ' ' . $args['class'] : '' ) . '" data-link-url="' . esc_url( $args['link'] ) . '" data-link-target="' . esc_attr( $options['link_target'] ) . '">' . esc_html( $args['title'] ) . '</a>';
 
 		return $shortcode;
 	}
@@ -1253,7 +1260,7 @@ class Cookie_Notice {
 		}
 
 		// notice js and css
-		wp_enqueue_script( 'cookie-notice-admin-notice', COOKIE_NOTICE_URL . '/js/admin-notice.js', [ 'jquery' ], $this->defaults['version'] );
+		wp_enqueue_script( 'cookie-notice-admin-notice', COOKIE_NOTICE_URL . '/js/admin-notice.js', [], $this->defaults['version'] );
 
 		// prepare script data
 		$script_data = [

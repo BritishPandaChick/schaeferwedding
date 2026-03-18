@@ -13,7 +13,7 @@
  * Plugin Name:       Smush
  * Plugin URI:        https://wpmudev.com/project/wp-smush-pro/
  * Description:       Reduce image file sizes, improve performance and boost your SEO using the free <a href="https://wpmudev.com/">WPMU DEV</a> WordPress Smush API.
- * Version:           3.22.1
+ * Version:           3.24.0
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            WPMU DEV
@@ -51,7 +51,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 if ( ! defined( 'WP_SMUSH_VERSION' ) ) {
-	define( 'WP_SMUSH_VERSION', '3.22.1' );
+	define( 'WP_SMUSH_VERSION', '3.24.0' );
 }
 // Used to define body class.
 if ( ! defined( 'WP_SHARED_UI_VERSION' ) ) {
@@ -73,10 +73,7 @@ if ( ! defined( 'WP_SMUSH_URL' ) ) {
 	define( 'WP_SMUSH_URL', plugin_dir_url( __FILE__ ) );
 }
 if ( ! defined( 'WP_SMUSH_MAX_BYTES' ) ) {
-	define( 'WP_SMUSH_MAX_BYTES', 5242880 ); // 5MB
-}
-if ( ! defined( 'WP_SMUSH_PREMIUM_MAX_BYTES' ) ) {
-	define( 'WP_SMUSH_PREMIUM_MAX_BYTES', 268435456 );
+	define( 'WP_SMUSH_MAX_BYTES', 5242880 );
 }
 if ( ! defined( 'WP_SMUSH_TIMEOUT' ) ) {
 	define( 'WP_SMUSH_TIMEOUT', 420 ); // 7 minutes
@@ -91,7 +88,7 @@ if ( ! defined( 'WP_SMUSH_PARALLEL' ) ) {
 	define( 'WP_SMUSH_PARALLEL', true );
 }
 if ( ! defined( 'WP_SMUSH_BACKGROUND' ) ) {
-	define( 'WP_SMUSH_BACKGROUND', true );
+	define( 'WP_SMUSH_BACKGROUND', false );
 }
 if ( ! defined( 'WP_SMUSH_MIN_PHP_VERSION' ) ) {
 	define( 'WP_SMUSH_MIN_PHP_VERSION', '7.4' );
@@ -335,6 +332,9 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 				return;
 			}
 
+			// Get namespace from the full class name.
+			$namespace = substr( $class, 0, strrpos( $class, '\\' ) );
+
 			// Get the relative class name.
 			$relative_class = substr( $class, $len );
 
@@ -346,7 +346,34 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 			if ( file_exists( $file ) ) {
 				/* @noinspection PhpIncludeInspection */
 				require $file;
+			} else if (
+					in_array( $class, $this->shimmed(), true ) ||
+					in_array( $namespace, $this->shimmed(), true )
+			) {
+				// Define a shim class inline to prevent errors.
+				class_alias( '\\Smush\\Core\\Shim', $class );
 			}
+		}
+
+		private function shimmed() {
+			return array(
+					'Smush\Core\LCP',
+					'Smush\Core\CDN',
+					'Smush\Core\Modules\CDN',
+					'Smush\Core\Avif',
+					'Smush\Core\Webp',
+					'Smush\Core\Modules\WebP',
+					'Smush\Core\Next_Gen',
+					'Smush\Core\S3',
+					'Smush\Core\Integrations\S3',
+					'Smush\Core\Integrations\NextGen', // The class and the namespace are the same.
+					'Smush\Core\Integrations\Nextgen',
+					'Smush\Core\Png2Jpg',
+					'Smush\Core\Modules\Png2jpg',
+					'Smush\Core\Resize\Auto_Resizing_Controller',
+					'Smush\Core\Resize\Auto_Resizing_Transform',
+					'Smush\Core\Image_Dimensions',
+			);
 		}
 
 		/**
@@ -369,7 +396,8 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 			$this->core    = new Smush\Core\Core();
 			$this->library = new Smush\App\Media_Library( $this->core() );
 			if ( is_admin() ) {
-				$this->admin = new Smush\App\Admin( $this->library() );
+				$this->library()->init_ui();
+				$this->admin = Smush\App\Admin::get_instance();
 			}
 
 			if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -434,23 +462,12 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 			return $this->library;
 		}
 
-		/**
-		 * Return PRO status.
-		 *
-		 * @since 2.9.0
-		 *
-		 * @return bool
-		 */
-		public static function is_pro() {
-			return self::get_membership()->is_pro();
-		}
-
 		public static function is_expired() {
-			return ! self::is_pro() && Smush\Core\Helper::get_wpmudev_apikey();
+			_deprecated_function( __METHOD__, '3.23.5' );
 		}
 
 		public static function is_new_user() {
-			return ! self::is_pro() && ! self::is_expired();
+			_deprecated_function( __METHOD__, '3.23.5' );
 		}
 
 		/**
@@ -461,14 +478,11 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 		 * @return boolean
 		 */
 		public static function is_site_connected_to_tfh() {
-			return isset( $_SERVER['WPMUDEV_HOSTED'] )
-				&& class_exists( '\WPMUDEV_Dashboard' ) && is_object( \WPMUDEV_Dashboard::$api )
-				&& method_exists( \WPMUDEV_Dashboard::$api, 'get_membership_status' )
-				&& 'free' === \WPMUDEV_Dashboard::$api->get_membership_status();
+			_deprecated_function( __METHOD__, '3.23.5' );
 		}
 
 		public static function is_member() {
-			return self::is_pro() || self::is_site_connected_to_tfh();
+			_deprecated_function( __METHOD__, '3.23.5' );
 		}
 
 		/**
@@ -481,44 +495,7 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 			}
 
 			/* @noinspection PhpIncludeInspection */
-			require_once WP_SMUSH_DIR . 'core/external/free-dashboard/module.php';
-			/* @noinspection PhpIncludeInspection */
 			require_once WP_SMUSH_DIR . 'core/external/plugin-notice/notice.php';
-
-			// Add the Mailchimp group value.
-			add_action(
-				'frash_subscribe_form_fields',
-				function ( $mc_list_id ) {
-					if ( '4b14b58816' === $mc_list_id ) {
-						echo '<input type="hidden" id="mce-group[53]-53-1" name="group[53][2]" value="2" />';
-					}
-				}
-			);
-
-			// Register the current plugin.
-			do_action(
-				'wpmudev_register_notices',
-				'smush',
-				array(
-					'basename'     => WP_SMUSH_BASENAME,                      // Required: Plugin basename (for backward compat).
-					'title'        => 'Smush',                                // Required: Plugin title.
-					'wp_slug'      => 'wp-smushit',                           // Required: wp.org slug of the plugin.
-					'cta_email'    => __( 'Get Fast!', 'wp-smushit' ),          // Email button CTA.
-					'installed_on' => time(),                                 // Optional: Plugin activated time.
-					'screens'      => array( // Required: Plugin screen ids.
-						'toplevel_page_smush',
-					),
-				)
-			);
-			add_filter( 'wpmudev_notices_is_disabled', array( $this, 'enable_free_tips_opt_in' ), 10, 3 );
-
-			// The email message contains 1 variable: plugin-name.
-			add_filter(
-				'wdev_email_message_' . WP_SMUSH_BASENAME,
-				function () {
-					return "You're awesome for installing %s! Make sure you get the most out of it, boost your Google PageSpeed score with these tips and tricks - just for users of Smush!";
-				}
-			);
 
 			// Recommended plugin notice.
 			do_action(
@@ -538,10 +515,6 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 		 *
 		 */
 		public function load_cross_sell_module() {
-			if ( self::is_pro() ) {
-				return;
-			}
-
 			$cross_sell_plugin_file = WP_SMUSH_DIR . 'core/external/plugins-cross-sell-page/plugin-cross-sell.php';
 			if ( ! file_exists( $cross_sell_plugin_file ) ) {
 				return;
@@ -565,15 +538,6 @@ if ( ! class_exists( 'WP_Smush' ) ) {
 			);
 
 			$cross_sell_handler = new \WPMUDEV\Modules\Plugin_Cross_Sell( $submenu_params );
-		}
-
-		public function enable_free_tips_opt_in( $is_disabled, $type, $plugin ) {
-			// Enable email opt-in.
-			if ( 'smush' === $plugin && 'email' === $type ) {
-				$is_disabled = false;
-			}
-
-			return $is_disabled;
 		}
 
 		/**

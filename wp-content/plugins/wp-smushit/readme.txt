@@ -1,17 +1,17 @@
 === Smush Image Optimization – Optimize Images | Compress & Lazy Load Images | Convert WebP & AVIF | Image CDN ===
 Plugin Name: Smush Image Optimization – Optimize Images | Compress & Lazy Load Images & Videos | Convert WebP & AVIF | Image CDN
-Version: 3.22.1
+Version: 3.24.0
 Author: WPMU DEV
 Author URI: https://wpmudev.com/
 Contributors: WPMUDEV, alexdunae
 Tags: optimize images, convert webp, webp, image optimization, compress images
 Requires at least: 6.4
-Tested up to: 6.8
-Stable tag: 3.22.1
+Tested up to: 6.9
+Stable tag: 3.24.0
 Requires PHP: 7.4
 License: GPL v2 - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
-Optimize images & bulk compress images with lossless compression, lazy load, convert to WebP or AVIF, and properly size images via CDN for incredibly fast sites.
+Optimize and compress images with lossless and lossy compression, lazy load, WebP & AVIF conversion, and global image CDN.
 
 == Description ==
 
@@ -242,10 +242,35 @@ We take plugin security incredibly seriously; if you have a bug or vulnerability
 
 == Changelog ==
 
-= 3.22.1 ( 2025-10-06 ) =
+= 3.24.0 ( 2026-02-23 ) =
+- Improvement: Stability improvements
+
+= 3.23.4 ( 2026-02-05 ) =
+- Fix: PHP error fixed
+
+= 3.23.3 ( 2026-02-03 ) =
+- Improvement: Stability improvements
+- Fix: Minor bug fixes
+
+= 3.23.2 ( 2026-01-19 ) =
+- Improvement: Dependency updates and minor code improvements
+
+= 3.23.1 ( 2025-12-17 ) =
+- Improvement: Code improvements and minor bug fixes
+
+= 3.23.0 ( 2025-12-03 ) =
+- New: Restore multiple images at once with the new Bulk Restore option on the Media Library page
+- Improvement: Restore All Images feature now shows exact reason for restoration failure
+- Improvement: Backup original images and Optimize original images enabled by default for new users
+- Fix: Smush Directory keeps showing images that need to be optimized
+- Fix: LCP preload tag not added for relative image URLs
+- Fix: Elementor background images not converted to Next-Gen formats
+- Fix: Lazy-loaded video thumbnails not working in Elementor
+
+= 3.22.1 ( 2025-10-01 ) =
 - Fix: Memory issues caused by Elementor integration
 
-= 3.22.0 ( 2025-10-06 ) =
+= 3.22.0 ( 2025-10-01 ) =
 - Improvement: More accurate use of fetchpriority=high based on LCP data
 - Improvement: General UI enhancements
 - Fix: LCP image not lazy-loaded after disabling preload
@@ -253,13 +278,13 @@ We take plugin security incredibly seriously; if you have a bug or vulnerability
 - Fix: Wrong retina image size applied by the auto-resize module
 - Fix: Incorrect LCP image detected on mobile in certain cases
 
-= 3.21.1 ( 2025-09-03 ) =
+= 3.21.1 ( 2025-09-02 ) =
 - Fix: Auto-resize module using incorrect aspect ratio for cropped images
 - Fix: Auto-resize module using lower quality version in certain situations
 - Fix: Images using width or height attributes with percentage values resized incorrectly
 - Fix: Images in Divi shrinking on page scroll in mobile devices
 
-= 3.21.0 ( 2025-09-03 ) =
+= 3.21.0 ( 2025-08-18 ) =
 - New: Automatic image resizing option in Lazy Loading to make sure every image fits its container size
 - New: Add Missing Dimensions option in Lazy Loading to resolve Pagespeed audit of "Ensure images have explicit height and width"
 - Improvement: Changed "Automatic Resizing" feature name in CDN to "Dynamic Image Sizing"
@@ -267,7 +292,7 @@ We take plugin security incredibly seriously; if you have a bug or vulnerability
 - Improvement: Added an Advanced section on the Lazy Load page to streamline the experience
 - Fix: Minor code improvements
 
-= 3.20.0 ( 2025-06-25 ) =
+= 3.20.0 ( 2025-06-17 ) =
 - New: Lazy load YouTube and Vimeo videos to improve page load speed
 - Fix: Resize Detection feature sometimes doesn't work correctly with Lazy Load
 - Fix: Layout shift with lazy loading
@@ -291,9 +316,8 @@ We take plugin security incredibly seriously; if you have a bug or vulnerability
 
 = 3.18.1 ( 2025-04-24 ) =
 - Improvement: WP 6.8 compatibility
-- Improvement: Add a new menu item to help you discover other free plugins by WPMU DEV and more
 
-= 3.18.0 ( 2025-03-19 ) =
+= 3.18.0 ( 2025-03-11 ) =
 - New: Reduced image filesize at better visual quality with new AVIF conversion!
 - Improvement: White label improvements
 - Improvement: Better stats for WebP conversion
@@ -301,33 +325,49 @@ We take plugin security incredibly seriously; if you have a bug or vulnerability
 - Fix: Some images listed as not optimized after Local WebP conversion
 - Fix: CDN forcing browsers to load full-sized images for smaller container size
 
-= 3.17.1 ( 2025-02-10 ) =
+= 3.17.1 ( 2025-02-06 ) =
 - Improvement: Security hardening
 - Improvement: Minor code improvements
 
-= 3.17.0 ( 2025-02-03 ) =
-- New: Added a UI option to exclude specific images from Smush CDN.
+= 3.17.0 ( 2025-01-29 ) =
 - Improvement: Use streams to send full image to the Smush API
-- Improvement: Disabled Noscript tags by default to prevent broken images and potential performance regressions.
-- Improvement: Improved WPML compatibility for seamless multilingual support.
-- Improvement: Reduced memory consumption during the Smush process
-- Improvement: Better directory Smush compatibility with Flywheel
 - Fix: Number of optimized images inaccurate
 - Fix: When Local WebP Direct Method and Lazy Load are enabled, images inside picture tags not being served as WebP
 - Fix: Error "Server configurations haven't been applied yet" shown unnecessarily sometimes
 - Fix: CDN slowing down page load due to unnecessary DB queries
 - Fix: Divi breaking Smush CDN image resizing
 - Fix: Auto-resize feature not adding new sizes when srcset is already present in img tag
+
+= 3.16.12 ( 2025-01-08 ) =
+- Fix: Conflict with Formidable Forms
+- Fix: Avoid image fetch errors
+
+= 3.16.11 ( 2024-12-10 ) =
+- Fix: CDN exclusions conflict with auto resizing
+
+= 3.16.10 ( 2024-12-04 ) =
+- New: Added a UI option to exclude specific images from Smush CDN.
+- Improvement: Disabled Noscript tags by default to prevent broken images and potential performance regressions.
+- Improvement: Enhanced the Bulk Smush process for a smoother user experience.
+- Improvement: Improved WPML compatibility for seamless multilingual support.
 - Fix: Excluded lazy loading placeholders from the CDN to resolve conflicts and prevent broken images.
 - Fix: Added WP 6.7 compatibility fixes.
+
+= 3.16.9 ( 2024-11-13 ) =
+- Improvement: Smush API upgrades and improvements for better memory management
 - Fix: Prevent broken images on Smush CDN when using relative links
 - Fix: Hummingbird Performance Test conflicts
 - Fix: Missing thumbnails when using PNG to JPG conversions
+
+= 3.16.8 ( 2024-09-19 ) =
+- Fix: Smush API handing improvements
+
+= 3.16.7 ( 2024-09-11 ) =
+- Improvement: Reduced memory consumption during the Smush process
+- Improvement: Better directory Smush compatibility with Flywheel
 - Fix: Unicode characters in image URLs causing issues
 - Fix: Improved compatibility with native lazy loading
 - Fix: PHP errors and warnings
-- Fix: Conflict with Formidable Forms
-- Fix: Avoid image fetch errors
 
 = 3.16.6 ( 2024-07-30 ) =
 - Fix: PHP warnings
@@ -337,7 +377,7 @@ We take plugin security incredibly seriously; if you have a bug or vulnerability
 - Improvement: Security improvements
 - Fix: Compatibility issue with Divi
 
-= 3.16.4 ( 2024-05-23 ) =
+= 3.16.4 ( 2024-05-22 ) =
 - Fix: Loopback error shown unnecessarily for some sites
 - Improvement: Better UI for the loopback error
 
@@ -348,7 +388,7 @@ We take plugin security incredibly seriously; if you have a bug or vulnerability
 - Fix: Bulk Smush performance issues
 - Fix: Compatibility issue with wp.com
 
-= 3.16.2 ( 2024-04-17 ) =
+= 3.16.2 ( 2024-04-09 ) =
 - Fix: LazyLoad module not working correctly for picture elements in certain situations
 - Fix: LazyLoad module not working correctly for some CSS variables
 - Fix: Better handling of !important CSS rules by the LazyLoad module

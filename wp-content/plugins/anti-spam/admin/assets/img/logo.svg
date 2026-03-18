@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 135 50" width="135" height="50">
+	<!-- Shield Icon (exact same as shield-icon.svg) -->
+	<g transform="translate(8, 3) scale(1.8)">
+		<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+			stroke="#6366f1"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			fill="none"/>
+	</g>
+
+	<!-- Titan Text -->
+	<text x="58" y="33"
+		font-family="system-ui, -apple-system, sans-serif"
+		font-size="28"
+		font-weight="600"
+		fill="#1a202c">Titan</text>
+</svg>

@@ -17,7 +17,7 @@ class Password_Requirements_Base {
 	 */
 	public static function get_registered() {
 		if ( null === self::$requirements ) {
-			self::$requirements = array();
+			self::$requirements = [];
 
 			/**
 			 * Fires when password requirements should be registered.
@@ -32,19 +32,22 @@ class Password_Requirements_Base {
 	 * Register a password requirement.
 	 *
 	 * @param string $reason_code
-	 * @param array $opts
+	 * @param array  $opts
 	 */
 	public static function register( $reason_code, $opts ) {
-		$merged = wp_parse_args( $opts, array(
-			'evaluate'                => null,
-			'validate'                => null,
-			'flag_check'              => null,
-			'reason'                  => null,
-			'defaults'                => null,
-			'settings_config'         => null, // Callable returning label, description, render & sanitize callbacks.
-			'meta'                    => "_titan_password_evaluation_{$reason_code}",
-			'evaluate_if_not_enabled' => false,
-		) );
+		$merged = wp_parse_args(
+			$opts,
+			[
+				'evaluate'                => null,
+				'validate'                => null,
+				'flag_check'              => null,
+				'reason'                  => null,
+				'defaults'                => null,
+				'settings_config'         => null, // Callable returning label, description, render & sanitize callbacks.
+				'meta'                    => "_titan_password_evaluation_{$reason_code}",
+				'evaluate_if_not_enabled' => false,
+			] 
+		);
 
 		if ( ( array_key_exists( 'validate', $opts ) || array_key_exists( 'evaluate', $opts ) ) && ( ! is_callable( $merged['validate'] ) || ! is_callable( $merged['evaluate'] ) ) ) {
 			return;
@@ -107,43 +110,46 @@ class Password_Requirements_Base {
 			return $message;
 		}
 
-		return esc_html__( 'A password change is required for your account.', 'titan-security' );
+		return esc_html__( 'A password change is required for your account.', 'anti-spam' );
 	}
 
 	/**
 	 * Validate a user's password.
 	 *
 	 * @param \WP_User|\stdClass|int $user
-	 * @param string $new_password
-	 * @param array $args
+	 * @param string                 $new_password
+	 * @param array                  $args
 	 *
 	 * @return \WP_Error Error object with new errors.
 	 */
-	public static function validate_password( $user, $new_password, $args = array() ) {
+	public static function validate_password( $user, $new_password, $args = [] ) {
 
-		$args = wp_parse_args( $args, array(
-			'error'   => new \WP_Error(),
-			'context' => '',
-		) );
+		$args = wp_parse_args(
+			$args,
+			[
+				'error'   => new \WP_Error(),
+				'context' => '',
+			] 
+		);
 
 		/** @var \WP_Error $error */
 		$error = $args['error'];
 		$user  = $user instanceof \stdClass ? $user : self::get_user( $user );
 
 		if ( ! $user ) {
-			$error->add( 'invalid_user', esc_html__( 'Invalid User', 'titan-security' ) );
+			$error->add( 'invalid_user', esc_html__( 'Invalid User', 'anti-spam' ) );
 
 			return $error;
 		}
 
 		if ( ! empty( $user->ID ) && wp_check_password( $new_password, get_userdata( $user->ID )->user_pass, $user->ID ) ) {
-			$message = wp_kses( __( '<strong>ERROR</strong>: The password you have chosen appears to have been used before. You must choose a new password.', 'titan-security' ), array( 'strong' => array() ) );
+			$message = wp_kses( __( '<strong>ERROR</strong>: The password you have chosen appears to have been used before. You must choose a new password.', 'anti-spam' ), [ 'strong' => [] ] );
 			$error->add( 'pass', $message );
 
 			return $error;
 		}
 
-		require_once( WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/class-canonical-roles.php' );
+		require_once WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/class-canonical-roles.php';
 
 		if ( isset( $args['role'] ) && $user instanceof \WP_User ) {
 			$canonical = \WBCR\Titan\Tweaks\Canonical_Roles::get_canonical_role_from_role_and_user( $args['role'], $user );
@@ -166,7 +172,6 @@ class Password_Requirements_Base {
 		 * @param array $args
 		 *
 		 * @since 3.9.0
-		 *
 		 */
 		do_action( 'titan_validate_password', $error, $user, $new_password, $args );
 
@@ -177,7 +182,7 @@ class Password_Requirements_Base {
 	 * Flag that a password change is required for a user.
 	 *
 	 * @param \WP_User|int $user
-	 * @param string $reason
+	 * @param string       $reason
 	 */
 	public static function flag_password_change_required( $user, $reason ) {
 		$user = self::get_user( $user );
@@ -278,14 +283,6 @@ class Password_Requirements_Base {
 			return true;
 		}
 
-		//$enabled = ITSEC_Modules::get_setting('password-requirements', 'enabled_requirements');
-
-		//if( !empty($enabled[$requirement]) ) {
-		//return true;
-		//}
-
-		//return false;
-
 		return true;
 	}
 
@@ -308,13 +305,14 @@ class Password_Requirements_Base {
 			return false;
 		}
 
-		//$all_settings = ITSEC_Modules::get_setting('password-requirements', 'requirement_settings');
-		$all_settings = array(
-			'strength' => array(
+		// $all_settings = ITSEC_Modules::get_setting('password-requirements', 'requirement_settings');
+		$all_settings = [
+			'strength' => [
 				'role' => 'administrator',
-			),
-		);;
-		$settings = isset( $all_settings[ $requirement ] ) ? $all_settings[ $requirement ] : array();
+			],
+		];
+
+		$settings = isset( $all_settings[ $requirement ] ) ? $all_settings[ $requirement ] : [];
 
 		return wp_parse_args( $settings, $requirements[ $requirement ]['defaults'] );
 	}

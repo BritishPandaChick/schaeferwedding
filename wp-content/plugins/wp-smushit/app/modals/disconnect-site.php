@@ -28,26 +28,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<h3 id="smush-disconnect-site-modal-title" class="sui-box-title sui-lg" style="white-space: inherit">
 					<?php esc_html_e( 'Disconnect Site?', 'wp-smushit' ); ?>
 				</h3>
-				<p class="sui-description"><?php esc_html_e( 'Do you want to disconnect your site from WPMU DEV?', 'wp-smushit' ); ?></p>
+				<p class="sui-description">
+					<?php esc_html_e( 'Disconnecting this site will disable key Bulk Smush features and other connected WPMU DEV tools and services.', 'wp-smushit' ); ?>
+				</p>
 			</div>
 
 			<div class="sui-box-body sui-spacing-top--20">
-				<div class="sui-notice sui-notice-yellow">
+				<div class="smush-disconnect-notice">
 					<div class="sui-notice-content">
 						<div class="sui-notice-message">
-							<span class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></span>
-							<p class="sui-description" style="color:#888888">
-								<?php
-								printf(
-									/* translators: 1: Open strong tag, 2: Close strong tag */
-									esc_html__( 'Note that disconnecting your site from %1$sWPMU DEV%2$s will disable other services that rely on this connection.', 'wp-smushit' ),
-									'<strong style="color:#888888">',
-									'</strong>'
-								);
-								?>
-							</p>
+							<h4><?php esc_html_e( 'You’ll lose the following key Smush features:', 'wp-smushit' ); ?></h4>
+							<ul>
+								<li><span class="sui-icon-cross-close" aria-hidden="true"></span><?php esc_html_e( 'Bulk Smush', 'wp-smushit' ); ?></li>
+								<li><span class="sui-icon-cross-close" aria-hidden="true"></span><?php esc_html_e( 'Image Optimization', 'wp-smushit' ); ?></li>
+								<li><span class="sui-icon-cross-close" aria-hidden="true"></span><?php esc_html_e( 'Automatic Compression', 'wp-smushit' ); ?></li>
+								<li style="display:flex"><span class="sui-icon-cross-close" aria-hidden="true"></span><?php esc_html_e( 'Premium WPMU DEV services and site management tools', 'wp-smushit' ); ?></li
+							</ul>
 						</div>
 					</div>
+				</div>
+				<div class="sui-form-field" style="margin-top: 20px;">
+					<textarea
+						placeholder="<?php esc_attr_e( 'Mind sharing why you’re disconnecting?', 'wp-smushit' ); ?>"
+						id="smush-disconnect-site-message"
+						class="sui-form-control"
+						style="height:40px"
+					></textarea>
 				</div>
 			</div>
 			<div class="sui-box-footer sui-flatten sui-content-center sui-spacing-bottom--40">

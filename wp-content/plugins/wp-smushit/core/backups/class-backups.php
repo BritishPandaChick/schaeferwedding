@@ -8,6 +8,7 @@ use Smush\Core\Media\Media_Item;
 use Smush\Core\Media\Media_Item_Optimizer;
 use Smush\Core\Settings;
 use WDEV_Logger;
+use WP_Error;
 
 class Backups {
 	/**
@@ -23,10 +24,16 @@ class Backups {
 	 */
 	private $fs;
 
+	/**
+	 * @var WP_Error
+	 */
+	private $errors;
+
 	public function __construct() {
 		$this->logger   = Helper::logger()->backup();
 		$this->settings = Settings::get_instance();
 		$this->fs       = new File_System();
+		$this->errors   = new WP_Error();
 	}
 
 	public function create_backup_file( $source_image_path ) {
@@ -128,15 +135,15 @@ class Backups {
 	 * @return bool
 	 */
 	public function restore_backup_to_file_path( $media_item, $file_path ) {
-		$restored         = false;
 		$backup_file_path = '';
-		$attachment_id    = $media_item->get_id();
+		$attachment_id   = $media_item->get_id();
+		$this->reset_errors(); // Reset errors.
 
 		do {
 			$backup_size = $media_item->get_default_backup_size();
 			if ( ! $backup_size ) {
 				$this->logger->warning( sprintf( 'A restore was attempted for attachment [%d] but we did not find a backup file.', $media_item->get_id() ) );
-
+				$this->errors->add( 'missing_backup', 'Missing backup file.' );
 				break;
 			}
 
@@ -150,7 +157,7 @@ class Backups {
 				$media_item->save();
 
 				$this->logger->warning( sprintf( 'A restore was attempted for attachment [%d] but the backup file does not exist.', $media_item->get_id() ) );
-
+				$this->errors->add( 'missing_backup', 'Missing backup file.' );
 				break;
 			}
 
@@ -161,12 +168,14 @@ class Backups {
 					$this->fs->unlink( $backup_file_path );
 				} else {
 					$this->logger->warning( sprintf( 'Error copying from [%s] to [%s].', $backup_file_path, $file_path ) );
-
+					$this->errors->add( 'copy_failed', 'Error copying backup file.' );
 					break;
 				}
 			}
 
-			wp_generate_attachment_metadata( $attachment_id, $file_path );
+			$metadata = wp_generate_attachment_metadata( $attachment_id, $file_path );
+			$this->maybe_update_attached_file( $media_item, $metadata, $file_path );
+			wp_update_attachment_metadata( $attachment_id, $metadata );
 			/*
 			 * TODO: we might want to follow media_handle_upload which makes an extra update attachment call like this:
 			 * wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $file ) );
@@ -177,13 +186,33 @@ class Backups {
 
 			$media_item->remove_default_backup_size();
 			$media_item->save();
-
-			$restored = true;
 		} while ( 0 );
+
+		$restored = ! $this->errors->has_errors();
 
 		do_action( 'wp_smush_after_restore_backup', $restored, $backup_file_path, $attachment_id, $file_path );
 
 		return $restored;
+	}
+
+	/**
+	 * Update the attached file for a media item if the file path has changed.
+	 *
+	 * @param Media_Item $media_item  Media Item.
+	 * @param array      $metadata    Image metadata.
+	 * @param mixed      $file_path    Image file path.
+	 */
+	private function maybe_update_attached_file( $media_item, $metadata, $file_path ) {
+		if ( empty( $metadata['file'] ) ) {
+			return;
+		}
+
+		$current_attached_file     = $media_item->get_attached_file();
+		$attached_file_changed     = ! str_contains( $current_attached_file, $metadata['file'] );
+		$attached_file_is_original = str_contains( $file_path, $metadata['file'] );
+		if ( $attached_file_changed && $attached_file_is_original ) {
+			update_attached_file( $media_item->get_id(), $file_path );
+		}
 	}
 
 	/**
@@ -193,13 +222,13 @@ class Backups {
 	private function count_attachments_with_backups() {
 		global $wpdb;
 		$wild            = '%';
-		$backup_key_like = $wild . $wpdb->esc_like( Media_Item::DEFAULT_BACKUP_KEY ) . $wild;
+		$backup_key_like = $wild . $wpdb->esc_like( Media_Item::get_default_backup_key() ) . $wild;
 		$no_backup_files = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT count(*)
 				FROM {$wpdb->postmeta}
 				WHERE meta_key=%s AND `meta_value` LIKE %s",
-				Media_Item::BACKUP_SIZES_META_KEY,
+				Media_Item::get_backup_sizes_meta_key(),
 				$backup_key_like
 			)
 		);
@@ -209,5 +238,21 @@ class Backups {
 
 	public function items_with_backup_exist() {
 		return $this->count_attachments_with_backups() > 0;
+	}
+
+	/**
+	 * Reset the error state.
+	 */
+	private function reset_errors() {
+		$this->errors->errors = array();
+	}
+
+	/**
+	 * Get the errors.
+	 *
+	 * @return WP_Error
+	 */
+	public function get_errors() {
+		return $this->errors;
 	}
 }

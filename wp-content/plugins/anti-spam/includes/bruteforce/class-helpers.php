@@ -15,7 +15,7 @@ class Helpers {
 			return;
 		}
 
-		echo '<div id="message" class="updated fade"><p>' . esc_html($msg) . '</p></div>';
+		echo '<div id="message" class="updated fade"><p>' . esc_html( $msg ) . '</p></div>';
 	}
 
 	/**
@@ -24,7 +24,7 @@ class Helpers {
 	 * @return array
 	 */
 	public static function sorted_log_by_date( $log ) {
-		$new_log = array();
+		$new_log = [];
 
 		if ( ! is_array( $log ) || empty( $log ) ) {
 			return $new_log;
@@ -35,22 +35,22 @@ class Helpers {
 			if ( ! empty( $users ) ) {
 				foreach ( $users as $user_name => $info ) {
 
-					if ( is_array( $info ) ) { // For new plugin version
-						$new_log[ $info['date'] ] = array(
+					if ( is_array( $info ) ) { // For new plugin version.
+						$new_log[ $info['date'] ] = [
 							'ip'       => $ip,
 							'username' => $user_name,
 							'counter'  => $info['counter'],
 							'gateway'  => ( isset( $info['gateway'] ) ) ? $info['gateway'] : '-',
 							'unlocked' => ! empty( $info['unlocked'] ),
-						);
-					} else { // For old plugin version
-						$new_log[0] = array(
+						];
+					} else { // For old plugin version.
+						$new_log[0] = [
 							'ip'       => $ip,
 							'username' => $user_name,
 							'counter'  => $info,
 							'gateway'  => '-',
 							'unlocked' => false,
-						);
+						];
 					}
 				}
 			}

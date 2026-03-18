@@ -83,16 +83,19 @@ class WP_ConvertKit {
 		$this->classes['admin_cache_plugins']                 = new ConvertKit_Admin_Cache_Plugins();
 		$this->classes['admin_category']                      = new ConvertKit_Admin_Category();
 		$this->classes['admin_landing_page']                  = new ConvertKit_Admin_Landing_Page();
-		$this->classes['admin_notices']                       = new ConvertKit_Admin_Notices();
+		$this->classes['admin_importer_activecampaign']       = new ConvertKit_Admin_Importer_ActiveCampaign();
+		$this->classes['admin_importer_aweber']               = new ConvertKit_Admin_Importer_AWeber();
+		$this->classes['admin_importer_campaignmonitor']      = new ConvertKit_Admin_Importer_CampaignMonitor();
+		$this->classes['admin_importer_mc4wp']                = new ConvertKit_Admin_Importer_MC4WP();
+		$this->classes['admin_importer_mailpoet']             = new ConvertKit_Admin_Importer_Mailpoet();
+		$this->classes['admin_importer_newsletter']           = new ConvertKit_Admin_Importer_Newsletter();
 		$this->classes['admin_post']                          = new ConvertKit_Admin_Post();
 		$this->classes['admin_quick_edit']                    = new ConvertKit_Admin_Quick_Edit();
-		$this->classes['admin_refresh_resources']             = new ConvertKit_Admin_Refresh_Resources();
 		$this->classes['admin_restrict_content']              = new ConvertKit_Admin_Restrict_Content();
 		$this->classes['admin_settings']                      = new ConvertKit_Admin_Settings();
 		$this->classes['admin_setup_wizard_landing_page']     = new ConvertKit_Admin_Setup_Wizard_Landing_Page();
 		$this->classes['admin_setup_wizard_plugin']           = new ConvertKit_Admin_Setup_Wizard_Plugin();
 		$this->classes['admin_setup_wizard_restrict_content'] = new ConvertKit_Admin_Setup_Wizard_Restrict_Content();
-		$this->classes['admin_tinymce']                       = new ConvertKit_Admin_TinyMCE();
 
 		/**
 		 * Initialize integration classes for the WordPress Administration interface.
@@ -178,7 +181,9 @@ class WP_ConvertKit {
 	 */
 	private function initialize_global() {
 
-		$this->classes['ajax']                                        = new ConvertKit_AJAX();
+		$this->classes['admin_notices']                               = new ConvertKit_Admin_Notices();
+		$this->classes['admin_tinymce']                               = new ConvertKit_Admin_TinyMCE();
+		$this->classes['admin_refresh_resources']                     = new ConvertKit_Admin_Refresh_Resources();
 		$this->classes['blocks_convertkit_broadcasts']                = new ConvertKit_Block_Broadcasts();
 		$this->classes['blocks_convertkit_content']                   = new ConvertKit_Block_Content();
 		$this->classes['blocks_convertkit_formtrigger']               = new ConvertKit_Block_Form_Trigger();

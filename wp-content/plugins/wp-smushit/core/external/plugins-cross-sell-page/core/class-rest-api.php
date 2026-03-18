@@ -79,7 +79,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 * @param Container $container Dependency container.
 	 * @return void
 	 */
-	public function init( ?Container $container = null ): void {
+	public function init( $container = null ) {
 		$this->di_container = $container;
 		$this->utilities    = $container->get( 'utilities' );
 
@@ -101,7 +101,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 *
 	 * @return void
 	 */
-	protected function register_hooks(): void {
+	protected function register_hooks() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -115,7 +115,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 *
 	 * @return array|WP_Error|WP_REST_Response
 	 */
-	public function prepare_item_for_response( $item, $request ): array {
+	public function prepare_item_for_response( $item, $request ) {
 		$fields = $this->get_fields_for_response( $request );
 		$data   = array();
 
@@ -135,7 +135,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 *
 	 * @return int
 	 */
-	public function authorization_status_code(): int {
+	public function authorization_status_code() {
 		$status = 401;
 
 		if ( is_user_logged_in() ) {
@@ -154,7 +154,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 * @return bool
 	 * @since  1.0.0
 	 */
-	public function has_permission( ?\WP_REST_Request $request = null, string $capability = 'manage_options' ): bool {
+	public function has_permission( $request = null, $capability = 'manage_options' ) {
 		$capable = current_user_can( $capability );
 
 		/**
@@ -178,7 +178,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 * @return \WP_REST_Response
 	 * @since  1.0.0
 	 */
-	public function get_response( $data = array(), $success = true ): \WP_REST_Response {
+	public function get_response( $data = array(), $success = true ) {
 		// Response status.
 		$status = $success ? 200 : 400;
 
@@ -197,7 +197,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 *
 	 * @return string
 	 */
-	public function get_namespace(): string {
+	public function get_namespace() {
 		return $this->namespace;
 	}
 
@@ -207,7 +207,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 * @param string $api_namespace The namespace.
 	 * @return void
 	 */
-	protected function set_namespace( string $api_namespace = '' ): void {
+	protected function set_namespace( $api_namespace = '' ) {
 		$this->namespace = $api_namespace;
 	}
 
@@ -216,7 +216,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 *
 	 * @return string
 	 */
-	public function get_endpoint(): string {
+	public function get_endpoint() {
 		return $this->endpoint;
 	}
 
@@ -225,7 +225,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 *
 	 * @return string
 	 */
-	public function get_endpoint_url(): string {
+	public function get_endpoint_url() {
 		return trailingslashit( rest_url() ) . trailingslashit( $this->get_namespace() ) . $this->get_endpoint();
 	}
 
@@ -234,7 +234,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 *
 	 * @return string
 	 */
-	public function get_endpoint_path(): string {
+	public function get_endpoint_path() {
 		return trailingslashit( $this->get_namespace() ) . $this->get_endpoint();
 	}
 
@@ -245,7 +245,7 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 *
 	 * @return void
 	 */
-	public function register_routes(): void {
+	public function register_routes() {
 	}
 
 	/**
@@ -255,6 +255,6 @@ abstract class Rest_Api extends WP_REST_Controller {
 	 *
 	 * @return void
 	 */
-	public function prepare_endpoint_params(): void {
+	public function prepare_endpoint_params() {
 	}
 }

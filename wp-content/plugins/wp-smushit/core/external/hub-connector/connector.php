@@ -46,7 +46,7 @@ if ( ! class_exists( '\WPMUDEV\Hub\Connector' ) ) {
 		 *
 		 * @return static Called class instance.
 		 */
-		public static function get(): Connector {
+		public static function get() {
 			// Only if not already exist.
 			if ( ! self::$instance instanceof Connector ) {
 				self::$instance = new Connector();
@@ -88,7 +88,7 @@ if ( ! class_exists( '\WPMUDEV\Hub\Connector' ) ) {
 		 *
 		 * @return void
 		 */
-		public function set_options( string $plugin, array $options = array() ) {
+		public function set_options( $plugin, $options = array() ) {
 			Connector\Admin::get()->set_plugin_options( $plugin, $options );
 		}
 
@@ -99,7 +99,7 @@ if ( ! class_exists( '\WPMUDEV\Hub\Connector' ) ) {
 		 *
 		 * @param string $class_name Class name to autoload.
 		 */
-		public function autoload( string $class_name ) {
+		public function autoload( $class_name ) {
 			// Project-specific namespace prefix.
 			$prefix = 'WPMUDEV\\Hub\\Connector\\';
 

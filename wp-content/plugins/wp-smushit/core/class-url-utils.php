@@ -110,7 +110,7 @@ class Url_Utils {
 
 		list( $width, $height ) = $this->guess_dimensions_from_image_url( $image_url );
 
-		if ( ! empty( $width ) && ! empty( $height ) && $width > Transformation_Controller::MIN_TRANSFORMABLE_IMAGE_DIMENSION ) {
+		if ( ! empty( $width ) && ! empty( $height ) && $width > Transformation_Controller::get_min_transformable_image_dimension() ) {
 			return array( $width, $height );
 		}
 
@@ -278,7 +278,7 @@ class Url_Utils {
 		return untrailingslashit( $url );
 	}
 
-	public function is_relative( string $url ): bool {
+	public function is_relative( $url ) {
 		return ! empty( preg_match( '/^\./', $url ) ) || empty( wp_parse_url( $url, PHP_URL_HOST ) );
 	}
 }

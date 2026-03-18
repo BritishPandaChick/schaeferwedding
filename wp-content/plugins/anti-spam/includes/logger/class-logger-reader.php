@@ -2,7 +2,7 @@
 
 namespace WBCR\Titan\Logger;
 
-// Exit if accessed directly
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -16,8 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * $log_content = WIO_Log_Reader::prettify();
  * ```
  *
- * @author        Alexander Teshabaev <sasha.tesh@gmail.com>
- * @author        Alexander Kovalev <alex.kovalevv@gmail.com>, Github: https://github.com/alexkovalevv
  * @see           \WBCR\Titan\Logger\Writter::get_content() for method which is used to get file content.
  *
  * @see           \WBCR\Titan\Logger\Writter for further information about logging.
@@ -54,10 +52,22 @@ class Reader {
 		$content = str_replace( $search, $replacement, $content );
 
 		$color_map = [
-			\WBCR\Titan\Logger\Writter::LEVEL_INFO    => [ 'color' => '#fff', 'bg' => '#52d130' ],
-			\WBCR\Titan\Logger\Writter::LEVEL_ERROR   => [ 'color' => '#fff', 'bg' => '#ff5e5e' ],
-			\WBCR\Titan\Logger\Writter::LEVEL_WARNING => [ 'color' => '#fff', 'bg' => '#ef910a' ],
-			\WBCR\Titan\Logger\Writter::LEVEL_DEBUG   => [ 'color' => '#fff', 'bg' => '#8f8d8b' ],
+			\WBCR\Titan\Logger\Writter::LEVEL_INFO    => [
+				'color' => '#fff',
+				'bg'    => '#52d130',
+			],
+			\WBCR\Titan\Logger\Writter::LEVEL_ERROR   => [
+				'color' => '#fff',
+				'bg'    => '#ff5e5e',
+			],
+			\WBCR\Titan\Logger\Writter::LEVEL_WARNING => [
+				'color' => '#fff',
+				'bg'    => '#ef910a',
+			],
+			\WBCR\Titan\Logger\Writter::LEVEL_DEBUG   => [
+				'color' => '#fff',
+				'bg'    => '#8f8d8b',
+			],
 		];
 
 		/**

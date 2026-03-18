@@ -12,12 +12,12 @@ class Video_Thumbnail_Cache {
 		return self::$instance;
 	}
 
-	public function add( $video_id, $provider, $thumb_width, $thumb_height, Video_Thumbnail $video_thumbnail ) {
+	public function add( $video_id, $provider, $thumb_width, $thumb_height, $video_thumbnail ) {
 		$transient_key = $this->get_transient_key( $video_id, $provider, $thumb_width, $thumb_height );
 		set_transient( $transient_key, $video_thumbnail->to_array() );
 	}
 
-	public function get( $video_id, $provider, $thumb_width, $thumb_height ): ?Video_Thumbnail {
+	public function get( $video_id, $provider, $thumb_width, $thumb_height ) {
 		$transient_key        = $this->get_transient_key( $video_id, $provider, $thumb_width, $thumb_height );
 		$video_thumbnail_data = get_transient( $transient_key );
 		if ( ! $video_thumbnail_data ) {

@@ -17,14 +17,14 @@ use WP_Error;
  * Takes raw image file paths and processes them through the Smush API. Replaces originals with the optimized versions.
  */
 class Smusher {
-	const ERROR_SSL_CERT = 'ssl_cert_error';
-	const IMAGE_NOT_SAVED_FROM_URL = 'image_not_saved_from_url';
-	const DEFAULT_CHUNK_SIZE = 5 * 1024 * 1024;
-	const ERROR_TIME_OUT = 'time_out';
-	const ERROR_GATEWAY_TIME_OUT = 'gateway_time_out';
-	const ERROR_POSTING_TO_API = 'error_posting_to_api';
-	const RESPONSE_CODE_NON_200 = 'response_code_non_200';
-	const OPTION_ID_SMUSH_ERROR_COUNTS = 'wp_smush_error_counts';
+	private static $error_ssl_cert = 'ssl_cert_error';
+	private static $image_not_saved_from_url = 'image_not_saved_from_url';
+	private static $default_chunk_size = 5 * 1024 * 1024;
+	private static $error_time_out = 'time_out';
+	private static $error_gateway_time_out = 'gateway_time_out';
+	private static $error_posting_to_api = 'error_posting_to_api';
+	private static $response_code_non_200 = 'response_code_non_200';
+	private static $option_id_smush_error_counts = 'wp_smush_error_counts';
 	/**
 	 * @var Settings
 	 */
@@ -163,7 +163,7 @@ class Smusher {
 
 	private function maybe_change_http_setting() {
 		$codes = array_merge( $this->errors->get_error_codes(), $this->warnings->get_error_codes() );
-		if ( in_array( self::ERROR_SSL_CERT, $codes, true ) ) {
+		if ( in_array( self::$error_ssl_cert, $codes, true ) ) {
 			// Switch to http protocol.
 			$this->settings->set_setting( 'wp-smush-use_http', 1 );
 		}
@@ -232,7 +232,7 @@ class Smusher {
 				if ( is_wp_error( $saved_from_image_url ) ) {
 					$this->add_error(
 						$size_key,
-						self::IMAGE_NOT_SAVED_FROM_URL,
+						self::$image_not_saved_from_url,
 						/* translators: %s: Error message. */
 						sprintf( __( 'Smush was successful but we were unable to save from URL: %s.', 'wp-smushit' ), $saved_from_image_url->get_error_message() ),
 						array(
@@ -353,7 +353,10 @@ class Smusher {
 		}
 	}
 
-	public function save_from_image_url( $image_url, $target_file_path, $file_md5, $chunk_size = self::DEFAULT_CHUNK_SIZE ) {
+	public function save_from_image_url( $image_url, $target_file_path, $file_md5, $chunk_size = null ) {
+		if ( is_null( $chunk_size ) ) {
+			$chunk_size = self::$default_chunk_size;
+		}
 		try {
 			$client       = new Client();
 			$response     = $client->get( $image_url, [
@@ -453,7 +456,7 @@ class Smusher {
 			$error_message = $response->get_error_message();
 
 			if ( strpos( $error_message, 'SSL CA cert' ) !== false ) {
-				$error->add( self::ERROR_SSL_CERT, $error_message, array(
+				$error->add( self::$error_ssl_cert, $error_message, array(
 					'original_code'    => $response->get_error_code(),
 					'original_message' => $error_message,
 				) );
@@ -461,7 +464,7 @@ class Smusher {
 				return $error;
 			} else if ( strpos( $error_message, 'timed out' ) !== false ) {
 				$error->add(
-					self::ERROR_TIME_OUT,
+					self::$error_time_out,
 					esc_html__( "Skipped due to a timeout error. You can increase the request timeout to make sure Smush has enough time to process larger files. define('WP_SMUSH_TIMEOUT', 150);", 'wp-smushit' ),
 					array(
 						'original_code'    => $response->get_error_code(),
@@ -472,7 +475,7 @@ class Smusher {
 				return $error;
 			} else {
 				$error->add(
-					self::ERROR_POSTING_TO_API,
+					self::$error_posting_to_api,
 					/* translators: %s: Error message. */
 					sprintf( __( 'Error posting to API: %s', 'wp-smushit' ), $error_message ),
 					array(
@@ -494,7 +497,7 @@ class Smusher {
 				$error_message = $non_200_json->data;
 			} else if ( strpos( wp_remote_retrieve_response_message( $response ), 'Gateway Timeout' ) !== false ) {
 				$error->add(
-					self::ERROR_GATEWAY_TIME_OUT,
+					self::$error_gateway_time_out,
 					esc_html__( 'The request is taking longer than expected. Please check back in a few moments.', 'wp-smushit' ),
 					array(
 						'original_code'    => $response_code,
@@ -513,7 +516,7 @@ class Smusher {
 				);
 			}
 
-			$error->add( self::RESPONSE_CODE_NON_200, $error_message, array(
+			$error->add( self::$response_code_non_200, $error_message, array(
 				'original_code'    => $response_code,
 				'original_message' => "Received response code $response_code",
 			) );
@@ -710,7 +713,7 @@ class Smusher {
 	 *
 	 * @return array
 	 */
-	private function get_file_path_and_url( $file_data ): array {
+	private function get_file_path_and_url( $file_data ) {
 		if ( is_string( $file_data ) ) {
 			$file_path = $file_data;
 			$file_url  = '';
@@ -735,8 +738,8 @@ class Smusher {
 	}
 
 	private function maybe_track_image_url_error( $time_elapsed ) {
-		if ( $this->has_error( self::IMAGE_NOT_SAVED_FROM_URL ) ) {
-			$this->track_error( $this->errors, self::IMAGE_NOT_SAVED_FROM_URL, $time_elapsed );
+		if ( $this->has_error( self::$image_not_saved_from_url ) ) {
+			$this->track_error( $this->errors, self::$image_not_saved_from_url, $time_elapsed );
 		}
 	}
 
@@ -746,7 +749,7 @@ class Smusher {
 			return;
 		}
 
-		$error_counts    = $this->thread_safe_options->get_site_option( self::OPTION_ID_SMUSH_ERROR_COUNTS, array() );
+		$error_counts    = $this->thread_safe_options->get_site_option( self::$option_id_smush_error_counts, array() );
 		$max_occurrences = empty( $error_counts ) ? 0 : max( $error_counts );
 		if ( $max_occurrences < 3 ) {
 			$this->count_error_types();
@@ -760,7 +763,7 @@ class Smusher {
 	 */
 	private function has_error_worth_retrying() {
 		$errors_that_should_be_retried = array(
-			self::IMAGE_NOT_SAVED_FROM_URL,
+			self::$image_not_saved_from_url,
 		);
 
 		foreach ( $errors_that_should_be_retried as $error_code ) {
@@ -825,12 +828,12 @@ class Smusher {
 	/**
 	 * @return string[]
 	 */
-	private function get_network_error_codes(): array {
+	private function get_network_error_codes() {
 		return array(
-			self::ERROR_POSTING_TO_API,
-			self::ERROR_TIME_OUT,
-			self::ERROR_SSL_CERT,
-			self::RESPONSE_CODE_NON_200,
+			self::$error_posting_to_api,
+			self::$error_time_out,
+			self::$error_ssl_cert,
+			self::$response_code_non_200,
 		);
 	}
 
@@ -857,12 +860,12 @@ class Smusher {
 		}
 
 		if ( ! empty( $increment_keys ) ) {
-			$this->thread_safe_options->increment_values_in_site_option( self::OPTION_ID_SMUSH_ERROR_COUNTS, array_values( $increment_keys ) );
+			$this->thread_safe_options->increment_values_in_site_option( self::$option_id_smush_error_counts, array_values( $increment_keys ) );
 		}
 	}
 
 	public function reset_error_counts() {
-		$this->thread_safe_options->delete_site_option( Smusher::OPTION_ID_SMUSH_ERROR_COUNTS );
+		$this->thread_safe_options->delete_site_option( Smusher::get_smush_error_counts_option_id() );
 	}
 
 	/**
@@ -953,4 +956,14 @@ class Smusher {
 	public function set_timeout( $timeout ) {
 		_deprecated_function( __METHOD__, '3.17.0' );
 	}
+
+	/**
+	 * Get option_id_smush_error_counts.
+	 *
+	 * @return string
+	 */
+	public static function get_smush_error_counts_option_id() {
+		return self::$option_id_smush_error_counts;
+	}
+
 }

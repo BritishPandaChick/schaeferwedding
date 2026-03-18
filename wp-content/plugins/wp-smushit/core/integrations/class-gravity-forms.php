@@ -62,25 +62,6 @@ class Gravity_Forms extends Abstract_Integration {
 	 */
 
 	/**
-	 * Filters the setting variable to add Gravity Form setting title and description
-	 *
-	 * @since 3.9.10
-	 *
-	 * @param array $settings Settings.
-	 *
-	 * @return array
-	 */
-	public function register( $settings ) {
-		$settings[ $this->module ] = array(
-			'label'       => esc_html__( 'Enable Gravity Forms integration', 'wp-smushit' ),
-			'short_label' => esc_html__( 'Gravity Forms', 'wp-smushit' ),
-			'desc'        => esc_html__( 'Allow compressing images uploaded with Gravity Forms.', 'wp-smushit' ),
-		);
-
-		return $settings;
-	}
-
-	/**
 	 * Show additional notice if the required plugins are not installed.
 	 *
 	 * @since 3.9.10

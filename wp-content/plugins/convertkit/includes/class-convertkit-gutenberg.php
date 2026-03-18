@@ -32,6 +32,63 @@ class ConvertKit_Gutenberg {
 		// Register Gutenberg Blocks.
 		add_action( 'init', array( $this, 'add_blocks' ) );
 
+		// Register REST API routes.
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+
+	}
+
+	/**
+	 * Register REST API routes.
+	 *
+	 * @since   3.1.0
+	 */
+	public function register_routes() {
+
+		// Register route to refresh resources andreturn all blocks registered by the Plugin,
+		// when the user clicks the refresh button in the Gutenberg editor.
+		register_rest_route(
+			'kit/v1',
+			'/blocks',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+
+				// Return blocks.
+				'callback'            => function () {
+					// Refresh Forms.
+					$forms = new ConvertKit_Resource_Forms( 'block_edit' );
+					$result = $forms->refresh();
+					if ( is_wp_error( $result ) ) {
+						// Return blocks without refreshing other resources.
+						return rest_ensure_response( convertkit_get_blocks() );
+					}
+
+					// Refresh Posts.
+					$posts = new ConvertKit_Resource_Posts( 'block_edit' );
+					$result = $posts->refresh();
+					if ( is_wp_error( $result ) ) {
+						// Return blocks without refreshing other resources.
+						return rest_ensure_response( convertkit_get_blocks() );
+					}
+
+					// Refresh Products.
+					$products = new ConvertKit_Resource_Products( 'block_edit' );
+					$result = $products->refresh();
+					if ( is_wp_error( $result ) ) {
+						// Return blocks without refreshing other resources.
+						return rest_ensure_response( convertkit_get_blocks() );
+					}
+
+					// Return blocks, which will now include the refreshed resources.
+					return rest_ensure_response( convertkit_get_blocks() );
+				},
+
+				// Only refresh resources for users who can edit posts.
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+			)
+		);
+
 	}
 
 	/**
@@ -91,6 +148,9 @@ class ConvertKit_Gutenberg {
 			return;
 		}
 
+		// Determine the block API version to use for registering blocks.
+		$block_api_version = $this->get_block_api_version();
+
 		// Get registered blocks.
 		$registered_blocks = array_keys( WP_Block_Type_Registry::get_instance()->get_all_registered() );
 
@@ -104,7 +164,7 @@ class ConvertKit_Gutenberg {
 
 			// Register block.
 			register_block_type(
-				CONVERTKIT_PLUGIN_PATH . '/includes/blocks/' . $block,
+				CONVERTKIT_PLUGIN_PATH . '/includes/blocks/v' . (string) $block_api_version . '/' . $block,
 				array(
 					'attributes'      => $properties['attributes'],
 					'editor_script'   => 'convertkit-gutenberg',
@@ -127,6 +187,33 @@ class ConvertKit_Gutenberg {
 
 	}
 
+	/**
+	 * Determines the block API version to use for registering blocks.
+	 *
+	 * @since   3.2.0
+	 *
+	 * @return  int    Block API version.
+	 */
+	public function get_block_api_version() {
+
+		// Determine the block API version to use for registering blocks.
+		// WordPress supports Version 3 from WordPress 6.3:
+		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-api-versions/.
+		$block_api_version = ( version_compare( get_bloginfo( 'version' ), '6.3', '>=' ) ? 3 : 2 );
+
+		/**
+		 * Determine the block API version to use for registering blocks.
+		 *
+		 * @since   3.1.4
+		 *
+		 * @param   int  $block_api_version    Block API version.
+		 * @return  int                        Block API version.
+		 */
+		$block_api_version = apply_filters( 'convertkit_gutenberg_block_api_version', $block_api_version );
+
+		return absint( $block_api_version );
+
+	}
 	/**
 	 * Enqueues scripts for Gutenberg blocks in the editor view.
 	 *
@@ -157,7 +244,9 @@ class ConvertKit_Gutenberg {
 			'convertkit-gutenberg',
 			'convertkit_gutenberg',
 			array(
-				'get_blocks_nonce' => wp_create_nonce( 'convertkit_get_blocks' ),
+				'ajaxurl'           => rest_url( 'kit/v1/blocks' ),
+				'block_api_version' => $this->get_block_api_version(),
+				'get_blocks_nonce'  => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 

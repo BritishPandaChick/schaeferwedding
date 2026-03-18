@@ -233,14 +233,12 @@ function smush_onboarding_configure_body( $array_utils, $setup_steps ) {
 					</a>
 			<?php endif; ?>
 			</div>
-			<?php if ( ! Membership::get_instance()->is_pro() ) : ?>
 			<a class="smush-upsell-link smush-btn-pro-upsell" style="font-size:11px" target="_blank" href="<?php echo esc_url( $upsell_url ); ?>">
 				<?php
 				/* translators: %s: plugin discount */
 				esc_html_e( 'What can I get with Smush Pro?', 'wp-smushit' );
 				?>
 			</a>
-			<?php endif; ?>
 		</div>
 	</div>
 	<?php

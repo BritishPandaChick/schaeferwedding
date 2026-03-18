@@ -24,7 +24,7 @@ $is_next_gen_page   = 'smush-next-gen' === $this->get_slug();
 				<?php
 				$direct_conversion_link = sprintf(
 					'<a href="javascript:void(0);" onclick="window?.WP_Smush?.WebP && window.WP_Smush.WebP.switchMethod(\'%s\');">%s</a>',
-					esc_attr( Webp_Configuration::DIRECT_CONVERSION_METHOD ),
+					esc_attr( Webp_Configuration::get_direct_conversion_method_key() ),
 					esc_html__( 'Direct Conversion', 'wp-smushit' )
 				);
 

@@ -19,13 +19,20 @@
 	/**
 	 * Lazy load page.
 	 */
-	$( 'form#smush-lazy-preload-form' ).on( 'submit', function( e ) {
+	const lazyLoadForm = $( 'form#smush-lazy-preload-form' );
+	lazyLoadForm.on( 'submit', function( e ) {
 		e.preventDefault();
 		const tabField = $( this ).find( '[name="tab"]' );
 		const isLazyLoadPage = tabField.length && 'lazy_load' === tabField.val();
 
 		$( '#save-settings-button' ).addClass( 'sui-button-onload-text' );
 		saveSettings( $( this ).serialize(), isLazyLoadPage ? 'lazy-load' : 'preload' );
+	} );
+
+	lazyLoadForm.on( 'keydown', function( e ) {
+		if ( e.key === 'Enter' ) {
+			lazyLoadForm.trigger( 'submit' );
+		}
 	} );
 
 	/**

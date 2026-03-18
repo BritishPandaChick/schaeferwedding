@@ -22,7 +22,7 @@ class Video_Embed_Helper {
 		return admin_url( sprintf( 'admin-ajax.php?action=smush_video_thumbnail&url=%s&video_width=%d&video_height=%d', urlencode( $embed_url ), (int) $video_width, (int) $video_height ) );
 	}
 
-	public function create_embed_object( $embed_url ): ?Video_Embed {
+	public function create_embed_object( $embed_url ) {
 		$provider_classes = self::get_embed_provider_classes();
 
 		if ( empty( $provider_classes ) || ! is_array( $provider_classes ) ) {

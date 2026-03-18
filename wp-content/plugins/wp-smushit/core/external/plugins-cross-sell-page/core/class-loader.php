@@ -59,7 +59,7 @@ final class Loader {
 	 * @param Container $container The dependency container.
 	 * @return void
 	 */
-	public function __construct( Container $container ) {
+	public function __construct( $container ) {
 		$this->container = $container;
 	}
 
@@ -68,7 +68,7 @@ final class Loader {
 	 *
 	 * @return void
 	 */
-	public function init(): void {
+	public function init() {
 		if ( ! $this->can_boot() ) {
 			return;
 		}
@@ -103,7 +103,7 @@ final class Loader {
 	 * @access private
 	 * @return void
 	 */
-	private function setup_components(): void {
+	private function setup_components() {
 		$submenus = new App\Submenus\CrossSell();
 		$submenus->init( $this->container );
 

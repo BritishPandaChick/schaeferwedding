@@ -5,8 +5,6 @@
  * @package WP_Smush
  *
  * @var integer $count          Total number of images to smush.
- * @var string  $background_in_processing_notice
- * @var bool $background_processing_enabled
  * @var string  $in_processing_notice
  */
 
@@ -25,12 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
 				<i class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></i>
 				<p>
 					<?php
-					if ( $background_processing_enabled ) {
-						$desc = $background_in_processing_notice;
-					} else {
-						$desc = $in_processing_notice;
-					}
-					echo wp_kses_post( $desc );
+					echo wp_kses_post( $in_processing_notice );
 					?>
 				</p>
 			</div>
@@ -50,7 +43,6 @@ if ( ! defined( 'WPINC' ) ) {
 			</div>
 		</div>
 		<?php
-			// $cancel_btn_class = $background_processing_enabled ? 'wp-smush-bo-cancel-bulk' : 'wp-smush-cancel-bulk';
 			$cancel_btn_class = 'wp-smush-cancel-btn';
 		?>
 		<button class="sui-progress-close <?php echo esc_attr( $cancel_btn_class ); ?>" type="button">

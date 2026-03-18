@@ -7,7 +7,7 @@ use Smush\Core\Helper;
 use Smush\Core\Media\Media_Item_Query;
 
 class Ajax_Media_Library_Scanner extends Controller {
-	const PARALLEL_REQUESTS = 5;
+	private static $parallel_requests = 5;
 
 	/**
 	 * @var Media_Library_Scanner
@@ -74,6 +74,6 @@ class Ajax_Media_Library_Scanner extends Controller {
 	}
 
 	public function get_parallel_requests() {
-		return self::PARALLEL_REQUESTS;
+		return self::$parallel_requests;
 	}
 }

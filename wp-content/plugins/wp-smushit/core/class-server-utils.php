@@ -3,21 +3,23 @@
 namespace Smush\Core;
 
 class Server_Utils {
-	const FIREFOX_AGENT = '#Firefox/(?<version>[0-9]{2,})#i';
-	const IPAD_IPHONE_AGENT = '#(?:iPad|iPhone)(.*)Version/(?<version>[0-9]{2,})#i';
-	const SAFARI_AGENT = '#Version/(?<version>[0-9]{2,})(?:.*)Safari#i';
-	const MSIE_TRIDENT = '/MSIE|Trident/i';
+	private static $firefox_agent = '#Firefox/(?<version>[0-9]{2,})#i';
+	private static $ipad_iphone_agent = '#(?:iPad|iPhone)(.*)Version/(?<version>[0-9]{2,})#i';
+	private static $safari_agent = '#Version/(?<version>[0-9]{2,})(?:.*)Safari#i';
+	private static $msie_trident = '/MSIE|Trident/i';
 	/**
 	 * @var string
 	 */
 	private $mysql_version;
 
-	private $browser_webp_support = array(
-		self::FIREFOX_AGENT     => array( 'version' => 66, 'operator' => '>' ),
-		self::IPAD_IPHONE_AGENT => array( 'version' => 14, 'operator' => '>=' ),
-		self::SAFARI_AGENT      => array( 'version' => 14, 'operator' => '>=' ),
-		self::MSIE_TRIDENT      => false,
-	);
+	private function browser_webp_support() {
+		return array(
+			self::$firefox_agent     => array( 'version' => 66, 'operator' => '>' ),
+			self::$ipad_iphone_agent => array( 'version' => 14, 'operator' => '>=' ),
+			self::$safari_agent      => array( 'version' => 14, 'operator' => '>=' ),
+			self::$msie_trident      => false,
+		);
+	}
 
 	public function get_server_type() {
 		if ( empty( $_SERVER['SERVER_SOFTWARE'] ) ) {
@@ -123,7 +125,7 @@ class Server_Utils {
 			return true;
 		}
 
-		return $this->check_user_agent_version( $this->browser_webp_support );
+		return $this->check_user_agent_version( $this->browser_webp_support() );
 	}
 
 	private function check_user_agent_version( $allowed, $default = false ) {

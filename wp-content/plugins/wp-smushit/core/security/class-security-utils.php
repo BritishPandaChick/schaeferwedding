@@ -6,7 +6,7 @@ use Smush\Core\Array_Utils;
 use Smush\Core\Threads\Thread_Safe_Options;
 
 class Security_Utils {
-	const EXPECTED_NONCES_OPTION = 'wp_smush_public_expected_nonces';
+	private static $expected_nonces_option_id = 'wp_smush_public_expected_nonces';
 	/**
 	 * @var Array_Utils
 	 */
@@ -40,12 +40,12 @@ class Security_Utils {
 	}
 
 	public function clean_public_nonce( $nonce ) {
-		$this->thread_safe_options->remove_data( self::EXPECTED_NONCES_OPTION, $this->expected_nonce_key( $nonce ) );
+		$this->thread_safe_options->remove_data( self::$expected_nonces_option_id, $this->expected_nonce_key( $nonce ) );
 	}
 
 	private function add_expected_nonce( $nonce ) {
 		return $this->thread_safe_options->add_data(
-			self::EXPECTED_NONCES_OPTION,
+			self::$expected_nonces_option_id,
 			$this->expected_nonce_key( $nonce ),
 			array( 'time' => time(), 'nonce' => $nonce )
 		);
@@ -68,7 +68,7 @@ class Security_Utils {
 
 	public function clean_expected_nonces() {
 		$expected_nonces = $this->clean_expected( $this->get_expected_nonces() );
-		update_option( self::EXPECTED_NONCES_OPTION, json_encode( $expected_nonces ) );
+		update_option( self::$expected_nonces_option_id, json_encode( $expected_nonces ) );
 	}
 
 	private function clean_expected( $expected_nonces ) {
@@ -86,7 +86,7 @@ class Security_Utils {
 	 * @return array
 	 */
 	public function get_expected_nonces() {
-		$nonces = $this->thread_safe_options->get_option( self::EXPECTED_NONCES_OPTION, array() );
+		$nonces = $this->thread_safe_options->get_option( self::$expected_nonces_option_id, array() );
 
 		return $this->array_utils->ensure_array( $nonces );
 	}
@@ -102,4 +102,14 @@ class Security_Utils {
 	private function expected_nonce_key( $nonce ) {
 		return "nonce_$nonce";
 	}
+
+	/**
+	 * Get expected_nonces_option.
+	 *
+	 * @return string
+	 */
+	public static function get_expected_nonces_option_id() {
+		return self::$expected_nonces_option_id;
+	}
+
 }

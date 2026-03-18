@@ -3,28 +3,13 @@
 import Smush from '../smush/smush';
 import {GlobalStats} from "../common/globalStats";
 import SmushProgress from "../common/progressbar";
-import Fetcher from '../utils/fetcher';
+import disconnectSite from './disconnect-site';
+import '../modules/review-prompts';
 
 WP_Smush.adminAjax = {
 	disconnectSite: ( btn ) => {
-		if ( btn ) {
-			btn.classList.add( 'sui-button-onload-text' );
-		}
-
-		return Fetcher.settings.disconnectSite().then( ( res ) => {
-			if ( res.success ) {
-				window.location.search = window.location.search + `&smush-notice=site-disconnected`;
-			} else {
-				WP_Smush.helpers.showNotice( res );
-			}
-		} ).catch( ( error ) => {
-			WP_Smush.helpers.showNotice( error );
-		} ).finally( () => {
-			if ( btn ) {
-				btn.classList.remove( 'sui-button-onload-text' );
-			}
-		} );
-	}
+		return disconnectSite.disconnect( btn );
+	},
 };
 
 const remove_element = function (el, timeout) {
@@ -146,12 +131,12 @@ jQuery(function ($) {
 			// Reset all functionality.
 			enable_links(currentButton);
 
+			// Use params here instead of this.data (ajax request params).
+			const isNextgen = params.action && params.action.includes( 'nextgen' );
+
 			if (r.success && 'undefined' !== typeof r.data) {
 				// Replace in immediate parent for NextGEN.
-				if (
-					'undefined' !== typeof this.data &&
-					this.data.indexOf('nextgen') > -1
-				) {
+				if ( isNextgen ) {
 					// Show the smush button, and remove stats and restore option.
 					currentButton.parents().eq(1).html(r.data.stats);
 				} else if ('restore' === action) {
@@ -173,10 +158,12 @@ jQuery(function ($) {
 					Smush.updateImageStats(r.data.new_size);
 				}
 			} else if (r.data && r.data.error_msg) {
-				if (
-					-1 === this.data.indexOf('nextgen')
-				) {
-					currentButton.closest( '.smushit' ).find('.smush-status').addClass('smush-warning').html(r.data.error_msg);
+				if ( ! isNextgen ) {
+					if ( r.data.html_stats ) {
+						currentButton.closest( '.smush-status-links' ).parent().html( r.data.html_stats );
+					} else {
+						currentButton.closest( '.smush-status-links' ).prev('.smush-status').addClass('smush-warning').html(r.data.error_msg);
+					}
 				} else {
 					// Show error.
 					currentButton.parent().append(r.data.error_msg);
@@ -532,22 +519,6 @@ jQuery(function ($) {
 	$('.sui-mobile-nav').on('change', (e) => {
 		window.location.assign($(e.currentTarget).val());
 	});
-
-	/**
-	 * Handle re-check api status button click (Settings)
-	 *
-	 * @since 3.2.0.2
-	 */
-	$('#update-api-status').on('click', function (e) {
-		e.preventDefault();
-
-		//$(this).prop('disabled', true);
-		$(this).addClass('sui-button-onload');
-
-		$.post(ajaxurl, { action: 'recheck_api_status' }, function () {
-			location.reload();
-		});
-	});
 	
 	/**
 	 * Handle clear LCP data button click (Settings)
@@ -614,6 +585,7 @@ jQuery(function ($) {
 	/** Restore: Media Library **/
 	$('body').on('click', '.wp-smush-action.wp-smush-restore', function (e) {
 		const current_button = $(this);
+		current_button.removeClass('sui-tooltip');
 		process_smush_action(
 			e,
 			current_button,
@@ -901,6 +873,25 @@ jQuery(function ($) {
 			}
 		}
 	});
+	
+	$( '#smush-bulk-form input#backup' ).on( 'change', function () {
+		const $toggle = $( this );
+		
+		// If user tries to turn OFF backup
+		if ( !$toggle.is( ':checked' ) ) {
+			
+			// Revert it back to ON immediately
+			$toggle.prop( 'checked', true );
+			
+			// Show modal
+			window.SUI.openModal(
+				'smush-backup-original-images-dialog',
+				'wpbody-content',
+				undefined,
+				false
+			);
+		}
+	} );
 
 	// Update Smush mode on lossy level change.
 	const updateLossyLevelInSummaryBox = () => {
@@ -1014,4 +1005,37 @@ jQuery(function ($) {
 	}
 
 	cleanUrlParams();
+
+	/**
+	 * Scroll to the anchor under the Bulk Smush Advanced Settings section.
+	 */
+	const goToAnchorUnderAdvancedSettings = () => {
+		const bulkSmushAdvancedSettings = document.querySelector( '#bulk-smush-advanced-settings' );
+		if ( ! bulkSmushAdvancedSettings ) {
+			return;
+		}
+
+		const accordionItem = bulkSmushAdvancedSettings.querySelector( '.sui-accordion-item' );
+		if ( accordionItem.classList.contains( 'sui-accordion-item--open' ) ) {
+			return;
+		}
+
+		const url = new URL( window.location.href );
+		const hash = url.hash;
+		const advancedSettingsHashes = ['#original', '#backup'];
+
+		if ( advancedSettingsHashes.includes( hash ) ) {
+			accordionItem.classList.add( 'sui-accordion-item--open' );
+			goToByScroll( hash );
+
+			// Remove hash.
+			url.hash = '';
+			// Update the URL without reloading the page.
+			window.history.replaceState( {}, '', url.toString() );
+		}
+	};
+
+	goToAnchorUnderAdvancedSettings();
+	window.addEventListener('hashchange', goToAnchorUnderAdvancedSettings);
+
 });

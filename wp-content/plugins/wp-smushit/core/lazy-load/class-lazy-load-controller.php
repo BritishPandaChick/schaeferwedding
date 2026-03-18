@@ -21,7 +21,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Class Lazy
  */
 class Lazy_Load_Controller extends Controller {
-	const LAZY_LOAD_TRANSFORM_PRIORITY = 20;
+	private static $lazy_load_transform_priority = 20;
 
 	/**
 	 * Module slug.
@@ -90,7 +90,7 @@ class Lazy_Load_Controller extends Controller {
 		$this->register_action( 'wp_smush_content_transforms', array(
 			$this,
 			'register_lazy_load_transform',
-		), self::LAZY_LOAD_TRANSFORM_PRIORITY );
+		), self::$lazy_load_transform_priority );
 
 		// Only run on front end and if lazy loading is enabled.
 		if ( is_admin() || ! $this->settings->is_module_active( 'lazy_load' ) ) {
@@ -106,6 +106,7 @@ class Lazy_Load_Controller extends Controller {
 
 		// Disable WordPress native lazy load.
 		$this->register_filter( 'wp_lazy_loading_enabled', array( $this, 'should_enable_wordpress_native_lazyload' ) );
+		$this->register_filter( 'wp_smush_transformed_page_markup', array( $this, 'add_has_smush_lazyload_video_class' ) );
 
 		// Load js file that is required in public facing pages.
 		$this->register_action( 'wp_head', array( $this, 'add_inline_styles' ) );
@@ -255,10 +256,13 @@ class Lazy_Load_Controller extends Controller {
 		if ( ! $this->helper->should_lazy_load_embed_video() ) {
 			return;
 		}
+
 		?>
 		<style>
 			/* Thanks to https://github.com/paulirish/lite-youtube-embed and https://css-tricks.com/responsive-iframes/ */
 			.smush-lazyload-video {
+				min-height:240px;
+				min-width:320px;
 				--smush-video-aspect-ratio: 16/9;background-color: #000;position: relative;display: block;contain: content;background-position: center center;background-size: cover;cursor: pointer;
 			}
 			.smush-lazyload-video.loading{cursor:progress}
@@ -274,7 +278,7 @@ class Lazy_Load_Controller extends Controller {
 			.smush-lazyload-video.video-loaded::before,.smush-lazyload-video.smush-lazyloaded-video > .smush-play-btn,.smush-lazyload-video.loading > .smush-play-btn{display:none;opacity:0;pointer-events:none}
 			.smush-lazyload-video.smush-lazyload-vimeo > .smush-play-btn > .smush-play-btn-inner{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 203 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m0.25116 9.0474c0-4.9968 4.0507-9.0474 9.0474-9.0474h184.4c4.997 0 9.048 4.0507 9.048 9.0474v101.91c0 4.996-4.051 9.047-9.048 9.047h-184.4c-4.9968 0-9.0474-4.051-9.0474-9.047v-101.91z' fill='%2317d5ff' fill-opacity='.7'/%3E%3Cpath d='m131.1 59.05c0.731 0.4223 0.731 1.4783 0 1.9006l-45.206 26.099c-0.7316 0.4223-1.646-0.1056-1.646-0.9504v-52.199c0-0.8448 0.9144-1.3727 1.646-0.9504l45.206 26.099z' fill='%23fff'/%3E%3C/svg%3E%0A");width:81px}
 			<?php if ( get_theme_support( 'responsive-embeds' ) ) : ?>
-				.wp-embed-responsive .wp-has-aspect-ratio .smush-lazyload-video{position:absolute;width:100%;height:100%;top:0;left:0}.wp-embed-responsive .wp-has-aspect-ratio .smush-lazyload-video::after{padding-bottom:0}
+				.wp-embed-responsive .wp-has-aspect-ratio .wp-block-embed__wrapper.has-smush-lazyload-video:before{padding-top:0!important;}.wp-embed-responsive .wp-embed-aspect-21-9 .smush-lazyload-video::after{padding-bottom:42.85%;}.wp-embed-responsive .wp-embed-aspect-18-9 .smush-lazyload-video::after{padding-bottom:50%;}.wp-embed-responsive .wp-embed-aspect-16-9 .smush-lazyload-video::after{padding-bottom:56.25%;}.wp-embed-responsive .wp-embed-aspect-4-3 .smush-lazyload-video::after{padding-bottom:75%;}.wp-embed-responsive .wp-embed-aspect-1-1 .smush-lazyload-video::after{padding-bottom:100%;}.wp-embed-responsive .wp-embed-aspect-9-16 .smush-lazyload-video::after{padding-bottom:177.77%;}.wp-embed-responsive .wp-embed-aspect-1-2 .smush-lazyload-video::after{padding-bottom:200%;}
 			<?php endif; ?>
 		</style>
 		<?php
@@ -549,5 +553,17 @@ class Lazy_Load_Controller extends Controller {
 
 	public function should_enable_wordpress_native_lazyload() {
 		return $this->helper->is_native_lazy_loading_enabled();
+	}
+
+	public function add_has_smush_lazyload_video_class( $content ) {
+		if ( ! $this->helper->should_lazy_load_embed_video() || ! get_theme_support( 'responsive-embeds' ) ) {
+			return $content;
+		}
+
+		return preg_replace(
+			'/<div class="wp-block-embed__wrapper">\s*<div class="lazyload smush-lazyload-video\b/',
+			'<div class="wp-block-embed__wrapper has-smush-lazyload-video"><div class="lazyload smush-lazyload-video',
+			$content
+		);
 	}
 }

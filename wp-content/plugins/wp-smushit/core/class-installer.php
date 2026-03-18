@@ -35,7 +35,10 @@ class Installer {
 	 */
 	public static function smush_deactivated() {
 		if ( ! class_exists( '\\Smush\\Core\\Modules\\CDN_Controller' ) ) {
-			require_once __DIR__ . '/cdn/class-cdn-controller.php';
+			$cdn_controller_path = __DIR__ . '/cdn/class-cdn-controller.php';
+			if ( file_exists( $cdn_controller_path ) ) {
+				require_once $cdn_controller_path;
+			}
 		}
 
 		Cron_Controller::get_instance()->unschedule_cron();
@@ -290,15 +293,6 @@ class Installer {
 			$stored_configs[0]['name'] = __( 'Default config', 'wp-smushit' );
 			update_site_option( 'wp-smush-preset_configs', $stored_configs );
 		}
-
-		// Show new features modal for free users.
-		if ( ! WP_Smush::is_pro() ) {
-			if ( is_multisite() && ! Abstract_Page::should_render( 'bulk' ) ) {
-				return;
-			}
-
-			add_site_option( 'wp-smush-show_upgrade_modal', true );
-		}
 	}
 
 	/**
@@ -335,7 +329,7 @@ class Installer {
 			return;
 		}
 
-		$configs_handler = new Configs();
+		$configs_handler = Configs::get_instance();
 		$new_settings    = array(
 			'background_email' => false,
 		);
@@ -358,7 +352,7 @@ class Installer {
 			return;
 		}
 
-		$configs_handler = new Configs();
+		$configs_handler = Configs::get_instance();
 		foreach ( $stored_configs as $key => $preset_config ) {
 			if ( empty( $preset_config['config']['configs'] ) ) {
 				continue;
@@ -426,7 +420,7 @@ class Installer {
 		} );
 	}
 
-	private static function for_each_public_site( callable $callback ) {
+	private static function for_each_public_site( $callback ) {
 		if ( ! is_multisite() ) {
 			return;
 		}

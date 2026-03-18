@@ -36,7 +36,7 @@ class Smush_Request_Guzzle_Multiple extends Smush_Request {
 		parent::__construct( $streaming_enabled, $extra_headers );
 	}
 
-	public function do_requests( array $files_data ) {
+	public function do_requests( $files_data ) {
 		$responses         = array();
 		$request_generator = $this->make_request_generator();
 		$pool              = new Pool( $this->client, $request_generator( $files_data ), array(
@@ -138,7 +138,7 @@ class Smush_Request_Guzzle_Multiple extends Smush_Request {
 	/**
 	 * @return \Closure
 	 */
-	private function make_request_generator(): \Closure {
+	private function make_request_generator() {
 		return function ( $files_data ) {
 			foreach ( $files_data as $size_key => $size_file_data ) {
 				yield $size_key => function () use ( $size_file_data ) {

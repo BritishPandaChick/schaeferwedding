@@ -10,10 +10,10 @@ use Smush\Core\Media\Media_Item_Query;
  * Supposed to handle parallel requests, each request handling a 'slice' of the total media items.
  */
 class Media_Library_Scanner {
-	const SLICE_SIZE_MAX = 2500;
-	const SLICE_SIZE_MIN = 500;
-	const SLICE_SIZE_FACTOR = 40;
-	const SLICE_SIZE_OPTION_ID = 'wp_smush_scan_slice_size';
+	private static $slice_size_max = 2500;
+	private static $slice_size_min = 500;
+	private static $slice_size_factor = 40;
+	private static $slice_size_option_id = 'wp_smush_scan_slice_size';
 
 	public function before_scan_library() {
 		do_action( 'wp_smush_before_scan_library' );
@@ -53,22 +53,22 @@ class Media_Library_Scanner {
 	private function calculate_default_slice_size() {
 		$query              = new Media_Item_Query();
 		$attachment_count   = $query->get_image_attachment_count();
-		$default_slice_size = (int) ceil( $attachment_count / self::SLICE_SIZE_FACTOR );
-		if ( $default_slice_size > self::SLICE_SIZE_MAX ) {
-			$default_slice_size = self::SLICE_SIZE_MAX;
-		} elseif ( $default_slice_size < self::SLICE_SIZE_MIN ) {
-			$default_slice_size = self::SLICE_SIZE_MIN;
+		$default_slice_size = (int) ceil( $attachment_count / self::$slice_size_factor );
+		if ( $default_slice_size > self::$slice_size_max ) {
+			$default_slice_size = self::$slice_size_max;
+		} elseif ( $default_slice_size < self::$slice_size_min ) {
+			$default_slice_size = self::$slice_size_min;
 		}
 
 		return $default_slice_size;
 	}
 
 	public function reduce_slice_size_option() {
-		$this->set_slice_size( self::SLICE_SIZE_MIN );
+		$this->set_slice_size( self::$slice_size_min );
 	}
 
 	private function get_slice_size_option() {
-		$option_value = (int) get_option( self::SLICE_SIZE_OPTION_ID, 0 );
+		$option_value = (int) get_option( self::$slice_size_option_id, 0 );
 
 		return max( $option_value, 0 );
 	}
@@ -89,6 +89,16 @@ class Media_Library_Scanner {
 	 * @return void
 	 */
 	private function set_slice_size( $value ) {
-		update_option( self::SLICE_SIZE_OPTION_ID, $value );
+		update_option( self::$slice_size_option_id, $value );
 	}
+
+	/**
+	 * Get slice_size_option_id.
+	 *
+	 * @return string
+	 */
+	public static function get_slice_size_option_id() {
+		return self::$slice_size_option_id;
+	}
+
 }

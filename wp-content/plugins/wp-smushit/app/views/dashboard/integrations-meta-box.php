@@ -7,7 +7,6 @@
  *
  * @var array  $basic_features  Basic features.
  * @var array  $fields          Available integration settings.
- * @var bool   $is_pro          Pro status.
  * @var array  $settings        Settings array.
  * @var string $upsell_url      Upsell link.
  */
@@ -37,7 +36,7 @@ if ( ! defined( 'WPINC' ) ) {
 		<?php foreach ( $fields as $name ) : ?>
 			<?php
 			$disable = apply_filters( 'wp_smush_integration_status_' . $name, false ); // Disable setting.
-			$upsell  = ! in_array( $name, $basic_features, true ) && ! $is_pro; // Gray out row, disable setting.
+			$upsell  = ! in_array( $name, $basic_features, true ); // Gray out row, disable setting.
 			$value   = ! ( $upsell || empty( $settings[ $name ] ) || $disable ) && $settings[ $name ];
 			?>
 			<tr class="<?php echo $upsell ? 'smush-disabled-table-row' : ''; ?>">
@@ -59,18 +58,16 @@ if ( ! defined( 'WPINC' ) ) {
 	</table>
 </div>
 
-<?php if ( ! $is_pro ) : ?>
-	<p><?php esc_html_e( 'Smush Pro supports hosting images on Amazon S3 and optimizing NextGen Gallery images directly through NextGen Gallery settings.', 'wp-smushit' ); ?></p>
-	<p>
-		<?php
-		printf( /* translators: %1$s - opening <a>, %2$s - closing </a> */
-			esc_html__( '%1$sUnlock now%2$s with a WPMU DEV membership today!', 'wp-smushit' ),
-			'<a href="' . esc_url( $upsell_url ) . '" target="_blank" class="smush-upsell-link">',
-			'</a>'
-		);
-		?>
-	</p>
-<?php endif; ?>
+<p><?php esc_html_e( 'Smush Pro supports hosting images on Amazon S3 and optimizing NextGen Gallery images directly through NextGen Gallery settings.', 'wp-smushit' ); ?></p>
+<p>
+	<?php
+	printf( /* translators: %1$s - opening <a>, %2$s - closing </a> */
+		esc_html__( '%1$sUnlock now%2$s with a WPMU DEV membership today!', 'wp-smushit' ),
+		'<a href="' . esc_url( $upsell_url ) . '" target="_blank" class="smush-upsell-link">',
+		'</a>'
+	);
+	?>
+</p>
 
 <a href="<?php echo esc_url( $this->get_url( 'smush-integrations' ) ); ?>" class="sui-button sui-button-ghost">
 	<span class="sui-icon-wrench-tool" aria-hidden="true"></span>

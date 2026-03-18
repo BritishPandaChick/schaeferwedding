@@ -77,7 +77,7 @@ export default ({smushData}) => {
 								rel="noreferrer"
 								onClick={ () => {
 									tracker.track( 'local_webp_upsell', {
-										Location: 'local_webp_page',
+										Location: 'Next-Gen Formats',
 									} );
 								} }
 							>

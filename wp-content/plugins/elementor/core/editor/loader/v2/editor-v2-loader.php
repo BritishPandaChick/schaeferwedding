@@ -6,7 +6,7 @@ use Elementor\Core\Editor\Loader\Editor_Base_Loader;
 use Elementor\Core\Utils\Assets_Translation_Loader;
 use Elementor\Core\Utils\Collection;
 use Elementor\Utils;
-use Elementor\Modules\AtomicWidgets\Image\Placeholder_Image;
+use Elementor\Modules\AtomicWidgets\Utils\Image\Placeholder_Image;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -40,10 +40,12 @@ class Editor_V2_Loader extends Editor_Base_Loader {
 	];
 
 	const EXTENSIONS = [
+		'events',
 		'editor-documents',
 		'editor-notifications',
 		'editor-panels',
 		'editor-elements-panel',
+		'editor-mcp',
 	];
 
 	/**

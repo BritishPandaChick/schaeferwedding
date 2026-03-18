@@ -71,11 +71,7 @@ abstract class Abstract_Module {
 	 */
 	public function is_active() {
 		if ( $this->slug ) {
-			if ( ! $this->is_pro ) {
-				return (bool) $this->settings->get( $this->slug );
-			} else {
-				return WP_Smush::is_pro() && $this->settings->get( $this->slug );
-			}
+			return $this->settings->is_module_active( $this->slug );
 		}
 		return true;
 	}

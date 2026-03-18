@@ -20,6 +20,8 @@ use Smush\Core\Modules\Smush;
 use Smush\Core\Stats\Global_Stats;
 use Smush\Core\Membership\Membership;
 use Smush\Core\Hub_Connector;
+use Smush\Core\Backups\Bulk_Restore;
+use Smush\Core\Array_Utils;
 use WP_Post;
 use WP_Query;
 use WP_Smush;
@@ -38,13 +40,19 @@ class Media_Library extends Abstract_Module {
 	private $allowed_image_sizes;
 
 	/**
+	 * @var Array_Utils
+	 */
+	private $array_utils;
+
+	/**
 	 * Media_Library constructor.
 	 *
 	 * @param Core $core  Core instance.
 	 */
-	public function __construct( Core $core ) {
+	public function __construct( $core ) {
 		parent::__construct();
-		$this->core = $core;
+		$this->core        = $core;
+		$this->array_utils = new Array_Utils();
 	}
 
 	/**
@@ -52,10 +60,10 @@ class Media_Library extends Abstract_Module {
 	 */
 	public function init_ui() {
 		if ( Membership::get_instance()->is_api_hub_access_required() ) {
-			add_filter( 'admin_body_class', array( $this, 'smush_body_classes' ) );
 			add_action( 'all_admin_notices', array( $this, 'smush_media_hub_connect_notice' ), 5 );
 			return false;
 		}
+
 		// Media library columns.
 		add_filter( 'manage_media_columns', array( $this, 'columns' ) );
 		add_filter( 'manage_upload_sortable_columns', array( $this, 'sortable_column' ) );
@@ -75,6 +83,175 @@ class Media_Library extends Abstract_Module {
 		add_action( 'admin_enqueue_scripts', array( $this, 'extend_media_modal' ), 15 );
 
 		add_filter( 'wp_prepare_attachment_for_js', array( $this, 'smush_send_status' ), 99, 3 );
+
+		// Add bulk restore action.
+		add_filter( 'bulk_actions-upload', array( $this, 'add_bulk_restore_action' ) );
+		add_filter( 'handle_bulk_actions-upload', array( $this, 'bulk_restore_media' ), 10, 3 );
+		add_action( 'all_admin_notices', array( $this, 'show_bulk_restore_notice' ) );
+	}
+
+	/**
+	 * Add bulk restore action to media lib page.
+	 *
+	 * @param array $actions List actions.
+	 * @return array
+	 */
+	public function add_bulk_restore_action( $actions ) {
+		$actions['smush-bulk-restore'] = esc_html__( 'Smush restore', 'wp-smushit' );
+
+		return $actions;
+	}
+
+	/**
+	 * Bulk restore images.
+	 *
+	 * @param string $sendback       The redirect URL.
+	 * @param string $doaction       Bulk action name.
+	 * @param array  $attachment_ids List image ids.
+	 *
+	 * @return string
+	 */
+	public function bulk_restore_media( $sendback, $doaction, $attachment_ids ) {
+		// If there is not bulk restore images, return.
+		if ( 'smush-bulk-restore' !== $doaction || empty( $attachment_ids ) ) {
+			return $sendback;
+		}
+
+		$bulk_restore = new Bulk_Restore( $attachment_ids );
+		$bulk_restore->bulk_restore();
+		$restored_count       = $bulk_restore->get_restored_count();
+		$total_count          = $bulk_restore->get_total_count();
+		$missing_backup_count = $bulk_restore->get_error_count( 'missing_backup' );
+		$error_copy_count     = $bulk_restore->get_error_count( 'copy_failed' );
+
+		$sendback = add_query_arg(
+			array(
+				'smush_total'                => $total_count,
+				'smush_restored'             => $restored_count,
+				'smush_missing_backup_count' => $missing_backup_count,
+				'smush_copy_failed_count'    => $error_copy_count,
+			),
+			$sendback
+		);
+
+		// Return original location.
+		return $sendback;
+	}
+
+	/**
+	 * Show bulk restore notice.
+	 *
+	 * @return void
+	 */
+	public function show_bulk_restore_notice() {
+		if ( ! isset( $_GET['smush_restored'], $_GET['smush_total'] ) ) {
+			return;
+		}
+
+		$total                = (int) $this->array_utils->get_array_value( $_GET, 'smush_total', 0 );
+		$restored             = (int) $this->array_utils->get_array_value( $_GET, 'smush_restored', 0 );
+		$missing_backup_count = (int) $this->array_utils->get_array_value( $_GET, 'smush_missing_backup_count', 0 );
+		$error_copy_count     = (int) $this->array_utils->get_array_value( $_GET, 'smush_copy_failed_count', 0 );
+		$failed               = $total - $restored;
+
+		if ( $total <= 0 || $restored > $total ) {
+			return;
+		}
+
+		$classes    = array(
+			'notice',
+			'is-dismissible',
+		);
+		if ( $failed > 0 ) {
+			$classes[]  = 'notice-warning';
+		} else {
+			$classes[] = 'notice-success';
+		}
+		?>
+		<div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" style="padding-left:5px">
+			<p>
+				<?php
+				echo wp_kses_post(
+					$this->get_bulk_restore_message(
+						$restored,
+						$total,
+						$missing_backup_count,
+						$error_copy_count
+					)
+				);
+				?>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Get the bulk restore notice message.
+	 *
+	 * @param int $restored              Restored count.
+	 * @param int $total                 Total count.
+	 * @param int $missing_backup_count  Missing backup count.
+	 * @param int $error_copy_count      Error copy count.
+	 * @return string
+	 */
+	private function get_bulk_restore_message( $restored, $total, $missing_backup_count, $error_copy_count ) {
+		$backup_link = '<a href="' . esc_url( Helper::get_page_url( 'smush-bulk#backup' ) ) . '"><strong>';
+		$backup_link_close = '</strong></a>';
+
+		if ( $missing_backup_count > 0 && $error_copy_count > 0 ) {
+			// Mixed message.
+			/* translators: %1$d: restored count, %2$d: total count, %3$d: no backup count, %4$d: copy error count, %5$s: link start tag, %6$s: link end tag */
+			return sprintf(
+				esc_html__(
+					'%1$s%2$d/%3$d images were restored successfully%4$s. %5$d couldn\'t be restored as no backup exists, and %6$d due to a backup copy error. Ensure %7$sBackup original images%8$s is enabled to keep copies of your originals.',
+					'wp-smushit'
+				),
+				'<strong>',
+				(int) $restored,
+				(int) $total,
+				'</strong>',
+				(int) $missing_backup_count,
+				(int) $error_copy_count,
+				$backup_link,
+				$backup_link_close
+			);
+		} elseif ( $missing_backup_count > 0 ) {
+			/* translators: %1$d: restored count, %2$d: total count, %3$d: failed count, %4$s: link start tag, %5$s: link end tag */
+			return sprintf(
+				esc_html__(
+					'%1$s%2$d/%3$d images were restored successfully%4$s. %5$d couldn\'t be restored as no backup exists. Ensure %6$sBackup original images%7$s is enabled to keep copies of your originals.',
+					'wp-smushit'
+				),
+				'<strong>',
+				(int) $restored,
+				(int) $total,
+				'</strong>',
+				(int) $missing_backup_count,
+				$backup_link,
+				$backup_link_close
+			);
+		} elseif ( $error_copy_count > 0 ) {
+			/* translators: %1$d: restored count, %2$d: total count, %3$d: failed count, %4$s: link start tag, %5$s: link end tag */
+			return sprintf(
+				esc_html__(
+					'%1$s%2$d/%3$d images were restored successfully%4$s. %5$d couldn\'t be restored due to a backup copy error. Ensure %6$sBackup original images%7$s is enabled to keep copies of your originals.',
+					'wp-smushit'
+				),
+				'<strong>',
+				(int) $restored,
+				(int) $total,
+				'</strong>',
+				(int) $error_copy_count,
+				$backup_link,
+				$backup_link_close
+			);
+		}
+		return sprintf(
+			/* translators: %1$d: restored count, %2$d: total count */
+			esc_html__( 'All selected images were restored successfully (%1$d/%2$d).', 'wp-smushit' ),
+			(int) $restored,
+			(int) $total
+		);
 	}
 
 	/**
@@ -242,11 +419,11 @@ class Media_Library extends Abstract_Module {
 		$meta_query =  array(
 			'relation' => 'AND',
 			array(
-				'key'     => Media_Item_Optimizer::ERROR_META_KEY,
+				'key'     => Media_Item_Optimizer::get_error_meta_key(),
 				'compare' => 'EXISTS',
 			),
 			array(
-				'key'     => Media_Item::IGNORED_META_KEY,
+				'key'     => Media_Item::get_ignored_meta_key(),
 				'compare' => 'NOT EXISTS',
 			),
 		);
@@ -278,7 +455,7 @@ class Media_Library extends Abstract_Module {
 	private function query_ignored() {
 		return array(
 			array(
-				'key'     => Media_Item::IGNORED_META_KEY,
+				'key'     => Media_Item::get_ignored_meta_key(),
 				'compare' => 'EXISTS',
 			),
 		);
@@ -442,21 +619,6 @@ class Media_Library extends Abstract_Module {
 	}
 
 	/**
-	 * Add custom body classes for the Media page.
-	 *
-	 *
-	 * @param string $classes Current body classes.
-	 * @return string Modified body classes.
-	 */
-	public function smush_body_classes( $classes ) {
-		if ( ! $this->should_display_media_notice() ) {
-			return $classes;
-		}
-
-		return $classes . ' ' . WP_SHARED_UI_VERSION;
-	}
-
-	/**
 	 * Display the Smush Hub Connect notice in Media Library.
 	 *
 	 * Callback for the 'admin_notices' action.
@@ -480,7 +642,7 @@ class Media_Library extends Abstract_Module {
 		}
 
 		?>
-		<div id="smush-hub-connect-media-notice" class="smush-hub-connect-media-notice sui-wrap" style="display: none">
+		<div id="smush-hub-connect-media-notice" class="smush-hub-connect-media-notice sui-smush-media" style="display: none">
 			<div class="sui-notice sui-notice-blue" style="margin-top: 10px">
 				<div class="sui-notice-content">
 					<div class="sui-notice-message">
@@ -499,7 +661,7 @@ class Media_Library extends Abstract_Module {
 							<a class="sui-button sui-button-blue" href="<?php echo esc_url( $hub_connect_url ); ?>">
 								<?php esc_html_e( 'Connect my site', 'wp-smushit' ); ?>
 							</a>
-							<a class="smus-media-notification-skip" href="#"><?php esc_html_e( 'Skip for now', 'wp-smushit' ); ?></a>
+							<a id="smush-media-notification-skip" class="smus-media-notification-skip" href="#"><?php esc_html_e( 'Skip for now', 'wp-smushit' ); ?></a>
 						</p>
 					</div>
 				</div>
@@ -550,7 +712,7 @@ class Media_Library extends Abstract_Module {
 	 * @return string  HTML content or array of results.
 	 */
 	public function generate_markup( $id ) {
-		$media_lib_item = new Media_Library_Row( $id );
+		$media_lib_item = Media_Library_Row::get_instance( $id );
 		return $media_lib_item->generate_markup();
 	}
 

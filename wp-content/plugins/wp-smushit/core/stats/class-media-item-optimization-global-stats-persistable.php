@@ -13,7 +13,7 @@ class Media_Item_Optimization_Global_Stats_Persistable {
 
 	private $option_id;
 
-	public function __construct( $option_id, $stats = null ) {
+	public function __construct( $option_id = '', $stats = null ) {
 		$this->option_id = $option_id;
 		$this->stats     = is_a( $stats, '\Smush\Core\Media\Media_Item_Optimization_Global_Stats' )
 			? $stats
@@ -23,7 +23,9 @@ class Media_Item_Optimization_Global_Stats_Persistable {
 	}
 
 	public function save() {
-		update_option( $this->option_id, $this->stats->to_array(), false );
+		if ( $this->option_id ) {
+			update_option( $this->option_id, $this->stats->to_array(), false );
+		}
 	}
 
 	public function has_attachment_id( $attachment_id ) {
@@ -79,9 +81,11 @@ class Media_Item_Optimization_Global_Stats_Persistable {
 	 * @return void
 	 */
 	protected function fetch_from_option( $option_id ) {
-		// Two threads may access this at the same time, so cached values can cause reader-writer problem
-		wp_cache_delete( $this->option_id, 'options' );
-		$this->stats->from_array( get_option( $option_id, array() ) );
+		if ( $option_id ) {
+			// Two threads may access this at the same time, so cached values can cause reader-writer problem
+			wp_cache_delete( $option_id, 'options' );
+			$this->stats->from_array( get_option( $option_id, array() ) );
+		}
 	}
 
 	protected function mutex( $operation ) {

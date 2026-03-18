@@ -4,12 +4,17 @@
  *
  * @since 3.2.2
  * @package WP_Smush
+ *
+ * @var $restore_image_count   int Restore Image count.
  */
+use Smush\Core\Helper;
 
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+$backup_link       = '<a onclick="window.location.reload();" href="' . esc_url( Helper::get_page_url( 'smush-bulk#backup' ) ) . '"><strong>';
+$backup_link_close = '</strong></a>';
 ?>
 
 <script type="text/template" id="smush-bulk-restore">
@@ -21,7 +26,7 @@ if ( ! defined( 'WPINC' ) ) {
 		<# } #>
 		<h3 class="sui-box-title sui-lg" id="smush-restore-images-dialog-title">
 			<# if ( 'start' === data.slide ) { #>
-			<?php esc_html_e( 'Restore Thumbnails', 'wp-smushit' ); ?>
+			<?php esc_html_e( 'Restore all images?', 'wp-smushit' ); ?>
 			<# } else if ( 'progress' === data.slide ) { #>
 			<?php esc_html_e( 'Restoring images...', 'wp-smushit' ); ?>
 			<# } else if ( 'finish' === data.slide ) { #>
@@ -38,7 +43,13 @@ if ( ! defined( 'WPINC' ) ) {
 	<div class="sui-box-body sui-flatten sui-content-center sui-spacing-top--20 sui-spacing-bottom--50">
 		<p class="sui-description" id="smush-restore-images-dialog-description">
 			<# if ( 'start' === data.slide ) { #>
-			<?php esc_html_e( 'Are you sure you want to restore all image thumbnails to their original, non-optimized states?', 'wp-smushit' ); ?>
+			<?php printf(
+                /* translators: %s: strong tag */
+				esc_html__( 'This will restore all %1$s %2$s  images%3$s thumbnails to their original, non-optimized states. Want more control? Use the Media Library to restore specific images.', 'wp-smushit' ),
+                '<strong>',
+				$restore_image_count,
+                '</strong>'
+            ); ?>
 			<# } else if ( 'progress' === data.slide ) { #>
 			<?php esc_html_e( 'Your bulk restore is still in progress, please leave this tab open while the process runs.', 'wp-smushit' ); ?>
 			<# } else if ( 'finish' === data.slide ) { #>
@@ -52,7 +63,7 @@ if ( ! defined( 'WPINC' ) ) {
 				<?php esc_html_e( 'Cancel', 'wp-smushit' ); ?>
 			</button>
 			<button class="sui-button" id="smush-bulk-restore-button">
-				<?php esc_html_e( 'Confirm', 'wp-smushit' ); ?>
+				<?php esc_html_e( 'Restore', 'wp-smushit' ); ?>
 			</button>
 			<# } else if ( 'progress' === data.slide ) { #>
 			<div class="sui-progress-block sui-progress-can-close">
@@ -98,7 +109,24 @@ if ( ! defined( 'WPINC' ) ) {
 						<div class="sui-notice-message">
 							<i class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></i>
 							<p>{{{ data.success }}}/{{{ data.total }}}
-								<?php esc_html_e( 'images were successfully restored but some were unrecoverable. You can try again, or re-upload these images.', 'wp-smushit' ); ?>
+								<?php esc_html_e( 'images were restored successfully.', 'wp-smushit' ); ?>
+								<# if ( data.missingBackupCount > 0 && data.errorCopyCount > 0 ) { #>
+									<?php echo ' '; ?>{{ data.missingBackupCount }}
+									<?php esc_html_e( 'couldn\'t be restored as no backup exists.', 'wp-smushit' ); ?>
+									<?php echo ' '; ?>{{ data.errorCopyCount }}
+									<?php esc_html_e( 'due to a backup copy error.', 'wp-smushit' ); ?>
+								<# } else if ( data.missingBackupCount > 0 ) { #>
+									<?php echo ' '; ?>{{ data.missingBackupCount }}
+									<?php esc_html_e( 'couldn\'t be restored as no backup exists.', 'wp-smushit' ); ?>
+								<# } else if ( data.errorCopyCount > 0 ) { #>
+									<?php echo ' '; ?>{{ data.errorCopyCount }}
+									<?php esc_html_e( 'couldn\'t be restored due to a backup copy error.', 'wp-smushit' ); ?>
+								<# } #>
+								<?php
+									echo ' ';
+									/* translators: 1: link start tag, 2: link end tag */
+									printf( esc_html__( 'Ensure %1$sBackup original images%2$s is enabled to keep copies of your originals.', 'wp-smushit' ), $backup_link, $backup_link_close );
+								?>
 							</p>
 						</div>
 					</div>

@@ -8,6 +8,8 @@ use Smush\Core\File_System;
 use Smush\Core\Helper;
 use Smush\Core\Media\Media_Item_Cache;
 use Smush\Core\Media\Media_Item_Optimizer;
+use Smush\Core\Product_Analytics;
+use Smush\Core\Settings;
 use WP_Smush;
 
 class Backups_Controller extends Controller {
@@ -68,6 +70,8 @@ class Backups_Controller extends Controller {
 		$optimizer = new Media_Item_Optimizer( $media_item );
 		$restored  = $optimizer->restore();
 
+		$this->track_single_image_restore( $restored, $optimizer );
+
 		if ( ! $restored ) {
 			wp_send_json_error( array(
 				'error_msg' => esc_html__( 'Unable to restore image', 'wp-smushit' ),
@@ -87,6 +91,23 @@ class Backups_Controller extends Controller {
 			'stats'    => $button_html,
 			'new_size' => isset( $update_size ) ? $update_size : 0,
 		) );
+	}
+
+	private function track_single_image_restore( $restored, $optimizer ) {
+		$restoration_errors      = $optimizer->get_restoration_errors();
+		$missing_backup_detected = ! $restored && ! empty( $restoration_errors->get_error_message( 'missing_backup' ) );
+
+		$limit_per_day = 10;
+		Product_Analytics::get_instance()->maybe_track(
+			'Single Image Restore',
+			array(
+				'Total images restored' => $restored ? 1 : 0,
+				'Total images'          => 1,
+				'Backup not found'      => $missing_backup_detected ? 1 : 0,
+				'Backup Status'         => Settings::get_instance()->is_backup_active() ? 'Enabled' : 'Disabled',
+			),
+			$limit_per_day
+		);
 	}
 
 	public function delete_backup_file( $attachment_id ) {

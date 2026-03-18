@@ -16,7 +16,6 @@ use finfo;
 use Smush\Core\Media\Media_Item_Cache;
 use Smush\Core\Media\Media_Item_Stats;
 use Smush\Core\Png2Jpg\Png2Jpg_Optimization;
-use WP_Smush;
 use WDEV_Logger;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -475,7 +474,7 @@ class Helper {
 		if ( ! file_exists( $original_file_path ) ) {
 			return false;
 		}
-		$max_file_size = WP_Smush::is_pro() ? WP_SMUSH_PREMIUM_MAX_BYTES : WP_SMUSH_MAX_BYTES;
+		$max_file_size = WP_SMUSH_MAX_BYTES;
 		$file_size     = filesize( $original_file_path );
 
 		return $file_size > $max_file_size ? $file_size : false;
@@ -540,7 +539,7 @@ class Helper {
 			$hash               = '#' . $hash;
 		}
 
-		$utm_source = WP_Smush::is_pro() ? 'smush_pro' : 'smush';
+		$utm_source = 'smush';
 		$args       = wp_parse_args(
 			$args,
 			array(

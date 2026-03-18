@@ -12,14 +12,14 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 class Youtube_Embed implements Video_Embed {
-	const NAME = 'youtube';
-	const VIDEO_ID_REGEX = '#youtube(?:-nocookie)?\.com\/embed\/(?<video_id>[a-zA-Z0-9_-]{11})#i';
-	const THUMBNAIL_URL_FORMAT = 'https://i.ytimg.com/%1$s/%2$s/%3$s.%4$s';
-	const THUMBNAIL_DEFAULT = 'default';
-	const THUMBNAIL_MEDIUM = 'mqdefault';
-	const THUMBNAIL_HIGH = 'hqdefault';
-	const THUMBNAIL_SD = 'sddefault';
-	const THUMBNAIL_MAX = 'maxresdefault';
+	private static $name = 'youtube';
+	private static $video_id_regex = '#youtube(?:-nocookie)?\.com\/embed\/(?<video_id>[a-zA-Z0-9_-]{11})#i';
+	private static $thumbnail_url_format = 'https://i.ytimg.com/%1$s/%2$s/%3$s.%4$s';
+	private static $thumbnail_default = 'default';
+	private static $thumbnail_medium = 'mqdefault';
+	private static $thumbnail_high = 'hqdefault';
+	private static $thumbnail_sd = 'sddefault';
+	private static $thumbnail_max = 'maxresdefault';
 
 	/**
 	 * @var Settings
@@ -62,7 +62,7 @@ class Youtube_Embed implements Video_Embed {
 	}
 
 	public function get_name() {
-		return self::NAME;
+		return self::$name;
 	}
 
 	public function get_embed_url() {
@@ -88,7 +88,7 @@ class Youtube_Embed implements Video_Embed {
 	}
 
 	private function prepare_video_id() {
-		$video_id_regex = apply_filters( 'wp_smush_lazy_load_youtube_id_regex', self::VIDEO_ID_REGEX );
+		$video_id_regex = apply_filters( 'wp_smush_lazy_load_youtube_id_regex', self::$video_id_regex );
 		if ( ! preg_match( $video_id_regex, $this->embed_url, $matches ) ) {
 			return null;
 		}
@@ -101,7 +101,7 @@ class Youtube_Embed implements Video_Embed {
 		return $is_playlist ? null : $video_id;
 	}
 
-	public function fetch_video_thumbnail( $video_width, $video_height ): ?Video_Thumbnail {
+	public function fetch_video_thumbnail( $video_width, $video_height ) {
 		$video_id = $this->get_video_id();
 		if ( ! $video_id ) {
 			return null;
@@ -109,7 +109,7 @@ class Youtube_Embed implements Video_Embed {
 
 		list( $thumb_size_name, $thumb_width, $thumb_height ) = $this->determine_best_thumbnail_size( $video_width, $video_height );
 
-		$cached = $this->video_thumbnail_cache->get( $video_id, self::NAME, $thumb_width, $thumb_height );
+		$cached = $this->video_thumbnail_cache->get( $video_id, self::$name, $thumb_width, $thumb_height );
 		if ( $cached ) {
 			return $cached;
 		}
@@ -129,7 +129,7 @@ class Youtube_Embed implements Video_Embed {
 			)
 		);
 
-		$this->video_thumbnail_cache->add( $video_id, self::NAME, $thumb_width, $thumb_height, $video_thumbnail );
+		$this->video_thumbnail_cache->add( $video_id, self::$name, $thumb_width, $thumb_height, $video_thumbnail );
 
 		return $video_thumbnail;
 	}
@@ -169,25 +169,25 @@ class Youtube_Embed implements Video_Embed {
 		) {
 			// Try standard size which should exist for all video
 			// due to Youtube will automatically generate three thumbnail sizes (Default, Medium, High-Resolution).
-			$thumb_size = array( self::THUMBNAIL_HIGH, 480, 360 );
+			$thumb_size = array( self::$thumbnail_high, 480, 360 );
 		}
 
 		return $thumb_size;
 	}
 
-	private function is_smaller_than_video( $thumb_width, $thumb_height, $video_width, $video_height ): bool {
+	private function is_smaller_than_video( $thumb_width, $thumb_height, $video_width, $video_height ) {
 		return $thumb_width < $video_width || ( empty( $video_width ) && $thumb_height < $video_height );
 	}
 
-	private function is_aspect_ratio_match( $video_width, $video_height, $thumb_width, $thumb_height ): bool {
+	private function is_aspect_ratio_match( $video_width, $video_height, $thumb_width, $thumb_height ) {
 		return wp_fuzzy_number_match( $video_width / $thumb_width, $video_height / $thumb_height, 0.1 );
 	}
 
 	private function is_thumbnail_available( $thumb_size_name ) {
 		$standard_sizes = array(
-			self::THUMBNAIL_DEFAULT,
-			self::THUMBNAIL_MEDIUM,
-			self::THUMBNAIL_HIGH,
+			self::$thumbnail_default,
+			self::$thumbnail_medium,
+			self::$thumbnail_high,
 		);
 
 		if ( in_array( $thumb_size_name, $standard_sizes, true ) ) {
@@ -210,11 +210,11 @@ class Youtube_Embed implements Video_Embed {
 	private function prepare_thumbnail_sizes() {
 		// @see https://gist.github.com/a1ip/be4514c1fd392a8c13b05e082c4da363.
 		$thumb_sizes = array(
-			array( self::THUMBNAIL_DEFAULT, 120, 90 ), // - Default 4:3.
-			array( self::THUMBNAIL_MEDIUM, 320, 180 ), // - Medium Quality 16:9.
-			array( self::THUMBNAIL_HIGH, 480, 360 ), // - High Quality 4:3.
-			array( self::THUMBNAIL_SD, 640, 480 ), // - Standard Definition 4:3.
-			array( self::THUMBNAIL_MAX, 1280, 720 ), // - Maximum Resolution 16:9.
+			array( self::$thumbnail_default, 120, 90 ), // - Default 4:3.
+			array( self::$thumbnail_medium, 320, 180 ), // - Medium Quality 16:9.
+			array( self::$thumbnail_high, 480, 360 ), // - High Quality 4:3.
+			array( self::$thumbnail_sd, 640, 480 ), // - Standard Definition 4:3.
+			array( self::$thumbnail_max, 1280, 720 ), // - Maximum Resolution 16:9.
 		);
 
 		$thumb_sizes = apply_filters( 'wp_smush_lazy_load_youtube_thumbnail_sizes', $thumb_sizes, $this->get_video_id(), $this->embed_url );
@@ -243,12 +243,22 @@ class Youtube_Embed implements Video_Embed {
 			$extension_uri = 'vi';
 		}
 
-		return sprintf( self::THUMBNAIL_URL_FORMAT, $extension_uri, $this->get_video_id(), $thumb_size_name, $extension );
+		return sprintf( self::$thumbnail_url_format, $extension_uri, $this->get_video_id(), $thumb_size_name, $extension );
 	}
 
-	public function get_cached_video_thumbnail( $video_width, $video_height ): ?Video_Thumbnail {
+	public function get_cached_video_thumbnail( $video_width, $video_height ) {
 		list( , $thumb_width, $thumb_height ) = $this->determine_best_thumbnail_size( $video_width, $video_height );
 
 		return $this->video_thumbnail_cache->get( $this->get_video_id(), $this->get_name(), $thumb_width, $thumb_height );
 	}
+
+	/**
+	 * Get thumbnail_url_format.
+	 *
+	 * @return string
+	 */
+	public static function get_thumbnail_url_format() {
+		return self::$thumbnail_url_format;
+	}
+
 }

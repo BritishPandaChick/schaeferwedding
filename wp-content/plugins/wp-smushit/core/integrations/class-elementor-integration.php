@@ -2,12 +2,15 @@
 
 namespace Smush\Core\Integrations;
 
+use Smush\Core\Cache\Cache_Helper;
 use Smush\Core\Controller;
 use Smush\Core\Server_Utils;
 use Smush\Core\Url_Utils;
 use Smush\Core\Parser\Image_URL;
 use Smush\Core\Transform\Transformer;
 use Smush\Core\Media\Media_Item_Size;
+use Smush\Core\Parser\Parser;
+
 /**
  * Elementor_Integration
  */
@@ -35,8 +38,9 @@ class Elementor_Integration extends Controller {
 		$this->transformer = new Transformer();
 
 		$this->register_filter( 'elementor/frontend/the_content', array( $this, 'transform_elementor_content' ) );
-		//$this->register_action( 'elementor/element/parse_css', array( $this, 'transform_elementor_css_element' ),10 );
+		$this->register_filter( 'elementor/css-file/post/parse', array( $this, 'transform_elementor_post_css' ) );
 		$this->register_filter( 'wp_smush_media_item_size', array( $this, 'initialize_elementor_custom_size' ), 10, 4 );
+		$this->register_action( Cache_Helper::get_clear_cache_action(), array( $this, 'clear_elementor_cache' ) );
 	}
 
 	public function should_run() {
@@ -57,6 +61,34 @@ class Elementor_Integration extends Controller {
 		$base_url = $uploads_dir['baseurl'];
 
 		return new Media_Item_Size( $key, $media_item->get_id(), $base_dir, $base_url, $metadata );
+	}
+
+	public function clear_elementor_cache() {
+		$elementor = $this->get_elementor_instance();
+		if (
+			! $elementor ||
+			! isset( $elementor->files_manager ) ||
+			! is_callable( array( $elementor->files_manager, 'clear_cache' ) )
+		) {
+			return;
+		}
+
+		$elementor->files_manager->clear_cache();
+	}
+
+	/**
+	 * Safely retrieve the Elementor plugin instance.
+	 *
+	 * @return \Elementor\Plugin|null
+	 */
+	private function get_elementor_instance() {
+		if (
+			! isset( \Elementor\Plugin::$instance ) ||
+			! is_object( \Elementor\Plugin::$instance )
+		) {
+			return null;
+		}
+		return \Elementor\Plugin::$instance;
 	}
 
 	/**
@@ -81,61 +113,6 @@ class Elementor_Integration extends Controller {
 				return addcslashes( $this->transform_url( $this->sanitize_json_url( $matches[0] ) ), '/' );
 			},
 			$element_data
-		);
-	}
-
-	/**
-	 * Replace image URLs in Elementor CSS with transformed (e.g., CDN/WebP) versions.
-	 *
-	 * @param object $post_css_file Elementor post CSS file object.
-	 */
-	public function transform_elementor_css_element( $post_css_file ) {
-		if ( ! $post_css_file || ! method_exists( $post_css_file, 'get_stylesheet' ) ) {
-			return;
-		}
-
-		$stylesheet  = $post_css_file->get_stylesheet();
-		$css_content = (string) $stylesheet;
-
-		if ( empty( $css_content ) ) {
-			return;
-		}
-
-		$transformed = $this->transform_css_urls( $css_content );
-
-		if ( method_exists( $stylesheet, 'add_raw_css' ) ) {
-			$stylesheet->add_raw_css( $transformed );
-		}
-	}
-
-
-	/**
-	 * Replace image URLs in CSS with transformed (e.g., CDN/WebP) versions.
-	 *
-	 * @param string $css_content Raw CSS content.
-	 * @return string Transformed CSS content.
-	 */
-	public function transform_css_urls( string $css_content ): string {
-		if ( empty( $css_content ) || ! preg_match( '/url\(/i', $css_content ) ) {
-			return $css_content;
-		}
-
-		return preg_replace_callback(
-			'/url\(([^)]+)\)/i',
-			function ( $matches ) {
-				$url = trim( $matches[1], '\'"' );
-
-				if ( ! $url || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
-					return $matches[0];
-				}
-
-				$transformed_url = $this->transform_url( $url );
-
-				return $transformed_url && is_string( $transformed_url )
-					? 'url(' . esc_url_raw( $transformed_url ) . ')'
-					: $matches[0];
-			},
-			$css_content
 		);
 	}
 
@@ -180,12 +157,202 @@ class Elementor_Integration extends Controller {
 			$decoded = json_decode( '"' . str_replace( '"', '\"', $url ) . '"' );
 
 			if ( json_last_error() !== JSON_ERROR_NONE ) {
-				throw new Exception( 'Invalid JSON' );
+				throw new \Exception( 'Invalid JSON' );
 			}
 
 			return str_replace( '\/', '/', $decoded );
-		} catch ( Exception $e ) {
+		} catch ( \Exception $e ) {
 			return $url;
 		}
+	}
+
+	/**
+	 * Transform Elementor post CSS.
+	 *
+	 * @param \Elementor\Core\Files\CSS\Post $post_css Post CSS object.
+	 *
+	 * @return void
+	 */
+	public function transform_elementor_post_css( $post_css ) {
+		if ( ! is_object( $post_css ) || ! is_callable( array( $post_css, 'get_stylesheet' ) ) ) {
+			return;
+		}
+
+		$stylesheet = $post_css->get_stylesheet();
+
+		if (
+			! is_object( $stylesheet ) ||
+			! is_callable( array( $stylesheet, 'get_rules' ) ) ||
+			! is_callable( array( $stylesheet, 'add_rules' ) )
+		) {
+			return;
+		}
+
+		$post_css_rules = $stylesheet->get_rules();
+		if ( empty( $post_css_rules ) || ! is_array( $post_css_rules ) ) {
+			return;
+		}
+
+		foreach ( $post_css_rules as $query_hash => $style_rules ) {
+			if ( empty( $style_rules ) ) {
+				continue;
+			}
+
+			$query = array();
+			if ( 'all' !== $query_hash ) {
+				$query               = $this->hash_to_query( $query_hash );
+				$computed_query_hash = $this->query_to_hash( $query );
+				$is_query_valid      = $computed_query_hash === $query_hash;
+				if ( ! $is_query_valid ) {
+					continue;
+				}
+			}
+
+			foreach ( $style_rules as $selector => $rules ) {
+				if ( empty( $rules ) ) {
+					continue;
+				}
+
+				$transformed_rules = $this->transform_selector_rules( (array) $rules );
+				if ( $transformed_rules !== $rules ) {
+					$stylesheet->add_rules( $selector, $transformed_rules, $query );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Transform image URLs in selector rules.
+	 *
+	 * @param array $css_rules The CSS rules to transform.
+	 *
+	 * @return array
+	 */
+	private function transform_selector_rules( $css_rules ) {
+		$css_image_properties = $this->get_css_image_properties();
+		$parser               = new Parser();
+		$updated_rules        = $css_rules;
+
+		foreach ( $css_rules as $property => $value ) {
+			if ( ! in_array( $property, $css_image_properties, true ) ) {
+				continue;
+			}
+
+			$image_urls = $parser->get_image_urls( $value, $this->get_current_url() );
+			if ( empty( $image_urls ) ) {
+				continue;
+			}
+
+			foreach ( $image_urls as $image_url ) {
+				$transformed_url = $this->transformer->transform_url( $image_url->get_absolute_url() );
+				if ( $transformed_url && is_string( $transformed_url ) ) {
+					$transformed_value = str_replace( $image_url->get_url(), $transformed_url, $value );
+					if ( $transformed_value !== $value ) {
+						$updated_rules[ $property ] = $transformed_value;
+					}
+				}
+			}
+		}
+
+		return $updated_rules;
+	}
+
+	/**
+	 * Returns an array of CSS properties that can contain image URLs.
+	 *
+	 * @return array
+	 */
+	private function get_css_image_properties() {
+		$properties = array(
+			'background',
+			'background-image',
+			'image-set',
+			'mask-image',
+			'mask',
+		);
+
+		/**
+		 * Filter the list of CSS properties that can contain image URLs.
+		 *
+		 * @param array $properties
+		 */
+		return apply_filters( 'wp_smush_css_image_properties', $properties );
+	}
+
+	/**
+	 * Hash to query.
+	 *
+	 * Turns the hashed string to an array that contains the data of the query
+	 * endpoint.
+	 *
+	 * @param string $hash Hashed string of the query.
+	 *
+	 * @see \Elementor\Stylesheet::hash_to_query()
+	 *
+	 * @return array Media query data.
+	 */
+	private function hash_to_query( $hash ) {
+		$query     = array();
+		$elementor = $this->get_elementor_instance();
+
+		if (
+			! $elementor ||
+			! isset( $elementor->breakpoints ) ||
+			! is_object( $elementor->breakpoints ) ||
+			! is_callable( array( $elementor->breakpoints, 'get_active_breakpoints' ) ) ||
+			! is_callable( array( $elementor->breakpoints, 'get_device_min_breakpoint' ) )
+		) {
+			return $query;
+		}
+
+		$breakpoints = $elementor->breakpoints;
+		$hash        = array_filter( explode( '-', $hash ) );
+
+		foreach ( $hash as $single_query ) {
+			preg_match( '/(min|max)_(.*)/', $single_query, $query_parts );
+
+			$end_point   = $query_parts[1];
+			$device_name = $query_parts[2];
+
+			if ( 'max' === $end_point ) {
+				$breakpoint = $breakpoints->get_active_breakpoints( $device_name );
+				if ( is_object( $breakpoint ) && is_callable( array( $breakpoint, 'get_value' ) ) ) {
+					$max_breakpoint_value = $breakpoint->get_value();
+					if ( is_numeric( $max_breakpoint_value ) ) {
+						$query[ $end_point ] = $max_breakpoint_value;
+					}
+				}
+			} else {
+				$min_breakpoint_value = $breakpoints->get_device_min_breakpoint( $device_name );
+				if ( is_numeric( $min_breakpoint_value ) ) {
+					$query[ $end_point ] = $min_breakpoint_value;
+				}
+			}
+		}
+
+		return $query;
+	}
+
+
+	/**
+	 * Query to hash.
+	 *
+	 * Turns the media query into a hashed string that represents the query
+	 * endpoint in the rules list.
+	 *
+	 * @param array $query CSS media query.
+	 *
+	 * @see \Elementor\Stylesheet::query_to_hash()
+	 *
+	 * @return string Hashed string of the query.
+	 */
+	private function query_to_hash( $query ) {
+		$hash = array();
+
+		foreach ( $query as $endpoint => $value ) {
+			$hash[] = $endpoint . '_' . $value;
+		}
+
+		return implode( '-', $hash );
 	}
 }

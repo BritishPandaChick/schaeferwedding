@@ -157,12 +157,12 @@ export const Configs = ({ isWidget }) => {
 	return (
 		<Presets
 			isWidget={isWidget}
-			isPro={window.smushReact.isPro}
+			isPro={false}
 			isWhitelabel={window.smushReact.hideBranding}
 			sourceLang={lang}
 			sourceUrls={window.smushReact.links}
 			requestsData={window.smushReact.requestsData}
-			proItems={ window.smushReact.isPro ? [] : [
+			proItems={[
 				'PNG to JPEG Conversion',
 				'Email Notification',
 				'CDN',

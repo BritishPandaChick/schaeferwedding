@@ -204,7 +204,7 @@ class Attachment_Url_Cache_Controller extends Controller {
 	 *
 	 * @return void
 	 */
-	private function collect_url( string $src_url, string $element_key ) {
+	private function collect_url( $src_url, $element_key ) {
 		$this->bulk_image_urls[]              = $src_url;
 		$this->element_urls[ $element_key ][] = $src_url;
 		$this->url_elements[ $src_url ]       = $element_key;

@@ -1752,6 +1752,36 @@
 		}
 	}
 
+	.smush-disconnect-notice {
+		.sui-notice-content {
+			padding: 8px 20px 3px;
+			border-radius: 5px;
+			background-color: #FFFBF0;
+			border: 1px solid #F9C101;
+			box-shadow: 0px 0px 0px 1px rgba(230, 230, 230, 1) inset;
+			font-size: 13px;
+			h4 {
+				font-size: 13px;
+				margin: 0 0 7px;
+			}
+
+			ul {
+				margin: 0;
+				padding: 0;
+				line-height: 22px;
+				letter-spacing: -0.25px;
+				li {
+					margin-bottom: 8px;
+					span{
+						margin-right: 8px;
+						position: relative;
+						top: 1px;
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Fixes the headers and footers with .sui-actions-right on mobiles.
 	 *

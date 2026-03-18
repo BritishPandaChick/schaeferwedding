@@ -6,38 +6,23 @@
  * @package WP_Smush
  *
  * @var Smush\Core\Core $core                           Instance of Smush\Core\Core
- * @var bool            $can_use_background             Check if user can use BO.
  * @var bool            $total_count
  * @var integer         $unsmushed_count                Count of the images that need smushing.
  * @var integer         $resmush_count                  Count of the images that need re-smushing.
  * @var integer         $remaining_count                Remaining count of all images to smush. Unsmushed images + images to re-smush.
  * @var string          $bulk_upgrade_url               Bulk Smush upgrade to PRO url.
  * @var string          $upsell_cdn_url                 Upsell CDN URL.
- * @var bool            $background_processing_enabled  Background optimization is enabled.
- * @var bool            $background_in_processing       Background optimization in progressing or not.
- * @var string          $background_in_processing_notice
- * @var string  		$in_processing_notice
+ * @var string          $in_processing_notice
  */
-use Smush\Core\Next_Gen\Next_Gen_Manager;
 use Smush\Core\Stats\Global_Stats;
-use Smush\App\Admin;
 
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-$start_bulk_webp_conversion = ! empty( $_GET['smush-action'] ) && 'start-bulk-next-gen-conversion' === wp_unslash( $_GET['smush-action'] );
-$next_gen_manager           = Next_Gen_Manager::get_instance();
 
 if ( 0 !== absint( $total_count ) ) :
-	if ( $start_bulk_webp_conversion && $next_gen_manager->is_active() ) {
-		/* translators: %s - Next-Gen Conversion. */
-		$msg = sprintf( __( 'Bulk Smush will convert your images to %s format in addition to its regular smushing for optimal performance.', 'wp-smushit' ), $next_gen_manager->get_active_format_name() );
-	} elseif ( $background_processing_enabled ) {
-		$msg = __( 'Bulk smush detects images that can be optimized and allows you to compress them in bulk in the background without any quality loss.', 'wp-smushit' );
-	} else {
-		$msg = __( 'Bulk smush detects images that can be optimized and allows you to compress them in bulk.', 'wp-smushit' );
-	}
+	$msg = __( 'Bulk smush detects images that can be optimized and allows you to compress them in bulk.', 'wp-smushit' );
 	?>
 <p><?php echo esc_html( $msg ); ?></p>
 <?php endif; ?>
@@ -55,25 +40,23 @@ if ( 0 === absint( $total_count ) ) {
 	return;
 }
 
-$this->view( 'auto-bulk-smush-notification', array(
-	'background_processing_enabled' => $background_processing_enabled,
-), 'views/bulk' );
+$this->view(
+	'auto-bulk-smush-notification',
+	array(),
+	'views/bulk'
+);
 
-if ( ! $can_use_background ) {
-	$this->view(
-		'limit-reached-notice',
-		array(),
-		'views/bulk'
-	);
-}
+$this->view(
+	'limit-reached-notice',
+	array(),
+	'views/bulk'
+);
 // Progress bar.
 $this->view(
 	'progress-bar',
 	array(
-		'count'                           => $remaining_count,
-		'background_in_processing_notice' => $background_in_processing_notice,
-		'background_processing_enabled'   => $background_processing_enabled,
-		'in_processing_notice'			  => $in_processing_notice,
+		'count'                => $remaining_count,
+		'in_processing_notice' => $in_processing_notice,
 	),
 	'common'
 );
@@ -85,15 +68,15 @@ $this->view( 'all-images-smushed-notice', array( 'all_done' => empty( $remaining
 $this->view( 'list-errors', array(), 'views/bulk' );
 
 ?>
-<div class="wp-smush-bulk-wrapper sui-border-frame<?php echo empty( $remaining_count ) || $background_in_processing ? ' sui-hidden' : ''; ?>">
+<div class="wp-smush-bulk-wrapper sui-border-frame<?php echo empty( $remaining_count ) ? ' sui-hidden' : ''; ?>">
 	<div id="wp-smush-bulk-content">
 		<?php WP_Smush::get_instance()->admin()->print_pending_bulk_smush_content( $remaining_count, $resmush_count, $unsmushed_count ); ?>
 	</div>
 	<?php
-	$bulk_smush_class    = $background_processing_enabled ? 'wp-smush-bo-start' : 'wp-smush-all';
+	$bulk_smush_class = 'wp-smush-all';
 
-	if ( Global_Stats::get()->is_outdated() && ! $background_in_processing ) {
-		$bulk_smush_class   .= ' wp-smush-scan-and-bulk-smush';
+	if ( Global_Stats::get()->is_outdated() ) {
+		$bulk_smush_class .= ' wp-smush-scan-and-bulk-smush';
 	}
 
 	?>
@@ -102,32 +85,13 @@ $this->view( 'list-errors', array(), 'views/bulk' );
 	</button>
 </div>
 <?php
-if ( ! $can_use_background ) {
-	$global_upsell_desc = __( 'Smush Pro lets you optimize in the background. Unlock Ultra Smush, blazing-fast CDN, and more.', 'wp-smushit' );
+$global_upsell_desc = __( 'Smush Pro lets you optimize in the background. Unlock Ultra Smush, blazing-fast CDN, and more.', 'wp-smushit' );
 
-	$this->view(
-		'global-upsell',
-		array(
-			'bulk_upgrade_url'   => $bulk_upgrade_url,
-			'global_upsell_desc' => $global_upsell_desc,
-		),
-		'views/bulk'
-	);
-} else {
-	$this->view(
-		'retry-bulk-smush-notice',
-		array(),
-		'modals'
-	);
-
-	if ( ! WP_Smush::is_pro() ) {
-		$this->view(
-			'cdn-upsell',
-			array(
-				'background_in_processing' => $background_in_processing,
-				'bulk_upgrade_url'         => $upsell_cdn_url,
-			),
-			'views/bulk'
-		);
-	}
-}
+$this->view(
+	'global-upsell',
+	array(
+		'bulk_upgrade_url'   => $bulk_upgrade_url,
+		'global_upsell_desc' => $global_upsell_desc,
+	),
+	'views/bulk'
+);

@@ -1,189 +1,168 @@
 <?php
 /**
- * Helper functions
+ * Helper functions for anti-spam functionality.
  *
- * @author        Alex Kovalev <alex.kovalevv@gmail.com>, Github: https://github.com/alexkovalevv
- * @copyright (c) 12.12.2019, Webcraftic
- * @version       1.0
+ * Contains utility functions for rendering honeypot fields, required form fields,
+ * privacy notices, and license checking.
+ *
+ * @package    WBCR\Titan\Antispam 
  */
 
 /**
- * Gets honeypot fields.
+ * Generates honeypot trap fields for bot detection.
  *
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
- * @since  6.5.3
+ * Creates hidden form fields designed to catch spam bots. Includes a year validation
+ * field and an empty trap field that bots typically fill in.
+ *
+ * @return string HTML markup for the honeypot fields.
  */
 function wantispam_get_honeypot_fields() {
-	$rn   = "\r\n"; // .chr(13).chr(10)
+	$rn   = "\r\n"; // .chr(13).chr(10).
 	$html = '';
 
 	$html .= '<div class="wantispam-group wantispam-group-q" style="clear: both;">
 					<label>Current ye@r <span class="required">*</span></label>
 					<input type="hidden" name="wantispam_a" class="wantispam-control wantispam-control-a" value="' . date( 'Y' ) . '" />
-					<input type="text" name="wantispam_q" class="wantispam-control wantispam-control-q" value="' . \WBCR\Titan\Plugin::app()->getPluginVersion() . '" autocomplete="off" />
-				  </div>' . $rn; // question (hidden with js)
+					<input type="text" name="wantispam_q" class="wantispam-control wantispam-control-q" value="' . WTITAN_PLUGIN_VERSION . '" autocomplete="off" />
+				  </div>' . $rn; // Question (hidden with js).
 	$html .= '<div class="wantispam-group wantispam-group-e" style="display: none;">
 					<label>Leave this field empty</label>
 					<input type="text" name="wantispam_e_email_url_website" class="wantispam-control wantispam-control-e" value="" autocomplete="off" />
-				  </div>' . $rn; // empty field (hidden with css); trap for spammers because many bots will try to put email or url here
+				  </div>' . $rn; // Empty field (hidden with css); trap for spammers because many bots will try to put email or url here.
 
 	return $html;
 }
 
 /**
- * Gets required fields into the comment form on the page.
+ * Generates required anti-spam fields for the comment form.
  *
- * @param string $html
+ * Outputs hidden fields including a timestamp and optional honeypot trap fields.
+ * These fields are used to detect and block spam submissions.
  *
- * @return string
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
- * @since  6.5.3
+ * @param bool $render_honeypot_fields Whether to include honeypot trap fields. Default true.
  *
+ * @return string HTML markup for the anti-spam fields.
  */
 function wantispam_get_required_fields( $render_honeypot_fields = true ) {
-	$html = '<!-- Anti-spam plugin wordpress.org/plugins/anti-spam/ -->';
+	$html  = '<!-- Anti-spam plugin wordpress.org/plugins/anti-spam/ -->';
 	$html .= '<div class="wantispam-required-fields">';
-	$html .= '<input type="hidden" name="wantispam_t" class="wantispam-control wantispam-control-t" value="' . time() . '" />'; // Start time of form filling
+	$html .= '<input type="hidden" name="wantispam_t" class="wantispam-control wantispam-control-t" value="' . time() . '" />'; // Start time of form filling.
 	if ( $render_honeypot_fields ) {
 		$html .= wantispam_get_honeypot_fields();
 	}
 	$html .= '</div>';
-	$html .= '<!--\End Anti-spam plugin -->';
+	$html .= '<!-- End Anti-spam plugin -->';
 
 	return $html;
 }
 
 /**
- * Controls the display of a privacy related notice underneath the comment form.
+ * Displays a privacy notice for the comment form.
  *
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
- * @since  6.5.3
+ * Echoes a message informing users about spam data processing when the
+ * privacy notice option is enabled and the site has a privacy policy page.
+ *
+ * @return void
  */
-function wantispam_display_comment_form_privacy_notice( $echo = false ) {
-	if ( ! \WBCR\Titan\Plugin::app()->getPopulateOption( 'comment_form_privacy_notice' ) ) {
-		return '';
+function wantispam_display_comment_form_privacy_notice() {
+	if ( ! get_option( 'titan_comment_form_privacy_notice' ) ) {
+		return;
 	}
 
-	$output = '<p class="wantispam-comment-form-privacy-notice" style="margin-top:10px;">' . sprintf( __( 'This site uses Antispam to reduce spam. <a href="%s" target="_blank" rel="nofollow noopener">Learn how your comment data is processed</a>.', 'titan-security' ), 'https://anti-spam.space/antispam-privacy/' ) . '</p>';
-
-	if ( $echo === false ) {
-		return $output;
+	$privacy_policy_url = get_privacy_policy_url();
+	if ( empty( $privacy_policy_url ) ) {
+		return;
 	}
 
-	echo esc_html($output);
-}
-
-/**
- * Return premium widget markup
- *
- * @return string
- * @since  6.5.3
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
- */
-function wantispam_get_sidebar_premium_widget() {
-	ob_start();
 	?>
-    <div class="wbcr-factory-sidebar-widget">
-        <p>
-            <a href="https://titansitescanner.com/pricing/" target="_blank" rel="noopener nofollow">
-                <img style="width: 100%;"
-                     src="https://api.cm-wp.com/wp-content/uploads/2019/12/baner_antispam_vertical.jpg" alt="">
-            </a>
-        </p>
-    </div>
+	<p class="wantispam-comment-form-privacy-notice" style="margin-top:10px;">
+		<?php esc_html_e( 'This site uses Titan Security to reduce spam.', 'anti-spam' ); ?>
+		<a href="<?php echo esc_url( $privacy_policy_url ); ?>">
+			<?php esc_html_e( 'Learn how your comment data is processed', 'anti-spam' ); ?>
+		</a>.
+	</p>
 	<?php
-	return ob_get_clean();
 }
 
 /**
- * Should show a page about the plugin or not.
+ * Builds suggested privacy policy text for Titan Security.
  *
- * @return bool
- * @since  6.5.3
+ * @return string HTML content.
  */
-function wantispam_is_need_show_about_page() {
-	if ( \WBCR\Titan\Plugin::app()->isNetworkActive() ) {
-		$need_show_about = (int) get_site_option( \WBCR\Titan\Plugin::app()->getOptionName( 'what_is_new_64' ) );
-	} else {
-		$need_show_about = (int) get_option( \WBCR\Titan\Plugin::app()->getOptionName( 'what_is_new_64' ) );
-	}
+function wantispam_get_privacy_policy_content() {
+	$items = [
+		esc_html__( 'Comment content and submission metadata for spam detection checks.', 'anti-spam' ),
+		esc_html__( 'Temporary anti-spam form fields used to distinguish human visitors from automated bots.', 'anti-spam' ),
+		esc_html__( 'Comments identified as spam may be stored in the spam queue for moderation and review.', 'anti-spam' ),
+		esc_html__( 'If Advanced Spam Filter is enabled, comment content, author name, author email, author IP address, and submission time may be sent to Titan cloud services for machine-learning spam analysis.', 'anti-spam' ),
+	];
 
-	$is_ajax = wantispam_doing_ajax();
-	$is_cron = wantispam_doing_cron();
-	$is_rest = wantispam_doing_rest_api();
-
-	if ( $need_show_about && ! $is_ajax && ! $is_cron && ! $is_rest ) {
-		return true;
-	}
-
-	return false;
+	return '<p>' . esc_html__( 'This site uses Titan Security to reduce spam in comments.', 'anti-spam' ) . '</p>'
+		. '<p>' . esc_html__( 'When someone submits a comment, we may process the following data to detect spam:', 'anti-spam' ) . '</p>'
+		. '<ul><li>' . implode( '</li><li>', $items ) . '</li></ul>';
 }
 
 /**
- * Checks if the current request is a WP REST API request.
+ * Registers Titan Security privacy policy text in WordPress Privacy Policy Guide.
  *
- * Case #1: After WP_REST_Request initialisation
- * Case #2: Support "plain" permalink settings
- * Case #3: URL Path begins with wp-json/ (your REST prefix)
- *          Also supports WP installations in subfolders
+ * @return void
+ */
+function wantispam_add_privacy_policy_content() {
+	if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
+		return;
+	}
+
+	wp_add_privacy_policy_content(
+		__( 'Titan Security', 'anti-spam' ),
+		wp_kses_post( wantispam_get_privacy_policy_content() )
+	);
+}
+add_action( 'admin_init', 'wantispam_add_privacy_policy_content' );
+
+/**
+ * Increments spam blocked statistics.
  *
- * @author matzeeable https://wordpress.stackexchange.com/questions/221202/does-something-like-is-rest-exist
- * @since  2.1.0
- * @return boolean
- */
-function wantispam_doing_rest_api() {
-	$prefix     = rest_get_url_prefix();
-	$rest_route = \WBCR\Titan\Plugin::app()->request->get( 'rest_route', null );
-	if ( defined( 'REST_REQUEST' ) && REST_REQUEST // (#1)
-	     || ! is_null( $rest_route ) // (#2)
-	        && strpos( trim( $rest_route, '\\/' ), $prefix, 0 ) === 0 ) {
-		return true;
-	}
-
-	// (#3)
-	$rest_url    = wp_parse_url( site_url( $prefix ) );
-	$current_url = wp_parse_url( add_query_arg( [] ) );
-
-	return strpos( $current_url['path'], $rest_url['path'], 0 ) === 0;
-}
-
-/**
- * @return bool
- * @since  6.5.3
- */
-function wantispam_doing_ajax() {
-	if ( function_exists( 'wp_doing_ajax' ) ) {
-		return wp_doing_ajax();
-	}
-
-	return defined( 'DOING_AJAX' ) && DOING_AJAX;
-}
-
-/**
- * @return bool
- * @since  6.5.3
- */
-function wantispam_doing_cron() {
-	if ( function_exists( 'wp_doing_cron' ) ) {
-		return wp_doing_cron();
-	}
-
-	return defined( 'DOING_CRON' ) && DOING_CRON;
-}
-
-/**
- * Checks whether the license is activated for plugin.
+ * Standalone function for incrementing blocked stats, usable from
+ * both Protector and Advanced_Spam_Filter without re-instantiation.
  *
- * @return bool
- * @since  6.5.4
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
+ * @param string $reason Spam detection reason.
+ *
+ * @return void
  */
-function wantispam_is_titan_license_activate() {
-	if ( class_exists( '\WBCR\Titan\Plugin' ) ) {
-		return \WBCR\Titan\Plugin::app()->premium->is_activate();
+function wantispam_increment_blocked_stat( $reason = '' ) {
+	$stats = get_option( 'antispam_stats', [] );
+
+	if ( ! is_array( $stats ) ) {
+		$stats = [];
 	}
 
-	return false;
+	$stats['blocked_total'] = ( $stats['blocked_total'] ?? 0 ) + 1;
+	$stats['last_blocked']  = current_time( 'mysql', true );
+
+	if ( $reason ) {
+		$reasons            = $stats['reasons'] ?? [];
+		$reasons[ $reason ] = ( $reasons[ $reason ] ?? 0 ) + 1;
+		$stats['reasons']   = $reasons;
+	}
+
+	// Track daily stats.
+	$today = gmdate( 'Y-m-d' );
+	if ( ! isset( $stats['by_date'] ) ) {
+		$stats['by_date'] = [];
+	}
+	$stats['by_date'][ $today ] = ( $stats['by_date'][ $today ] ?? 0 ) + 1;
+
+	// Prune dates older than 90 days.
+	$cutoff_date = gmdate( 'Y-m-d', strtotime( '-90 days' ) );
+	foreach ( $stats['by_date'] as $date => $count ) {
+		if ( $date < $cutoff_date ) {
+			unset( $stats['by_date'][ $date ] );
+		}
+	}
+
+	update_option( 'antispam_stats', $stats );
+
+	wantispam_flush_stats_cache();
 }
 
 /**
@@ -191,58 +170,11 @@ function wantispam_is_titan_license_activate() {
  * in priorities checks its license.
  *
  * @return bool
- * @since  6.5.4
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
  */
 function wantispam_is_license_activate() {
-	return wantispam_is_titan_license_activate() || \WBCR\Titan\Plugin::app()->premium->is_activate();
-}
-
-/**
- * Checks active (not expired!) License for plugin or not. If the plugin is installed
- * checks its license in priorities.
- *
- * @return bool
- * @since  6.5.4
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
- */
-function wantispam_is_license_active() {
-	if ( wantispam_is_titan_license_activate() ) {
+	if ( class_exists( '\WBCR\Titan\Plugin' ) ) {
 		return \WBCR\Titan\Plugin::app()->premium->is_active();
 	}
 
-	return \WBCR\Titan\Plugin::app()->premium->is_activate() && \WBCR\Titan\Plugin::app()->premium->is_active();
-}
-
-/**
- * Allows you to get a license key. If the Clearfy plugin is installed, it will be prioritized
- * return it key.
- *
- * @return string|null
- * @since  6.5.4
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
- */
-function wantispam_get_license_key() {
-	if ( ! wantispam_is_license_activate() ) {
-		return null;
-	}
-
-	if ( wantispam_is_titan_license_activate() ) {
-		return \WBCR\Titan\Plugin::app()->premium->get_license()->get_key();
-	}
-
-	return \WBCR\Titan\Plugin::app()->premium->get_license()->get_key();
-}
-
-/**
- * @return number|null
- * @since  6.5.4
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
- */
-function wantispam_get_freemius_plugin_id() {
-	if ( wantispam_is_titan_license_activate() ) {
-		return \WBCR\Titan\Plugin::app()->premium->get_setting( 'plugin_id' );
-	}
-
-	return \WBCR\Titan\Plugin::app()->premium->get_setting( 'plugin_id' );
+	return false;
 }

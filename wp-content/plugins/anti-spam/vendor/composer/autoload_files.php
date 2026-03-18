@@ -6,5 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => $vendorDir . '/symfony/polyfill-mbstring/bootstrap.php',
     '10ee2d7b6b90d8e02b641fa210e31acd' => $vendorDir . '/codeinwp/themeisle-sdk/load.php',
 );

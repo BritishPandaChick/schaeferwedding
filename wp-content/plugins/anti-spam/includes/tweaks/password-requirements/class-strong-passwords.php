@@ -2,32 +2,37 @@
 
 namespace WBCR\Titan\Tweaks;
 
+use ZxcvbnPhp\Zxcvbn;
+
 final class Strong_Passwords {
 
 	const STRENGTH_KEY = 'titan-password-strength';
 
 	public function __construct() {
 
-		add_action( 'titan_register_password_requirements', array( $this, 'register_requirements' ) );
+		add_action( 'titan_register_password_requirements', [ $this, 'register_requirements' ] );
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'add_scripts' ) );
-		add_action( 'resetpass_form', array( $this, 'add_scripts_to_wp_login' ) );
-		add_action( 'titan_password_requirements_change_form', array( $this, 'add_scripts_to_wp_login' ) );
+		add_action( 'admin_enqueue_scripts', [ $this, 'add_scripts' ] );
+		add_action( 'resetpass_form', [ $this, 'add_scripts_to_wp_login' ] );
+		add_action( 'titan_password_requirements_change_form', [ $this, 'add_scripts_to_wp_login' ] );
 	}
 
 	/**
 	 * Register the Strong Passwords requirement.
 	 */
 	public function register_requirements() {
-		Password_Requirements_Base::register( 'strength', array(
-			'evaluate'                => array( $this, 'evaluate' ),
-			'validate'                => array( $this, 'validate' ),
-			'reason'                  => array( $this, 'reason' ),
-			'meta'                    => self::STRENGTH_KEY,
-			'evaluate_if_not_enabled' => true,
-			'defaults'                => array( 'role' => 'administrator' ),
-			'settings_config'         => array( $this, 'get_settings_config' ),
-		) );
+		Password_Requirements_Base::register(
+			'strength',
+			[
+				'evaluate'                => [ $this, 'evaluate' ],
+				'validate'                => [ $this, 'validate' ],
+				'reason'                  => [ $this, 'reason' ],
+				'meta'                    => self::STRENGTH_KEY,
+				'evaluate_if_not_enabled' => true,
+				'defaults'                => [ 'role' => 'administrator' ],
+				'settings_config'         => [ $this, 'get_settings_config' ],
+			] 
+		);
 	}
 
 	/**
@@ -50,10 +55,10 @@ final class Strong_Passwords {
 		$settings = Password_Requirements_Base::get_requirement_settings( 'strength' );
 		$role     = isset( $settings['role'] ) ? $settings['role'] : 'administrator';
 
-		require_once( WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/class-canonical-roles.php' );
+		require_once WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/class-canonical-roles.php';
 
 		if ( Canonical_Roles::is_user_at_least( $role ) ) {
-			wp_enqueue_script( 'titan_strong_passwords', WTITAN_PLUGIN_URL . '/includes/tweaks/password-requirements/assets/js/script.js', array( 'jquery' ), \WBCR\Titan\Plugin::app()->getPluginVersion() );
+			wp_enqueue_script( 'titan_strong_passwords', WTITAN_PLUGIN_URL . '/includes/tweaks/password-requirements/assets/js/script.js', [ 'jquery' ], WTITAN_PLUGIN_VERSION );
 		}
 	}
 
@@ -73,10 +78,10 @@ final class Strong_Passwords {
 		$settings = Password_Requirements_Base::get_requirement_settings( 'strength' );
 		$role     = isset( $settings['role'] ) ? $settings['role'] : 'administrator';
 
-		require_once( WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/class-canonical-roles.php' );
+		require_once WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/class-canonical-roles.php';
 
 		if ( Canonical_Roles::is_user_at_least( $role, $user ) ) {
-			wp_enqueue_script( 'titan_strong_passwords', WTITAN_PLUGIN_URL . '/includes/tweaks/password-requirements/assets/js/script.js', array( 'jquery' ), \WBCR\Titan\Plugin::app()->getPluginVersion() );
+			wp_enqueue_script( 'titan_strong_passwords', WTITAN_PLUGIN_URL . '/includes/tweaks/password-requirements/assets/js/script.js', [ 'jquery' ], WTITAN_PLUGIN_VERSION );
 		}
 	}
 
@@ -88,13 +93,13 @@ final class Strong_Passwords {
 	 * @return string
 	 */
 	public function reason( $evaluation ) {
-		return esc_html__( 'Due to site rules, a strong password is required for your account. Please choose a new password that rates as strong on the meter.', 'titan-security' );
+		return esc_html__( 'Due to site rules, a strong password is required for your account. Please choose a new password that rates as strong on the meter.', 'anti-spam' );
 	}
 
 	/**
 	 * Evaluate the strength of a password.
 	 *
-	 * @param string $password
+	 * @param string   $password
 	 * @param \WP_User $user
 	 *
 	 * @return int
@@ -106,10 +111,10 @@ final class Strong_Passwords {
 	/**
 	 * Validate whether a password strength is acceptable for a given user.
 	 *
-	 * @param int $strength
+	 * @param int                $strength
 	 * @param \WP_User|\stdClass $user
-	 * @param array $settings
-	 * @param array $args
+	 * @param array              $settings
+	 * @param array              $args
 	 *
 	 * @return bool
 	 */
@@ -119,7 +124,7 @@ final class Strong_Passwords {
 			return true;
 		}
 
-		require_once( WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/class-canonical-roles.php' );
+		require_once WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/class-canonical-roles.php';
 
 		$role = isset( $args['canonical'] ) ? $args['canonical'] : Canonical_Roles::get_user_role( $user );
 
@@ -131,12 +136,12 @@ final class Strong_Passwords {
 	}
 
 	public function get_settings_config() {
-		return array(
-			'label'       => esc_html__( 'Strong Passwords', 'titan-security' ),
-			'description' => esc_html__( 'Force users to use strong passwords as rated by the WordPress password meter.', 'titan-security' ),
-			'render'      => array( $this, 'render_settings' ),
-			'sanitize'    => array( $this, 'sanitize_settings' ),
-		);
+		return [
+			'label'       => esc_html__( 'Strong Passwords', 'anti-spam' ),
+			'description' => esc_html__( 'Force users to use strong passwords as rated by the WordPress password meter.', 'anti-spam' ),
+			'render'      => [ $this, 'render_settings' ],
+			'sanitize'    => [ $this, 'sanitize_settings' ],
+		];
 	}
 
 	/**
@@ -149,20 +154,21 @@ final class Strong_Passwords {
 		$href = 'http://codex.wordpress.org/Roles_and_Capabilities';
 		$link = '<a href="' . $href . '" target="_blank" rel="noopener noreferrer">' . $href . '</a>';
 		?>
-        <tr>
-            <th scope="row">
-                <label for="titan-password-requirements-requirement_settings-strength-role">
-					<?php esc_html_e( 'Minimum Role', 'titan-security' ); ?>
-                </label>
-            </th>
-            <td>
+		<tr>
+			<th scope="row">
+				<label for="titan-password-requirements-requirement_settings-strength-role">
+					<?php esc_html_e( 'Minimum Role', 'anti-spam' ); ?>
+				</label>
+			</th>
+			<td>
 				<?php $form->add_canonical_roles( 'role' ); ?>
-                <br/>
-                <label for="titan-password-requirements-requirement_settings-strength-role"><?php _e( 'Minimum role at which a user must choose a strong password.', 'titan-security' ); ?></label>
-                <p class="description"><?php printf( __( 'For more information on WordPress roles and capabilities please see %s.', 'titan-security' ), $link ); ?></p>
-                <p class="warningtext description"><?php _e( 'Warning: If your site invites public registrations setting the role too low may annoy your members.', 'titan-security' ); ?></p>
-            </td>
-        </tr>
+				<br/>
+				<label for="titan-password-requirements-requirement_settings-strength-role"><?php _e( 'Minimum role at which a user must choose a strong password.', 'anti-spam' ); ?></label>
+				<?php /* translators: %s: link to WordPress documentation */ ?>
+				<p class="description"><?php printf( __( 'For more information on WordPress roles and capabilities please see %s.', 'anti-spam' ), $link ); ?></p>
+				<p class="warningtext description"><?php _e( 'Warning: If your site invites public registrations setting the role too low may annoy your members.', 'anti-spam' ); ?></p>
+			</td>
+		</tr>
 		<?php
 	}
 
@@ -174,10 +180,10 @@ final class Strong_Passwords {
 	 * @return array
 	 */
 	public function sanitize_settings( $settings ) {
-		return array(
-			array( 'string', 'role', esc_html__( 'Minimum Role for Strong Passwords', 'titan-security' ) ),
-			array( 'canonical-roles', 'role', esc_html__( 'Minimum Role for Strong Passwords', 'titan-security' ) ),
-		);
+		return [
+			[ 'string', 'role', esc_html__( 'Minimum Role for Strong Passwords', 'anti-spam' ) ],
+			[ 'canonical-roles', 'role', esc_html__( 'Minimum Role for Strong Passwords', 'anti-spam' ) ],
+		];
 	}
 
 	/**
@@ -186,25 +192,25 @@ final class Strong_Passwords {
 	 * @return string
 	 */
 	private function make_error_message() {
-		$message = __( '<strong>Error</strong>: Due to site rules, a strong password is required. Please choose a new password that rates as <strong>Strong</strong> on the meter.', 'titan-security' );
+		$message = __( '<strong>Error</strong>: Due to site rules, a strong password is required. Please choose a new password that rates as <strong>Strong</strong> on the meter.', 'anti-spam' );
 
-		return wp_kses( $message, array( 'strong' => array() ) );
+		return wp_kses( $message, [ 'strong' => [] ] );
 	}
 
 	/**
 	 * Calculate the strength of a password.
 	 *
 	 * @param \WP_User $user
-	 * @param string $password
+	 * @param string   $password
 	 *
 	 * @return int
 	 */
 	private function get_password_strength( $user, $password ) {
 
-		$penalty_strings = array(
-			get_site_option( 'admin_email' )
-		);
-		$user_properties = array(
+		$penalty_strings = [
+			get_site_option( 'admin_email' ),
+		];
+		$user_properties = [
 			'user_login',
 			'first_name',
 			'last_name',
@@ -212,8 +218,8 @@ final class Strong_Passwords {
 			'display_name',
 			'user_email',
 			'user_url',
-			'description'
-		);
+			'description',
+		];
 
 		foreach ( $user_properties as $user_property ) {
 			if ( isset( $user->$user_property ) ) {
@@ -223,24 +229,20 @@ final class Strong_Passwords {
 
 		$results = self::get_password_strength_results( $password, $penalty_strings );
 
-		return $results->score;
+		return $results['score'];
 	}
 
 	/**
 	 * Evaluate a password's strength.
 	 *
 	 * @param string $password
-	 * @param array $penalty_strings Additional strings that if found within the password, will decrease the strength.
+	 * @param array  $penalty_strings Additional strings that if found within the password, will decrease the strength.
 	 *
-	 * @return \ITSEC_Zxcvbn_Results
+	 * @return array
 	 */
-	public static function get_password_strength_results( $password, $penalty_strings = array() ) {
-		if ( ! isset( $GLOBALS['titan_zxcvbn'] ) ) {
-			require_once( WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/libs/zxcvbn-php/zxcvbn.php' );
-			$GLOBALS['titan_zxcvbn'] = new \ITSEC_Zxcvbn();
-		}
-
-		return $GLOBALS['titan_zxcvbn']->test_password( $password, $penalty_strings );
+	public static function get_password_strength_results( $password, $penalty_strings = [] ) {
+		$zxcvbn = new Zxcvbn();
+		return $zxcvbn->passwordStrength( $password, $penalty_strings );
 	}
 }
 

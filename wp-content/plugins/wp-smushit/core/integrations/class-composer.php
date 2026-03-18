@@ -56,25 +56,6 @@ class Composer extends Abstract_Integration {
 	 */
 
 	/**
-	 * Filters the setting variable to add NextGen setting title and description
-	 *
-	 * @since 3.2.1
-	 *
-	 * @param array $settings Settings.
-	 *
-	 * @return mixed
-	 */
-	public function register( $settings ) {
-		$settings[ $this->module ] = array(
-			'label'       => esc_html__( 'Enable WPBakery Page Builder integration', 'wp-smushit' ),
-			'short_label' => esc_html__( 'WPBakery Page Builder', 'wp-smushit' ),
-			'desc'        => esc_html__( 'Allow smushing images resized in WPBakery Page Builder editor.', 'wp-smushit' ),
-		);
-
-		return $settings;
-	}
-
-	/**
 	 * Show additional notice if the required plugins are not installed.
 	 *
 	 * @since 3.2.1

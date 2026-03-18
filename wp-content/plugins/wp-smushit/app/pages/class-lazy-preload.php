@@ -87,7 +87,7 @@ class Lazy_Preload extends Abstract_Summary_Page implements Interface_Page {
 	 */
 	public function common_meta_box_footer() {
 		$current_tab       = $this->get_current_tab();
-		$is_submit_enabled = WP_Smush::is_pro() || 'lazy_load' === $current_tab;
+		$is_submit_enabled = 'lazy_load' === $current_tab;
 			$this->view(
 				'meta-box-footer',
 				array(
@@ -123,8 +123,8 @@ class Lazy_Preload extends Abstract_Summary_Page implements Interface_Page {
 		$this->view(
 			'preload/meta-box',
 			array(
-				'lcp_preload_enabled' => $this->settings->is_lcp_preload_enabled(),
-				'preload_settings'    => $this->settings->get_setting( 'wp-smush-preload' ),
+				'lcp_preload_enabled' => false,
+				'preload_settings'    => array(),
 			)
 		);
 	}
@@ -134,9 +134,7 @@ class Lazy_Preload extends Abstract_Summary_Page implements Interface_Page {
 			return $this->lazyload_add_new_tag();
 		}
 
-		if ( ! WP_Smush::is_pro() ) {
-			echo '<span class="sui-tag sui-tag-pro" style="right:11px; top:11px">' . esc_html__( 'Pro', 'wp-smushit' ) . '</span>';
-		}
+		echo '<span class="sui-tag sui-tag-pro" style="right:11px; top:11px">' . esc_html__( 'Pro', 'wp-smushit' ) . '</span>';
 	}
 
 	public function lazyload_add_new_tag() {

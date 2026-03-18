@@ -99,15 +99,16 @@
 			const xhr = new XMLHttpRequest();
 			xhr.open( 'POST', ajaxurl + '?action=get_cdn_stats', true );
 			xhr.onload = () => {
-				if ( 200 === xhr.status ) {
-					const res = JSON.parse( xhr.response );
-					if ( 'undefined' !== typeof res.success && res.success ) {
+				const endpoint_missing = xhr.status === 400 && xhr.response === '0';
+				if (200 === xhr.status) {
+					const res = JSON.parse(xhr.response);
+					if ('undefined' !== typeof res.success && res.success) {
 						this.toggleElements();
-					} else if ( 'undefined' !== typeof res.data.message ) {
-						WP_Smush.helpers.showErrorNotice( res.data.message );
+					} else if ('undefined' !== typeof res.data.message) {
+						WP_Smush.helpers.showErrorNotice(res.data.message);
 					}
-				} else {
-					WP_Smush.helpers.showErrorNotice( 'Request failed.  Returned status of ' + xhr.status );
+				} else if (!endpoint_missing) {
+					WP_Smush.helpers.showErrorNotice('Request failed.  Returned status of ' + xhr.status);
 				}
 			};
 			xhr.send();

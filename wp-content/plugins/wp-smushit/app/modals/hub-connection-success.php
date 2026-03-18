@@ -16,25 +16,14 @@ $feature_list = array(
 	__( 'Instant access to Bulk Smush API.', 'wp-smushit' ),
 );
 
-if ( Membership::get_instance()->is_pro() ) {
-	$feature_list = array_merge(
-		$feature_list,
-		array(
-			__( 'Directory Smush.', 'wp-smushit' ),
-			__( 'Next-Gen Conversion.', 'wp-smushit' ),
-			__( 'Multisite & CDN Integration.', 'wp-smushit' ),
-		)
-	);
-} else {
-	$feature_list = array_merge(
-		$feature_list,
-		array(
-			__( 'Unlimited bulk smushing.', 'wp-smushit' ),
-			__( 'Directory Smush.', 'wp-smushit' ),
-			__( 'Auto smushing on upload.', 'wp-smushit' ),
-		)
-	);
-}
+$feature_list = array_merge(
+	$feature_list,
+	array(
+		__( 'Unlimited bulk smushing.', 'wp-smushit' ),
+		__( 'Directory Smush.', 'wp-smushit' ),
+		__( 'Auto smushing on upload.', 'wp-smushit' ),
+	)
+);
 ?>
 
 <div class="sui-modal sui-modal-sm">

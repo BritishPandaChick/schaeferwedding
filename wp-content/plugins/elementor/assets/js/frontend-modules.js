@@ -1,130 +1,4 @@
-/*! elementor - v3.32.0 - 21-10-2025 */
 (self["webpackChunkelementorFrontend"] = self["webpackChunkelementorFrontend"] || []).push([["frontend-modules"],{
-
-/***/ "../app/assets/js/event-track/apps-event-tracking.js":
-/*!***********************************************************!*\
-  !*** ../app/assets/js/event-track/apps-event-tracking.js ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports.appsEventTrackingDispatch = exports.AppsEventTracking = void 0;
-var _eventsConfig = _interopRequireDefault(__webpack_require__(/*! ../../../../core/common/modules/events-manager/assets/js/events-config */ "../core/common/modules/events-manager/assets/js/events-config.js"));
-const EVENTS_MAP = {
-  PAGE_VIEWS_WEBSITE_TEMPLATES: 'page_views_website_templates',
-  KITS_CLOUD_UPGRADE_CLICKED: 'kits_cloud_upgrade_clicked',
-  EXPORT_KIT_CUSTOMIZATION: 'export_kit_customization',
-  IMPORT_KIT_CUSTOMIZATION: 'import_kit_customization',
-  KIT_IMPORT_STATUS: 'kit_import_status',
-  KIT_CLOUD_LIBRARY_APPLY: 'kit_cloud_library_apply',
-  KIT_CLOUD_LIBRARY_DELETE: 'kit_cloud_library_delete',
-  IMPORT_EXPORT_ADMIN_ACTION: 'ie_admin_action',
-  KIT_IMPORT_UPLOAD_FILE: 'kit_import_upload_file'
-};
-const appsEventTrackingDispatch = (command, eventParams) => {
-  // Add existing eventParams key value pair to the data/details object.
-  const objectCreator = (array, obj) => {
-    for (const key of array) {
-      if (eventParams.hasOwnProperty(key) && eventParams[key] !== null) {
-        obj[key] = eventParams[key];
-      }
-    }
-    return obj;
-  };
-  const dataKeys = [];
-  const detailsKeys = ['layout', 'site_part', 'error', 'document_name', 'document_type', 'view_type_clicked', 'tag', 'sort_direction', 'sort_type', 'action', 'grid_location', 'kit_name', 'page_source', 'element_position', 'element', 'event_type', 'modal_type', 'method', 'status', 'step', 'item', 'category', 'element_location', 'search_term', 'section', 'site_area'];
-  const data = {};
-  const details = {};
-  const init = () => {
-    objectCreator(detailsKeys, details);
-    objectCreator(dataKeys, data);
-    const commandSplit = command.split('/');
-    data.placement = commandSplit[0];
-    data.event = commandSplit[1];
-
-    // If 'details' is not empty, add the details object to the data object.
-    if (Object.keys(details).length) {
-      data.details = details;
-    }
-  };
-  init();
-  $e.run(command, data);
-};
-exports.appsEventTrackingDispatch = appsEventTrackingDispatch;
-class AppsEventTracking {
-  static dispatchEvent(eventName, payload) {
-    return elementorCommon.eventsManager.dispatchEvent(eventName, payload);
-  }
-  static sendPageViewsWebsiteTemplates(page) {
-    return this.dispatchEvent(EVENTS_MAP.PAGE_VIEWS_WEBSITE_TEMPLATES, {
-      trigger: _eventsConfig.default.triggers.pageLoaded,
-      page_loaded: page,
-      secondary_location: page
-    });
-  }
-  static sendKitsCloudUpgradeClicked(upgradeLocation) {
-    return this.dispatchEvent(EVENTS_MAP.KITS_CLOUD_UPGRADE_CLICKED, {
-      trigger: _eventsConfig.default.triggers.click,
-      secondary_location: upgradeLocation,
-      upgrade_location: upgradeLocation
-    });
-  }
-  static sendExportKitCustomization(payload) {
-    return this.dispatchEvent(EVENTS_MAP.EXPORT_KIT_CUSTOMIZATION, {
-      trigger: _eventsConfig.default.triggers.click,
-      ...payload
-    });
-  }
-  static sendImportKitCustomization(payload) {
-    return this.dispatchEvent(EVENTS_MAP.IMPORT_KIT_CUSTOMIZATION, {
-      trigger: _eventsConfig.default.triggers.click,
-      ...payload
-    });
-  }
-  static sendKitImportStatus() {
-    let error = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    return this.dispatchEvent(EVENTS_MAP.KIT_IMPORT_STATUS, {
-      kit_import_status: !error,
-      ...(error && {
-        kit_import_error: error.message
-      })
-    });
-  }
-  static sendKitCloudLibraryApply(kitId, kitApplyUrl) {
-    return this.dispatchEvent(EVENTS_MAP.KIT_CLOUD_LIBRARY_APPLY, {
-      trigger: _eventsConfig.default.triggers.click,
-      kit_cloud_id: kitId,
-      ...(kitApplyUrl && {
-        kit_apply_url: kitApplyUrl
-      })
-    });
-  }
-  static sendKitCloudLibraryDelete() {
-    return this.dispatchEvent(EVENTS_MAP.KIT_CLOUD_LIBRARY_DELETE, {
-      trigger: _eventsConfig.default.triggers.click
-    });
-  }
-  static sendImportExportAdminAction(actionType) {
-    return this.dispatchEvent(EVENTS_MAP.IMPORT_EXPORT_ADMIN_ACTION, {
-      trigger: _eventsConfig.default.triggers.click,
-      action_type: actionType
-    });
-  }
-  static sendKitImportUploadFile(status) {
-    return this.dispatchEvent(EVENTS_MAP.KIT_IMPORT_UPLOAD_FILE, {
-      kit_import_upload_file_status: status
-    });
-  }
-}
-exports.AppsEventTracking = AppsEventTracking;
-
-/***/ }),
 
 /***/ "../app/modules/import-export-customization/assets/js/shared/registry/base.js":
 /*!************************************************************************************!*\
@@ -170,11 +44,10 @@ class BaseRegistry {
     }
     this.sections.set(section.key, formattedSection);
   }
-  formatSection(_ref) {
-    let {
-      children,
-      ...section
-    } = _ref;
+  formatSection({
+    children,
+    ...section
+  }) {
     return {
       key: section.key,
       title: section.title,
@@ -224,46 +97,6 @@ const customizationDialogsRegistry = exports.customizationDialogsRegistry = new 
 
 /***/ }),
 
-/***/ "../app/modules/import-export-customization/assets/js/shared/registry/templates.js":
-/*!*****************************************************************************************!*\
-  !*** ../app/modules/import-export-customization/assets/js/shared/registry/templates.js ***!
-  \*****************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports.templateRegistry = void 0;
-__webpack_require__(/*! core-js/modules/esnext.iterator.constructor.js */ "../node_modules/core-js/modules/esnext.iterator.constructor.js");
-__webpack_require__(/*! core-js/modules/esnext.iterator.for-each.js */ "../node_modules/core-js/modules/esnext.iterator.for-each.js");
-var _base = __webpack_require__(/*! ./base */ "../app/modules/import-export-customization/assets/js/shared/registry/base.js");
-class TemplateRegistry extends _base.BaseRegistry {
-  getState(data, parentInitialState) {
-    const state = {};
-    this.getAll().forEach(templateType => {
-      if (data?.customization?.templates?.[templateType.key] !== undefined) {
-        state[templateType.key] = data.customization.templates[templateType.key];
-        return;
-      }
-      if (templateType.getInitialState) {
-        state[templateType.key] = templateType.getInitialState(data, parentInitialState);
-        return;
-      }
-      const enabled = templateType.useParentDefault ? parentInitialState : false;
-      state[templateType.key] = {
-        enabled
-      };
-    });
-    return state;
-  }
-}
-const templateRegistry = exports.templateRegistry = new TemplateRegistry();
-
-/***/ }),
-
 /***/ "../app/modules/import-export-customization/assets/js/shared/utils/template-registry-helpers.js":
 /*!******************************************************************************************************!*\
   !*** ../app/modules/import-export-customization/assets/js/shared/utils/template-registry-helpers.js ***!
@@ -277,8 +110,7 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.createGetInitialState = createGetInitialState;
-function createGetInitialState(exportGroup) {
-  let additionalProps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+function createGetInitialState(exportGroup, additionalProps = {}) {
   return (data, parentInitialState) => {
     let isEnabled = parentInitialState;
     const isImport = data.hasOwnProperty('uploadedData');
@@ -574,8 +406,8 @@ class CarouselHandlerBase extends _baseSwiper.default {
   addClassToSwiperContainer(className) {
     this.getDefaultElements().$swiperContainer[0].classList.add(className);
   }
-  async onInit() {
-    super.onInit(...arguments);
+  async onInit(...args) {
+    super.onInit(...args);
     if (!this.elements.$swiperContainer.length || 2 > this.elements.$slides.length) {
       return;
     }
@@ -669,8 +501,7 @@ class CarouselHandlerBase extends _baseSwiper.default {
       this.swiper.slideToLoop(this.getEditSettings('activeItemIndex') - 1);
     }
   }
-  getSpaceBetween() {
-    let device = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+  getSpaceBetween(device = null) {
     const responsiveControlValue = elementorFrontend.utils.controls.getResponsiveControlValue(this.getElementSettings(), 'image_spacing_custom', 'size', device);
     return Number(responsiveControlValue) || 0;
   }
@@ -684,8 +515,7 @@ class CarouselHandlerBase extends _baseSwiper.default {
     this.swiper.params.spaceBetween = newSpaceBetween;
     this.swiper.update();
   }
-  getPaginationBullets() {
-    let type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'array';
+  getPaginationBullets(type = 'array') {
     const paginationBullets = this.$element.find(this.getSettings('selectors').paginationBullet);
     return 'array' === type ? Array.from(paginationBullets) : paginationBullets;
   }
@@ -709,8 +539,7 @@ class CarouselHandlerBase extends _baseSwiper.default {
     transformValue = parseInt(transformValue[0].replace('px', ''));
     return !!transformValue ? transformValue : 0;
   }
-  a11ySetSlideAriaHidden() {
-    let status = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+  a11ySetSlideAriaHidden(status = '') {
     const currentIndex = 'initialisation' === status ? 0 : this.swiper?.activeIndex;
     if ('number' !== typeof currentIndex) {
       return;
@@ -1046,8 +875,7 @@ class StretchedElement extends _base.default {
   isActive(settings) {
     return elementorFrontend.isEditMode() || settings.$element.hasClass(this.getStretchedClass());
   }
-  getStretchElementForConfig() {
-    let childSelector = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+  getStretchElementForConfig(childSelector = null) {
     if (childSelector) {
       return this.$element.find(childSelector);
     }
@@ -1078,12 +906,12 @@ class StretchedElement extends _base.default {
     }
     this.stretchElement.stretch();
   }
-  onInit() {
+  onInit(...args) {
     if (!this.isActive(this.getSettings())) {
       return;
     }
     this.initStretch();
-    super.onInit(...arguments);
+    super.onInit(...args);
     this.stretch();
   }
   onElementChange(propertyName) {
@@ -1291,8 +1119,7 @@ class ArgsObject extends _instanceType.default {
    *
    * @throws {Error}
    */
-  requireArgument(property) {
-    let args = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.args;
+  requireArgument(property, args = this.args) {
     if (!Object.prototype.hasOwnProperty.call(args, property)) {
       throw Error(`${property} is required.`);
     }
@@ -1309,8 +1136,7 @@ class ArgsObject extends _instanceType.default {
    *
    * @throws {Error}
    */
-  requireArgumentType(property, type) {
-    let args = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.args;
+  requireArgumentType(property, type, args = this.args) {
     this.requireArgument(property, args);
     if (typeof args[property] !== type) {
       throw Error(`${property} invalid type: ${type}.`);
@@ -1328,8 +1154,7 @@ class ArgsObject extends _instanceType.default {
    *
    * @throws {Error}
    */
-  requireArgumentInstance(property, instance) {
-    let args = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.args;
+  requireArgumentInstance(property, instance, args = this.args) {
     this.requireArgument(property, args);
     if (!(args[property] instanceof instance) && !(0, _isInstanceof.default)(args[property], instance)) {
       throw Error(`${property} invalid instance.`);
@@ -1347,8 +1172,7 @@ class ArgsObject extends _instanceType.default {
    *
    * @throws {Error}
    */
-  requireArgumentConstructor(property, type) {
-    let args = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.args;
+  requireArgumentConstructor(property, type, args = this.args) {
     this.requireArgument(property, args);
 
     // Note: Converting the constructor to string in order to avoid equation issues
@@ -1366,7 +1190,7 @@ exports["default"] = ArgsObject;
 /*!***********************************************************************!*\
   !*** ../assets/dev/js/modules/imports/force-method-implementation.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
@@ -1375,13 +1199,10 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports["default"] = exports.ForceMethodImplementation = void 0;
-__webpack_require__(/*! core-js/modules/es.array.includes.js */ "../node_modules/core-js/modules/es.array.includes.js");
 // TODO: Wrong location used as `elementorModules.ForceMethodImplementation(); should be` `elementorUtils.forceMethodImplementation()`;
 
 class ForceMethodImplementation extends Error {
-  constructor() {
-    let info = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    let args = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  constructor(info = {}, args = {}) {
     super(`${info.isStatic ? 'static ' : ''}${info.fullName}() should be implemented, please provide '${info.functionName || info.fullName}' functionality.`, args);
 
     // Allow to pass custom properties to the error.
@@ -1736,8 +1557,7 @@ class Scroll {
 
     // Generating thresholds points along the animation height
     // More thresholds points = more trigger points of the callback
-    const buildThresholds = function () {
-      let sensitivityPercentage = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    const buildThresholds = (sensitivityPercentage = 0) => {
       const thresholds = [];
       if (sensitivityPercentage > 0 && sensitivityPercentage <= 100) {
         const increment = 100 / sensitivityPercentage;
@@ -1776,8 +1596,7 @@ class Scroll {
    * @param {number}         offsetObj.start - Offset start value in percentages
    * @param {number}         offsetObj.end   - Offset end value in percentages
    */
-  static getElementViewportPercentage($element) {
-    let offsetObj = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  static getElementViewportPercentage($element, offsetObj = {}) {
     const elementOffset = $element[0].getBoundingClientRect(),
       offsetStart = offsetObj.start || 0,
       offsetEnd = offsetObj.end || 0,
@@ -1797,9 +1616,7 @@ class Scroll {
    * @param {number} offsetObj.end   - Offset end value in percentages
    * @param {number} limitPageHeight - Will limit the page height calculation
    */
-  static getPageScrollPercentage() {
-    let offsetObj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    let limitPageHeight = arguments.length > 1 ? arguments[1] : undefined;
+  static getPageScrollPercentage(offsetObj = {}, limitPageHeight) {
     const offsetStart = offsetObj.start || 0,
       offsetEnd = offsetObj.end || 0,
       initialPageHeight = limitPageHeight || document.documentElement.scrollHeight - document.documentElement.clientHeight,
@@ -1865,10 +1682,8 @@ var _argsObject = _interopRequireDefault(__webpack_require__(/*! ./imports/args-
 var _masonry = _interopRequireDefault(__webpack_require__(/*! ./imports/utils/masonry */ "../assets/dev/js/modules/imports/utils/masonry.js"));
 var _scroll = _interopRequireDefault(__webpack_require__(/*! ./imports/utils/scroll */ "../assets/dev/js/modules/imports/utils/scroll.js"));
 var _forceMethodImplementation = _interopRequireDefault(__webpack_require__(/*! ./imports/force-method-implementation */ "../assets/dev/js/modules/imports/force-method-implementation.js"));
-var _templates = __webpack_require__(/*! ../../../../app/modules/import-export-customization/assets/js/shared/registry/templates */ "../app/modules/import-export-customization/assets/js/shared/registry/templates.js");
 var _templateRegistryHelpers = __webpack_require__(/*! ../../../../app/modules/import-export-customization/assets/js/shared/utils/template-registry-helpers */ "../app/modules/import-export-customization/assets/js/shared/utils/template-registry-helpers.js");
 var _customizationDialogs = __webpack_require__(/*! ../../../../app/modules/import-export-customization/assets/js/shared/registry/customization-dialogs */ "../app/modules/import-export-customization/assets/js/shared/registry/customization-dialogs.js");
-var _appsEventTracking = __webpack_require__(/*! elementor-app/event-track/apps-event-tracking */ "../app/assets/js/event-track/apps-event-tracking.js");
 var _default = exports["default"] = window.elementorModules = {
   Module: _module.default,
   ViewModule: _viewModule.default,
@@ -1879,196 +1694,10 @@ var _default = exports["default"] = window.elementorModules = {
     Scroll: _scroll.default
   },
   importExport: {
-    templateRegistry: _templates.templateRegistry,
     createGetInitialState: _templateRegistryHelpers.createGetInitialState,
     customizationDialogsRegistry: _customizationDialogs.customizationDialogsRegistry
-  },
-  appsEventTracking: {
-    AppsEventTracking: _appsEventTracking.AppsEventTracking
   }
 };
-
-/***/ }),
-
-/***/ "../core/common/modules/events-manager/assets/js/events-config.js":
-/*!************************************************************************!*\
-  !*** ../core/common/modules/events-manager/assets/js/events-config.js ***!
-  \************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-const eventsConfig = {
-  triggers: {
-    click: 'Click',
-    accordionClick: 'Accordion Click',
-    toggleClick: 'Toggle Click',
-    dropdownClick: 'Click Dropdown',
-    editorLoaded: 'Editor Loaded',
-    visible: 'Visible',
-    pageLoaded: 'Page Loaded'
-  },
-  locations: {
-    widgetPanel: 'Widget Panel',
-    topBar: 'Top Bar',
-    elementorEditor: 'Elementor Editor',
-    templatesLibrary: {
-      library: 'Templates Library'
-    },
-    app: {
-      import: 'Import Kit',
-      export: 'Export Kit',
-      kitLibrary: 'Kit Library',
-      cloudKitLibrary: 'Cloud Kit Library'
-    },
-    variables: 'Variables Panel',
-    admin: 'WP admin'
-  },
-  secondaryLocations: {
-    layout: 'Layout Section',
-    basic: 'Basic Section',
-    'pro-elements': 'Pro Section',
-    general: 'General Section',
-    'theme-elements': 'Site Section',
-    'theme-elements-single': 'Single Section',
-    'woocommerce-elements': 'WooCommerce Section',
-    wordpress: 'WordPress Section',
-    categories: 'Widgets Tab',
-    global: 'Globals Tab',
-    'whats-new': 'What\'s New',
-    'document-settings': 'Document Settings icon',
-    'preview-page': 'Preview Page',
-    'publish-button': 'Publish Button',
-    'widget-panel': 'Widget Panel Icon',
-    finder: 'Finder',
-    help: 'Help',
-    elementorLogoDropdown: 'top_bar_elementor_logo_dropdown',
-    elementorLogo: 'Elementor Logo',
-    eLogoMenu: 'E-logo Menu',
-    notes: 'Notes',
-    siteSettings: 'Site Settings',
-    structure: 'Structure',
-    documentNameDropdown: 'Document Name dropdown',
-    responsiveControls: 'Responsive controls',
-    launchpad: 'launchpad',
-    checklistHeader: 'Checklist Header',
-    checklistSteps: 'Checklist Steps',
-    userPreferences: 'User Preferences',
-    contextMenu: 'Context Menu',
-    templateLibrary: {
-      saveModal: 'Save to Modal',
-      moveModal: 'Move to Modal',
-      bulkMoveModal: 'Bulk Move to Modal',
-      copyModal: 'Copy to Modal',
-      bulkCopyModal: 'Bulk Copy to Modal',
-      saveModalSelectFolder: 'Save to Modal - select folder',
-      saveModalSelectConnect: 'Save to Modal - connect',
-      saveModalSelectUpgrade: 'Save to Modal - upgrade',
-      importModal: 'Import Modal',
-      newFolderModal: 'New Folder Modal',
-      deleteDialog: 'Delete Dialog',
-      deleteFolderDialog: 'Delete Folder Dialog',
-      renameDialog: 'Rename Dialog',
-      createFolderDialog: 'Create Folder Dialog',
-      applySettingsDialog: 'Apply Settings Dialog',
-      cloudTab: 'Cloud Tab',
-      siteTab: 'Site Tab',
-      cloudTabFolder: 'Cloud Tab - Folder',
-      cloudTabConnect: 'Cloud Tab - Connect',
-      cloudTabUpgrade: 'Cloud Tab - Upgrade',
-      morePopup: 'Context Menu',
-      quotaBar: 'Quota Bar'
-    },
-    kitLibrary: {
-      cloudKitLibrary: 'kits_cloud_library',
-      cloudKitLibraryConnect: 'kits_cloud_library_connect',
-      cloudKitLibraryUpgrade: 'kits_cloud_library_upgrade',
-      kitExportCustomization: 'kit_export_customization',
-      kitExport: 'kit_export',
-      kitExportCustomizationEdit: 'kit_export_customization_edit',
-      kitExportSummary: 'kit_export_summary',
-      kitImportUploadBox: 'kit_import_upload_box',
-      kitImportCustomization: 'kit_import_customization',
-      kitImportSummary: 'kit_import_summary'
-    },
-    variablesPopover: 'Variables Popover',
-    admin: {
-      pluginToolsTab: 'plugin_tools_tab',
-      pluginWebsiteTemplatesTab: 'plugin_website_templates_tab'
-    }
-  },
-  elements: {
-    accordionSection: 'Accordion section',
-    buttonIcon: 'Button Icon',
-    mainCta: 'Main CTA',
-    button: 'Button',
-    link: 'Link',
-    dropdown: 'Dropdown',
-    toggle: 'Toggle',
-    launchpadChecklist: 'Checklist popup'
-  },
-  names: {
-    v1: {
-      layout: 'v1_widgets_tab_layout_section',
-      basic: 'v1_widgets_tab_basic_section',
-      'pro-elements': 'v1_widgets_tab_pro_section',
-      general: 'v1_widgets_tab_general_section',
-      'theme-elements': 'v1_widgets_tab_site_section',
-      'theme-elements-single': 'v1_widgets_tab_single_section',
-      'woocommerce-elements': 'v1_widgets_tab_woocommerce_section',
-      wordpress: 'v1_widgets_tab_wordpress_section',
-      categories: 'v1_widgets_tab',
-      global: 'v1_globals_tab'
-    },
-    topBar: {
-      whatsNew: 'top_bar_whats_new',
-      documentSettings: 'top_bar_document_settings_icon',
-      previewPage: 'top_bar_preview_page',
-      publishButton: 'top_bar_publish_button',
-      widgetPanel: 'top_bar_widget_panel_icon',
-      finder: 'top_bar_finder',
-      help: 'top_bar_help',
-      history: 'top_bar_elementor_logo_dropdown_history',
-      userPreferences: 'top_bar_elementor_logo_dropdown_user_preferences',
-      keyboardShortcuts: 'top_bar_elementor_logo_dropdown_keyboard_shortcuts',
-      exitToWordpress: 'top_bar_elementor_logo_dropdown_exit_to_wordpress',
-      themeBuilder: 'top_bar_elementor_logo_dropdown_theme_builder',
-      notes: 'top_bar_notes',
-      siteSettings: 'top_bar_site_setting',
-      structure: 'top_bar_structure',
-      documentNameDropdown: 'top_bar_document_name_dropdown',
-      responsiveControls: 'top_bar_responsive_controls',
-      launchpadOn: 'top_bar_checklist_icon_show',
-      launchpadOff: 'top_bar_checklist_icon_hide',
-      elementorLogoDropdown: 'open_e_menu',
-      connectAccount: 'connect_account',
-      accountConnected: 'account_connected'
-    },
-    // ChecklistSteps event names are generated dynamically, based on stepId and action type taken: title, action, done, undone, upgrade
-    elementorEditor: {
-      checklist: {
-        checklistHeaderClose: 'checklist_header_close_icon',
-        checklistFirstPopup: 'checklist popup triggered'
-      },
-      userPreferences: {
-        checklistShow: 'checklist_userpreferences_toggle_show',
-        checklistHide: 'checklist_userpreferences_toggle_hide'
-      }
-    },
-    variables: {
-      open: 'open_variables_popover',
-      add: 'add_new_variable',
-      connect: 'connect_variable',
-      save: 'save_new_variable'
-    }
-  }
-};
-var _default = exports["default"] = eventsConfig;
 
 /***/ }),
 
@@ -2104,38 +1733,6 @@ var $TypeError = TypeError;
 module.exports = function (argument) {
   if (isCallable(argument)) return argument;
   throw new $TypeError(tryToString(argument) + ' is not a function');
-};
-
-
-/***/ }),
-
-/***/ "../node_modules/core-js/internals/add-to-unscopables.js":
-/*!***************************************************************!*\
-  !*** ../node_modules/core-js/internals/add-to-unscopables.js ***!
-  \***************************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-var wellKnownSymbol = __webpack_require__(/*! ../internals/well-known-symbol */ "../node_modules/core-js/internals/well-known-symbol.js");
-var create = __webpack_require__(/*! ../internals/object-create */ "../node_modules/core-js/internals/object-create.js");
-var defineProperty = (__webpack_require__(/*! ../internals/object-define-property */ "../node_modules/core-js/internals/object-define-property.js").f);
-
-var UNSCOPABLES = wellKnownSymbol('unscopables');
-var ArrayPrototype = Array.prototype;
-
-// Array.prototype[@@unscopables]
-// https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
-if (ArrayPrototype[UNSCOPABLES] === undefined) {
-  defineProperty(ArrayPrototype, UNSCOPABLES, {
-    configurable: true,
-    value: create(null)
-  });
-}
-
-// add a key to Array.prototype[@@unscopables]
-module.exports = function (key) {
-  ArrayPrototype[UNSCOPABLES][key] = true;
 };
 
 
@@ -2971,7 +2568,7 @@ module.exports = function (namespace, method) {
 "use strict";
 
 // `GetIteratorDirect(obj)` abstract operation
-// https://tc39.es/proposal-iterator-helpers/#sec-getiteratordirect
+// https://tc39.es/ecma262/#sec-getiteratordirect
 module.exports = function (obj) {
   return {
     iterator: obj,
@@ -3621,7 +3218,7 @@ var getMethod = __webpack_require__(/*! ../internals/get-method */ "../node_modu
 var IteratorPrototype = (__webpack_require__(/*! ../internals/iterators-core */ "../node_modules/core-js/internals/iterators-core.js").IteratorPrototype);
 var createIterResultObject = __webpack_require__(/*! ../internals/create-iter-result-object */ "../node_modules/core-js/internals/create-iter-result-object.js");
 var iteratorClose = __webpack_require__(/*! ../internals/iterator-close */ "../node_modules/core-js/internals/iterator-close.js");
-var iteratorCloseAll = __webpack_require__(/*! ./iterator-close-all */ "../node_modules/core-js/internals/iterator-close-all.js");
+var iteratorCloseAll = __webpack_require__(/*! ../internals/iterator-close-all */ "../node_modules/core-js/internals/iterator-close-all.js");
 
 var TO_STRING_TAG = wellKnownSymbol('toStringTag');
 var ITERATOR_HELPER = 'IteratorHelper';
@@ -4428,10 +4025,10 @@ var SHARED = '__core-js_shared__';
 var store = module.exports = globalThis[SHARED] || defineGlobalProperty(SHARED, {});
 
 (store.versions || (store.versions = [])).push({
-  version: '3.43.0',
+  version: '3.46.0',
   mode: IS_PURE ? 'pure' : 'global',
-  copyright: '© 2014-2025 Denis Pushkarev (zloirock.ru)',
-  license: 'https://github.com/zloirock/core-js/blob/v3.43.0/LICENSE',
+  copyright: '© 2014-2025 Denis Pushkarev (zloirock.ru), 2025 CoreJS Company (core-js.io)',
+  license: 'https://github.com/zloirock/core-js/blob/v3.46.0/LICENSE',
   source: 'https://github.com/zloirock/core-js'
 });
 
@@ -4798,39 +4395,6 @@ module.exports = function (name) {
       : createWellKnownSymbol('Symbol.' + name);
   } return WellKnownSymbolsStore[name];
 };
-
-
-/***/ }),
-
-/***/ "../node_modules/core-js/modules/es.array.includes.js":
-/*!************************************************************!*\
-  !*** ../node_modules/core-js/modules/es.array.includes.js ***!
-  \************************************************************/
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-var $ = __webpack_require__(/*! ../internals/export */ "../node_modules/core-js/internals/export.js");
-var $includes = (__webpack_require__(/*! ../internals/array-includes */ "../node_modules/core-js/internals/array-includes.js").includes);
-var fails = __webpack_require__(/*! ../internals/fails */ "../node_modules/core-js/internals/fails.js");
-var addToUnscopables = __webpack_require__(/*! ../internals/add-to-unscopables */ "../node_modules/core-js/internals/add-to-unscopables.js");
-
-// FF99+ bug
-var BROKEN_ON_SPARSE = fails(function () {
-  // eslint-disable-next-line es/no-array-prototype-includes -- detection
-  return !Array(1).includes();
-});
-
-// `Array.prototype.includes` method
-// https://tc39.es/ecma262/#sec-array.prototype.includes
-$({ target: 'Array', proto: true, forced: BROKEN_ON_SPARSE }, {
-  includes: function includes(el /* , fromIndex = 0 */) {
-    return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
-  }
-});
-
-// https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
-addToUnscopables('includes');
 
 
 /***/ }),

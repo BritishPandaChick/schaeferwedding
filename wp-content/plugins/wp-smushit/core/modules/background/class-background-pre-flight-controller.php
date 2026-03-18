@@ -7,7 +7,7 @@ use Smush\Core\Controller;
 use Smush\Core\Helper;
 
 class Background_Pre_Flight_Controller extends Controller {
-	const BACKGROUND_PRE_FLIGHT_OPTION = 'wp_smush_background_pre_flight';
+	private static $background_pre_flight_option = 'wp_smush_background_pre_flight';
 	/**
 	 * @var Array_Utils
 	 */
@@ -123,8 +123,8 @@ class Background_Pre_Flight_Controller extends Controller {
 	}
 
 	private function reset_pre_flight_option() {
-		delete_option( self::BACKGROUND_PRE_FLIGHT_OPTION );
-		wp_cache_delete( self::BACKGROUND_PRE_FLIGHT_OPTION, 'options' );
+		delete_option( self::$background_pre_flight_option );
+		wp_cache_delete( self::$background_pre_flight_option, 'options' );
 	}
 
 	private function is_test_performed() {
@@ -135,7 +135,7 @@ class Background_Pre_Flight_Controller extends Controller {
 	 * @return false|mixed|null
 	 */
 	private function get_pre_flight_option() {
-		return get_option( self::BACKGROUND_PRE_FLIGHT_OPTION, array() );
+		return get_option( self::$background_pre_flight_option, array() );
 	}
 
 	/**
@@ -144,6 +144,6 @@ class Background_Pre_Flight_Controller extends Controller {
 	 * @return void
 	 */
 	private function update_pre_flight_option( $background_pre_flight ) {
-		update_option( self::BACKGROUND_PRE_FLIGHT_OPTION, $background_pre_flight, false );
+		update_option( self::$background_pre_flight_option, $background_pre_flight, false );
 	}
 }

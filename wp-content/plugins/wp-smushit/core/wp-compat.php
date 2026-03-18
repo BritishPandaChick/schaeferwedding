@@ -9,7 +9,7 @@ if ( ! function_exists( 'wp_sizes_attribute_includes_valid_auto' ) ) {
 	 * @param string $sizes_attr The value of the 'sizes' attribute.
 	 * @return bool True if the first value is 'auto', false otherwise.
 	 */
-	function wp_sizes_attribute_includes_valid_auto( string $sizes_attr ): bool {
+	function wp_sizes_attribute_includes_valid_auto( $sizes_attr ) {
 		list( $first_size ) = explode( ',', $sizes_attr, 2 );
 		return 'auto' === strtolower( trim( $first_size, " \t\f\r\n" ) );
 	}

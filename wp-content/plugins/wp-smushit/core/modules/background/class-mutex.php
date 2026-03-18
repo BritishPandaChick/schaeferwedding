@@ -3,7 +3,7 @@
 namespace Smush\Core\Modules\Background;
 
 class Mutex {
-	const REQUIRED_MYSQL_VERSION = '5.7';
+	private static $required_mysql_version = '5.7';
 
 	/**
 	 * @var string
@@ -137,7 +137,7 @@ class Mutex {
 	}
 
 	private function get_required_mysql_version() {
-		return self::REQUIRED_MYSQL_VERSION;
+		return self::$required_mysql_version;
 	}
 
 }

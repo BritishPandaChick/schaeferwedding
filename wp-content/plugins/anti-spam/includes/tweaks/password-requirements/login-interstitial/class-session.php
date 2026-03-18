@@ -17,8 +17,8 @@ class Login_Interstitial_Session {
 
 	/**
 	 * @param \WP_User $user
-	 * @param int $id
-	 * @param array $data
+	 * @param int      $id
+	 * @param array    $data
 	 */
 	public function __construct( \WP_User $user, $id, $data ) {
 		$this->user = $user;
@@ -35,7 +35,7 @@ class Login_Interstitial_Session {
 	 */
 	public function set_current_interstitial( $action ) {
 		$this->data['current'] = $action;
-		$this->data['state']   = array();
+		$this->data['state']   = [];
 
 		return $this;
 	}
@@ -186,14 +186,14 @@ class Login_Interstitial_Session {
 	/**
 	 * Verify the session.
 	 *
-	 * @param int $user_id
+	 * @param int    $user_id
 	 * @param string $signature
 	 *
 	 * @return true|\WP_Error
 	 */
 	public function verify( $user_id, $signature ) {
 		if ( $this->is_expired() ) {
-			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-session-expired', esc_html__( 'Session expired.', 'titan-security' ) );
+			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-session-expired', esc_html__( 'Session expired.', 'anti-spam' ) );
 		}
 
 		$signature_verified = $this->verify_signature( $signature );
@@ -203,11 +203,11 @@ class Login_Interstitial_Session {
 		}
 
 		if ( true !== $signature_verified ) {
-			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-invalid-signature', esc_html__( 'Invalid signature.', 'titan-security' ) );
+			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-invalid-signature', esc_html__( 'Invalid signature.', 'anti-spam' ) );
 		}
 
 		if ( ! $user_id || $this->get_user()->ID !== $user_id ) {
-			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-invalid-user', esc_html__( 'Invalid user.', 'titan-security' ) );
+			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-invalid-user', esc_html__( 'Invalid user.', 'anti-spam' ) );
 		}
 
 		return true;
@@ -217,14 +217,14 @@ class Login_Interstitial_Session {
 	 * Verify the session for a given payload.
 	 *
 	 * @param string $payload
-	 * @param int $user_id
+	 * @param int    $user_id
 	 * @param string $signature
 	 *
 	 * @return true|\WP_Error
 	 */
 	public function verify_for_payload( $payload, $user_id, $signature ) {
 		if ( $this->is_expired() ) {
-			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-session-expired', esc_html__( 'Session expired.', 'titan-security' ) );
+			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-session-expired', esc_html__( 'Session expired.', 'anti-spam' ) );
 		}
 
 		$signature_verified = $this->verify_signature_for_payload( $payload, $signature );
@@ -234,11 +234,11 @@ class Login_Interstitial_Session {
 		}
 
 		if ( true !== $signature_verified ) {
-			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-invalid-signature', esc_html__( 'Invalid signature.', 'titan-security' ) );
+			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-invalid-signature', esc_html__( 'Invalid signature.', 'anti-spam' ) );
 		}
 
 		if ( ! $user_id || $this->get_user()->ID !== $user_id ) {
-			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-invalid-user', esc_html__( 'Invalid user.', 'titan-security' ) );
+			return new \WP_Error( 'titan-lib-login-interstitial-verify-failed-invalid-user', esc_html__( 'Invalid user.', 'anti-spam' ) );
 		}
 
 		return true;
@@ -250,7 +250,7 @@ class Login_Interstitial_Session {
 	 * @return bool
 	 */
 	public function is_expired() {
-		return $this->data['created_at'] + HOUR_IN_SECONDS < current_time( 'timestamp', true );
+		return $this->data['created_at'] + HOUR_IN_SECONDS < time();
 	}
 
 	/**
@@ -281,7 +281,7 @@ class Login_Interstitial_Session {
 		$hash = hash_hmac( 'sha1', $to_hash, wp_salt() );
 
 		if ( ! $hash ) {
-			return new \WP_Error( 'titan-lib-login-interstitial-signature-failed', esc_html__( 'Could not calculate signature.', 'titan-security' ) );
+			return new \WP_Error( 'titan-lib-login-interstitial-signature-failed', esc_html__( 'Could not calculate signature.', 'anti-spam' ) );
 		}
 
 		return $hash;
@@ -318,7 +318,7 @@ class Login_Interstitial_Session {
 		$hash = hash_hmac( 'sha1', $to_hash, wp_salt() );
 
 		if ( ! $hash ) {
-			return new \WP_Error( 'titan-lib-login-interstitial-signature-failed', esc_html__( 'Could not calculate signature.', 'titan-security' ) );
+			return new \WP_Error( 'titan-lib-login-interstitial-signature-failed', esc_html__( 'Could not calculate signature.', 'anti-spam' ) );
 		}
 
 		return $hash;
@@ -402,11 +402,14 @@ class Login_Interstitial_Session {
 	 * @return bool
 	 */
 	public function save() {
-		$this->log( 'save', [
-			'current'    => $this->get_current_interstitial(),
-			'completed'  => $this->get_completed_interstitials(),
-			'show_after' => $this->get_show_after(),
-		] );
+		$this->log(
+			'save',
+			[
+				'current'    => $this->get_current_interstitial(),
+				'completed'  => $this->get_completed_interstitials(),
+				'show_after' => $this->get_show_after(),
+			] 
+		);
 
 		return update_metadata_by_mid( 'user', $this->get_id(), $this->data, self::META_KEY );
 	}
@@ -420,12 +423,13 @@ class Login_Interstitial_Session {
 		$deleted = delete_metadata_by_mid( 'user', $this->get_id() );
 
 		foreach ( get_user_meta( $this->get_user()->ID, self::META_KEY ) as $entry ) {
-			if ( ! isset( $entry['created_at'] ) || $entry['created_at'] + HOUR_IN_SECONDS < current_time( 'timestamp', true ) ) {
+			if ( ! isset( $entry['created_at'] ) || $entry['created_at'] + HOUR_IN_SECONDS < time() ) {
 				delete_user_meta( $this->get_user()->ID, self::META_KEY, $entry );
 			}
 		}
 
-		/*if ( ! empty( $this->data['log'] ) ) {
+		/*
+		if ( ! empty( $this->data['log'] ) ) {
 			ITSEC_Log::add_process_stop( $this->data['log'] );
 		}*/
 
@@ -435,11 +439,11 @@ class Login_Interstitial_Session {
 	/**
 	 * Log an update to this interstitial.
 	 *
-	 * @param string $code
+	 * @param string      $code
 	 * @param mixed|false $data
 	 * @param array|false $overrides
 	 */
-	protected function log( $code, $data = false, $overrides = array() ) {
+	protected function log( $code, $data = false, $overrides = [] ) {
 		if ( ! empty( $this->data['log'] ) ) {
 			$reference         = $this->data['log'];
 			$reference['code'] = $code;
@@ -451,33 +455,34 @@ class Login_Interstitial_Session {
 	 * Create a new state session.
 	 *
 	 * @param \WP_User $user The user to create the session for.
-	 * @param string $current The current interstitial.
+	 * @param string   $current The current interstitial.
 	 *
 	 * @return \WBCR\Titan\Tweaks\Login_Interstitial_Session|\WP_Error
 	 */
 	public static function create( \WP_User $user, $current = '' ) {
-		/*$log = ITSEC_Log::add_process_start( 'login-interstitial', 'create', [
+		/*
+		$log = ITSEC_Log::add_process_start( 'login-interstitial', 'create', [
 			'current' => $current,
 			'_server' => $_SERVER,
 		], [ 'user_id' => $user->ID ] );*/
 
-		$data = array(
+		$data = [
 			'uuid'          => wp_generate_uuid4(),
 			'current'       => $current,
-			'completed'     => array(),
-			'created_at'    => current_time( 'timestamp', true ),
-			'show_after'    => array(),
+			'completed'     => [],
+			'created_at'    => time(),
+			'show_after'    => [],
 			'redirect_to'   => '',
 			'remember_me'   => false,
 			'interim_login' => false,
-			'state'         => array(),
-			//'log'           => $log,
-		);
+			'state'         => [],
+			// 'log'           => $log.
+		];
 
 		if ( ! $mid = add_user_meta( $user->ID, self::META_KEY, $data ) ) {
-			$error = new \WP_Error( 'titan-lib-login-interstitial-save-failed', esc_html__( 'Failed to create interstitial state.', 'titan-security' ) );
+			$error = new \WP_Error( 'titan-lib-login-interstitial-save-failed', esc_html__( 'Failed to create interstitial state.', 'anti-spam' ) );
 
-			//ITSEC_Log::add_process_stop( $log, $error );
+			// ITSEC_Log::add_process_stop( $log, $error );.
 
 			return $error;
 		}
@@ -499,8 +504,14 @@ class Login_Interstitial_Session {
 
 		$row = get_metadata_by_mid( 'user', $id );
 
-		if ( ! $row || $row->meta_key !== self::META_KEY || ! self::validate_meta( $row->meta_value ) || ! $user = get_userdata( $row->user_id ) ) {
-			return new \WP_Error( 'titan-lib-login-interstitial-not-found', esc_html__( 'Interstitial state not found.', 'titan-security' ) );
+		if ( ! $row || self::META_KEY !== $row->meta_key || ! self::validate_meta( $row->meta_value ) ) {
+			return new \WP_Error( 'titan-lib-login-interstitial-not-found', esc_html__( 'Interstitial state not found.', 'anti-spam' ) );
+		}
+
+		$user = get_userdata( $row->user_id );
+
+		if ( ! $user ) {
+			return new \WP_Error( 'titan-lib-login-interstitial-not-found', esc_html__( 'Interstitial state not found.', 'anti-spam' ) );
 		}
 
 		return new self( $user, $id, $row->meta_value );
@@ -519,7 +530,7 @@ class Login_Interstitial_Session {
 
 		$mids = $wpdb->get_col( $wpdb->prepare( "SELECT `umeta_id` FROM {$wpdb->usermeta} WHERE `meta_key` = %s AND `user_id` = %d", self::META_KEY, $user->ID ) );
 
-		$sessions = array();
+		$sessions = [];
 
 		foreach ( $mids as $meta_id ) {
 			if ( ! is_wp_error( $session = self::get( $meta_id ) ) ) {

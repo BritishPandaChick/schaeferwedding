@@ -2,70 +2,64 @@
 
 namespace WBCR\Titan;
 
-/**
- * Activator for the Antispam
- *
- * @author        Alexander Kovalev <alex.kovalevv@gmail.com>, Github: https://github.com/alexkovalevv
- * @copyright (c) 26.10.2019, Webcraftic
- * @see           Wbcr_Factory475_Activator
- * @version       1.0
- */
-
-// Exit if accessed directly
-if( !defined('ABSPATH') ) {
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Activation extends \Wbcr_Factory475_Activator {
+/**
+ * Handles plugin activation and deactivation.
+ */
+class Activation {
 
 	/**
 	 * Runs activation actions.
 	 *
 	 * @since  6.0
 	 */
-	public function activate()
-	{
-		$plugin_version_in_db = $this->get_plugin_version_in_db();
-		$current_plugin_version = $this->plugin->getPluginVersion();
+	public static function activate() {
+		$plugin_version_in_db   = self::get_plugin_version_in_db();
+		$current_plugin_version = WTITAN_PLUGIN_VERSION;
 
-		$tab = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-		$log_message = "Plugin starts activation [START].\r\n";
+		$tab          = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+		$log_message  = "Plugin starts activation [START].\r\n";
 		$log_message .= "{$tab}-Plugin Version in DB: {$plugin_version_in_db}\r\n";
 		$log_message .= "{$tab}-Current Plugin Version: {$current_plugin_version}";
 
 		require_once WTITAN_PLUGIN_DIR . '/includes/bruteforce/do_activate.php';
 
-		update_option($this->plugin->getOptionName('setup_wizard'), 1);
-
-		\WBCR\Titan\Logger\Writter::info($log_message);
+		\WBCR\Titan\Logger\Writter::info( $log_message );
 	}
 
 	/**
-	 * Get previous plugin version
+	 * Get previous plugin version.
 	 *
-	 * @return number
+	 * @return int|string
 	 * @since  6.0
-	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
 	 */
-	public function get_plugin_version_in_db()
-	{
-		if( \WBCR\Titan\Plugin::app()->isNetworkActive() ) {
-			return get_site_option(\WBCR\Titan\Plugin::app()->getOptionName('plugin_version'), 0);
+	public static function get_plugin_version_in_db() {
+		if ( is_plugin_active_for_network( plugin_basename( WTITAN_PLUGIN_FILE ) ) ) {
+			return get_site_option( 'titan_plugin_version', 0 );
 		}
 
-		return get_option(\WBCR\Titan\Plugin::app()->getOptionName('plugin_version'), 0);
+		return get_option( 'titan_plugin_version', 0 );
 	}
-
 
 	/**
 	 * Run deactivation actions.
 	 *
-	 * @author Alexander Kovalev <alex.kovalevv@gmail.com>
 	 * @since  6.0
 	 */
-	public function deactivate()
-	{
-		\WBCR\Titan\Logger\Writter::info("Plugin starts deactivate [START].");
-		\WBCR\Titan\Logger\Writter::info("Plugin has been deactivated [END]!");
+	public static function deactivate() {
+		\WBCR\Titan\Logger\Writter::info( 'Plugin starts deactivate [START].' );
+
+		if ( function_exists( 'as_unschedule_all_actions' ) ) {
+			as_unschedule_all_actions( 'titan_spam_batch_enqueue_spam' );
+			as_unschedule_all_actions( 'titan_spam_batch_check_status' );
+		}
+
+		delete_transient( 'titan_spam_actions_scheduled' );
+
+		\WBCR\Titan\Logger\Writter::info( 'Plugin has been deactivated [END]!' );
 	}
 }

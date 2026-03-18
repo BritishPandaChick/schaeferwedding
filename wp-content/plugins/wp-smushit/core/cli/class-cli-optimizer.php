@@ -19,11 +19,11 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 class CLI_Optimizer {
-	const IMAGE_ID_KEY = 'ID';
-	const EDIT_LINK_KEY = 'Edit Link';
-	const ERROR_MESSAGE_KEY = 'Error Message';
-	const IMAGE_LINK_KEY = 'IMAGE LINK';
-	const MIME_TYPE_KEY = 'MIME TYPE';
+	private static $image_id_key = 'ID';
+	private static $edit_link_key = 'Edit Link';
+	private static $error_message_key = 'Error Message';
+	private static $image_link_key = 'IMAGE LINK';
+	private static $mime_type_key = 'MIME TYPE';
 	/**
 	 * @var int
 	 */
@@ -116,7 +116,7 @@ class CLI_Optimizer {
 			sprintf(
 			/* translators: %s: Error message */
 				__( 'Image could not be restored: %s', 'wp-smushit' ),
-				$this->array_utils->get_array_value( $errors[0], self::ERROR_MESSAGE_KEY )
+				$this->array_utils->get_array_value( $errors[0], self::$error_message_key )
 			)
 		);
 	}
@@ -131,7 +131,7 @@ class CLI_Optimizer {
 		}
 
 		WP_CLI::warning( $bulk_restore_message );
-		WP_CLI\Utils\format_items( 'table', $errors, array( self::IMAGE_ID_KEY, self::EDIT_LINK_KEY, self::ERROR_MESSAGE_KEY ) );
+		WP_CLI\Utils\format_items( 'table', $errors, array( self::$image_id_key, self::$edit_link_key, self::$error_message_key ) );
 	}
 
 	private function get_bulk_restore_message( $no_errors, $total_images ) {
@@ -202,9 +202,9 @@ class CLI_Optimizer {
 	private function get_error_item( $attachment_id, $error_message ) {
 		$media_item = Media_Item_Cache::get_instance()->get( $attachment_id );
 		return array(
-			self::IMAGE_ID_KEY      => $attachment_id,
-			self::EDIT_LINK_KEY     => $media_item->get_edit_link(),
-			self::ERROR_MESSAGE_KEY => $error_message,
+			self::$image_id_key      => $attachment_id,
+			self::$edit_link_key     => $media_item->get_edit_link(),
+			self::$error_message_key => $error_message,
 		);
 	}
 
@@ -229,7 +229,7 @@ class CLI_Optimizer {
 			sprintf(
 			/* translators: %s: Error message */
 				__( 'Image could not be smushed: %s', 'wp-smushit' ),
-				$this->array_utils->get_array_value( $errors[0], self::ERROR_MESSAGE_KEY )
+				$this->array_utils->get_array_value( $errors[0], self::$error_message_key )
 			)
 		);
 	}
@@ -244,7 +244,7 @@ class CLI_Optimizer {
 		}
 
 		WP_CLI::warning( $bulk_smush_message );
-		WP_CLI\Utils\format_items( 'table', $errors, array( self::IMAGE_ID_KEY, self::EDIT_LINK_KEY, self::ERROR_MESSAGE_KEY ) );
+		WP_CLI\Utils\format_items( 'table', $errors, array( self::$image_id_key, self::$edit_link_key, self::$error_message_key ) );
 	}
 
 	private function get_bulk_smush_message( $no_errors, $total_images ) {
@@ -268,7 +268,7 @@ class CLI_Optimizer {
 			return;
 		}
 		WP_CLI::log( $title );
-		WP_CLI\Utils\format_items( 'table', $this->get_optimize_list(), array( self::IMAGE_ID_KEY, self::IMAGE_LINK_KEY, self::MIME_TYPE_KEY ) );
+		WP_CLI\Utils\format_items( 'table', $this->get_optimize_list(), array( self::$image_id_key, self::$image_link_key, self::$mime_type_key ) );
 		$this->reset();
 	}
 
@@ -304,9 +304,9 @@ class CLI_Optimizer {
 
 	public function get_optimize_item( $media_item ) {
 		return array(
-			self::IMAGE_ID_KEY   => $media_item->get_id(),
-			self::IMAGE_LINK_KEY => $media_item->get_main_size()->get_file_url(),
-			self::MIME_TYPE_KEY  => $media_item->get_mime_type(),
+			self::$image_id_key   => $media_item->get_id(),
+			self::$image_link_key => $media_item->get_main_size()->get_file_url(),
+			self::$mime_type_key  => $media_item->get_mime_type(),
 		);
 	}
 
@@ -331,7 +331,7 @@ class CLI_Optimizer {
 		return (array) $this->errors;
 	}
 
-	private function set_errors( array $errors ) {
+	private function set_errors( $errors ) {
 		$this->errors = $errors;
 		return $this;
 	}

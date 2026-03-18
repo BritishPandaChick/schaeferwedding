@@ -28,14 +28,14 @@ class Hub_Connector extends Controller {
 	 *
 	 * @const string
 	 */
-	public const PLUGIN_IDENTIFIER = 'smush';
+	private static $plugin_identifier = 'smush';
 
 	/**
 	 * The action name used for the Hub connection.
 	 *
 	 * @const string
 	 */
-	public const CONNECTION_ACTION = 'hub_connection';
+	private static $connection_action = 'hub_connection';
 
 	/**
 	 * Valid screens for the Hub Connector.
@@ -86,7 +86,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return void
 	 */
-	private function initialize(): void {
+	private function initialize() {
 		$this->load_hub_connector_library();
 		$this->configure_hub_connector();
 	}
@@ -97,7 +97,7 @@ class Hub_Connector extends Controller {
 	 * @param string $classes Existing CSS classes.
 	 * @return string Modified CSS classes.
 	 */
-	public function admin_body_class( string $classes ): string {
+	public function admin_body_class( $classes ) {
 		if ( ! self::is_valid_screen() || self::is_logged_in() ) {
 			return $classes;
 		}
@@ -116,7 +116,7 @@ class Hub_Connector extends Controller {
 	 * @return void
 	 * @throws \RuntimeException If library file doesn't exist.
 	 */
-	private function load_hub_connector_library(): void {
+	private function load_hub_connector_library() {
 		$hub_connector_lib = WP_SMUSH_DIR . 'core/external/hub-connector/connector.php';
 
 		if ( ! file_exists( $hub_connector_lib ) ) {
@@ -138,7 +138,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return void
 	 */
-	private function configure_hub_connector(): void {
+	private function configure_hub_connector() {
 		if ( ! class_exists( '\WPMUDEV\Hub\Connector' ) ) {
 			return;
 		}
@@ -147,7 +147,7 @@ class Hub_Connector extends Controller {
 			'screens' => self::$valid_screens,
 		);
 
-		Connector::get()->set_options( self::PLUGIN_IDENTIFIER, $options );
+		Connector::get()->set_options( self::$plugin_identifier, $options );
 	}
 
 	/**
@@ -155,7 +155,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return string
 	 */
-	private function get_sui_version(): string {
+	private function get_sui_version() {
 		return defined( 'WPMUDEV_HUB_CONNECTOR_SUI_VERSION' ) ? WPMUDEV_HUB_CONNECTOR_SUI_VERSION : '';
 	}
 
@@ -164,7 +164,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return bool
 	 */
-	private static function is_valid_screen(): bool {
+	private static function is_valid_screen() {
 		$current_screen = get_current_screen();
 
 		if ( ! $current_screen || ! isset( $current_screen->id ) ) {
@@ -179,8 +179,8 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return void
 	 */
-	public static function render(): void {
-		do_action( 'wpmudev_hub_connector_ui', self::PLUGIN_IDENTIFIER );
+	public static function render() {
+		do_action( 'wpmudev_hub_connector_ui', self::$plugin_identifier );
 	}
 
 	/**
@@ -188,10 +188,10 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return bool
 	 */
-	public static function is_connection_flow(): bool {
+	public static function is_connection_flow() {
 		$action = self::get_sanitized_input( 'page_action' );
 
-		return ! empty( $action ) && self::CONNECTION_ACTION === $action;
+		return ! empty( $action ) && self::$connection_action === $action;
 	}
 
 	/**
@@ -199,7 +199,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return bool
 	 */
-	public static function has_access(): bool {
+	public static function has_access() {
 		return self::is_hub_connector_available() && self::is_logged_in();
 	}
 
@@ -208,7 +208,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return bool
 	 */
-	private static function is_hub_connector_available(): bool {
+	private static function is_hub_connector_available() {
 		return class_exists( '\WPMUDEV\Hub\Connector' );
 	}
 
@@ -217,7 +217,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return bool
 	 */
-	public static function is_logged_in(): bool {
+	public static function is_logged_in() {
 		if ( ! class_exists( '\WPMUDEV\Hub\Connector\API' ) ) {
 			return false;
 		}
@@ -232,7 +232,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return bool
 	 */
-	public static function disconnect(): bool {
+	public static function disconnect() {
 		if ( ! class_exists( '\WPMUDEV\Hub\Connector\API' ) ) {
 			return false;
 		}
@@ -250,7 +250,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return string The connection URL.
 	 */
-	public static function get_connect_site_url( string $target_page = 'smush-bulk', string $utm_campaign = '' ): string {
+	public static function get_connect_site_url( $target_page = 'smush-bulk', $utm_campaign = '' ) {
 		$args = array();
 
 		if ( self::should_redirect_to_dashboard() ) {
@@ -273,7 +273,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return bool
 	 */
-	private static function should_redirect_to_dashboard(): bool {
+	private static function should_redirect_to_dashboard() {
 		return ! self::is_wpmudev_dashboard_connected() && class_exists( 'WPMUDEV_Dashboard' );
 	}
 
@@ -283,11 +283,11 @@ class Hub_Connector extends Controller {
 	 * @param string $target_page The target page.
 	 * @return array
 	 */
-	private static function get_connection_args( string $target_page ): array {
+	private static function get_connection_args( $target_page ) {
 		return array(
 			'page'        => sanitize_text_field( $target_page ),
-			'_wpnonce'    => wp_create_nonce( self::CONNECTION_ACTION ),
-			'page_action' => self::CONNECTION_ACTION,
+			'_wpnonce'    => wp_create_nonce( self::$connection_action ),
+			'page_action' => self::$connection_action,
 		);
 	}
 
@@ -296,7 +296,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return string
 	 */
-	private static function get_admin_url(): string {
+	private static function get_admin_url() {
 		return is_network_admin() ? network_admin_url( 'admin.php' ) : admin_url( 'admin.php' );
 	}
 
@@ -305,7 +305,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return bool
 	 */
-	public static function is_wpmudev_dashboard_connected(): bool {
+	public static function is_wpmudev_dashboard_connected() {
 		if ( ! class_exists( 'WPMUDEV_Dashboard' ) ) {
 			return false;
 		}
@@ -325,7 +325,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return bool True if should render, false otherwise.
 	 */
-	public static function should_render(): bool {
+	public static function should_render() {
 		if ( self::is_logged_in() || ! self::is_valid_screen() ) {
 			return false;
 		}
@@ -338,14 +338,14 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return bool
 	 */
-	private static function verify_connection_nonce(): bool {
+	private static function verify_connection_nonce() {
 		$nonce = self::get_sanitized_input( '_wpnonce' );
 
 		if ( empty( $nonce ) ) {
 			return false;
 		}
 
-		return wp_verify_nonce( $nonce, self::CONNECTION_ACTION ) !== false;
+		return wp_verify_nonce( $nonce, self::$connection_action ) !== false;
 	}
 
 	/**
@@ -355,7 +355,7 @@ class Hub_Connector extends Controller {
 	 * @param mixed  $default_value Default value if key doesn't exist.
 	 * @return mixed Sanitized input value or default.
 	 */
-	private static function get_sanitized_input( string $key, $default_value = '' ) {
+	private static function get_sanitized_input( $key, $default_value = '' ) {
 		$value = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW );
 
 		if ( null === $value ) {
@@ -373,10 +373,10 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return array
 	 */
-	public function customize_text_vars( $texts, $plugin_id ): array {
-		if ( self::PLUGIN_IDENTIFIER === $plugin_id ) {
+	public function customize_text_vars( $texts, $plugin_id ) {
+		if ( self::$plugin_identifier === $plugin_id ) {
 			$feature      = $this->get_feature_name();
-			$feature_part = ucfirst( self::PLUGIN_IDENTIFIER ) . ' - ' . esc_html( $feature );
+			$feature_part = ucfirst( self::$plugin_identifier ) . ' - ' . esc_html( $feature );
 
 			$texts['create_account_desc'] = sprintf(
 				/* translators: %1$s: Feature, %2$s: Opening italic tag, %3$s: Closing italic tag. */
@@ -400,7 +400,7 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return string
 	 */
-	private function get_feature_name(): string {
+	private function get_feature_name() {
 		$feature_name = __( 'Bulk Smush', 'wp-smushit' );
 
 		$request_uri = ( new Server_Utils() )->get_request_uri();
@@ -419,8 +419,8 @@ class Hub_Connector extends Controller {
 	 *
 	 * @return array The Smush data with the Hub connector data.
 	 */
-	public function add_hub_connector_data( $extra_args, $plugin_id ): array {
-		if ( self::PLUGIN_IDENTIFIER === $plugin_id ) {
+	public function add_hub_connector_data( $extra_args, $plugin_id ) {
+		if ( self::$plugin_identifier === $plugin_id ) {
 			$register_url = $this->array_utils->get_array_value( $extra_args, array( 'login', 'register_url' ) );
 			if ( $register_url && is_string( $register_url ) ) {
 				$extra_args['login']['register_url'] = $this->get_register_url_with_utm( $register_url );
@@ -452,12 +452,12 @@ class Hub_Connector extends Controller {
 	 * @param string $register_url The base register URL.
 	 * @return string The register URL with UTM parameters.
 	 */
-	private function get_register_url_with_utm( string $register_url ): string {
+	private function get_register_url_with_utm( $register_url ) {
 		$utm_campaign = filter_input( INPUT_GET, 'utm_campaign', FILTER_UNSAFE_RAW );
 		return add_query_arg(
 			array(
 				'utm_medium'   => 'plugin',
-				'utm_source'   => self::PLUGIN_IDENTIFIER,
+				'utm_source'   => self::$plugin_identifier,
 				'utm_campaign' => empty( $utm_campaign ) ? 'smush_bulk_smush_connect' : esc_attr( $utm_campaign ),
 				'utm_content'  => 'hub-connector',
 			),
@@ -527,7 +527,7 @@ class Hub_Connector extends Controller {
 			</div>
 			<div class="sui-box-settings-col-2">
 				<?php if ( $is_site_connected ) : ?>
-					<button class="sui-button sui-button-ghost" data-esc-close="false" data-modal-open="smush-disconnect-site-modal" data-modal-open-focus="dialog-close-div" data-modal-mask="true">
+					<button type="button" class="sui-button sui-button-ghost" data-esc-close="false" data-modal-open="smush-disconnect-site-modal" data-modal-open-focus="dialog-close-div" data-modal-mask="true">
 						<span class="sui-button-text-default">
 							<span class="sui-icon-plug-disconnected" aria-hidden="true"></span>
 							<?php esc_html_e( 'Disconnect site', 'wp-smushit' ); ?>
@@ -570,7 +570,7 @@ class Hub_Connector extends Controller {
 	 * @param mixed $messages Smush data messages.
 	 * @return array
 	 */
-	public function add_site_disconnected_success_message( $messages ): array {
+	public function add_site_disconnected_success_message( $messages ) {
 		$messages['site_disconnected_success'] = __( 'Site disconnected successfully.', 'wp-smushit' );
 
 		return $messages;

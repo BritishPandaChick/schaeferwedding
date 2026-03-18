@@ -36,12 +36,8 @@ class Bulk extends Abstract_Summary_Page implements Interface_Page {
 	public function on_load() {
 		parent::on_load();
 
-		// If a free user, update the limits.
-		if ( ! WP_Smush::is_pro() ) {
-			// Reset transient.
-			Core::check_bulk_limit( true );
-			add_action( 'smush_setting_column_tag', array( $this, 'add_pro_tag' ) );
-		}
+		Core::should_continue_smush( true );
+		add_action( 'smush_setting_column_tag', array( $this, 'add_pro_tag' ) );
 
 		$smush_settings_ui_controller = new Smush_Settings_UI_Controller();
 		$smush_settings_ui_controller->init();
@@ -87,9 +83,13 @@ class Bulk extends Abstract_Summary_Page implements Interface_Page {
 			true
 		);
 
-		wp_localize_script( 'smush-library-scanner', 'mediaLibraryScan', array(
-			'nonce' => wp_create_nonce( 'wp_smush_media_library_scanner' ),
-		) );
+		wp_localize_script(
+			'smush-library-scanner',
+			'mediaLibraryScan',
+			array(
+				'nonce' => wp_create_nonce( 'wp_smush_media_library_scanner' ),
+			)
+		);
 	}
 
 
@@ -129,22 +129,18 @@ class Bulk extends Abstract_Summary_Page implements Interface_Page {
 		}
 
 		if ( ! is_network_admin() ) {
-			$bg_optimization = WP_Smush::get_instance()->core()->mod->bg_optimization;
-
-			if ( ! $bg_optimization->should_use_background() ) {
-				$this->add_meta_box(
-					'ajax-bulk-smush-in-progressing-notice',
-					null,
-					array( $this, 'ajax_bulk_smush_in_progressing_notice' ),
-					null,
-					null,
-					'main',
-					array(
-						'box_class'         => 'sui-box ajax-bulk-smush-in-progressing-notice sui-hidden',
-						'box_content_class' => false,
-					)
-				);
-			}
+			$this->add_meta_box(
+				'ajax-bulk-smush-in-progressing-notice',
+				null,
+				array( $this, 'ajax_bulk_smush_in_progressing_notice' ),
+				null,
+				null,
+				'main',
+				array(
+					'box_class'         => 'sui-box ajax-bulk-smush-in-progressing-notice sui-hidden',
+					'box_content_class' => false,
+				)
+			);
 
 			$background_health = Background_Pre_Flight_Controller::get_instance();
 			if ( ! $background_health->is_cron_healthy() ) {
@@ -174,26 +170,6 @@ class Bulk extends Abstract_Summary_Page implements Interface_Page {
 					'box_content_class' => false,
 				)
 			);
-
-			$scan_background_process       = Background_Media_Library_Scanner::get_instance()->get_background_process();
-			$is_scan_process_dead          = $scan_background_process->get_status()->is_dead();
-			$show_bulk_smush_inline_notice = $bg_optimization->is_background_enabled() && $bg_optimization->is_dead();
-			// Do not show failed bulk smush inline notice when required re-check images.
-			$show_bulk_smush_inline_notice = $show_bulk_smush_inline_notice && ! $is_scan_process_dead;
-			if ( $show_bulk_smush_inline_notice ) {
-				$this->add_meta_box(
-					'inline-retry-bulk-smush-notice',
-					null,
-					array( $this, 'inline_retry_bulk_smush_notice_box' ),
-					null,
-					null,
-					'main',
-					array(
-						'box_class'         => 'sui-box wp-smush-inline-retry-bulk-smush-notice-box',
-						'box_content_class' => false,
-					)
-				);
-			}
 		}
 		parent::register_meta_boxes();
 
@@ -211,7 +187,6 @@ class Bulk extends Abstract_Summary_Page implements Interface_Page {
 			);
 		}
 
-		$class = WP_Smush::is_pro() ? 'wp-smush-pro' : '';
 		$this->add_meta_box(
 			'bulk-settings',
 			__( 'Settings', 'wp-smushit' ),
@@ -220,11 +195,15 @@ class Bulk extends Abstract_Summary_Page implements Interface_Page {
 			array( $this, 'common_meta_box_footer' ),
 			'main',
 			array(
-				'box_class' => "sui-box smush-settings-wrapper {$class}",
+				'box_class' => 'sui-box smush-settings-wrapper',
 			)
 		);
 
-		$this->modals['restore-images'] = array();
+		$restore_ids = WP_Smush::get_instance()->core()->mod->backup->get_attachments_with_backups();
+		$this->modals['restore-images'] = array(
+			'restore_image_count' => count( $restore_ids ),
+		);
+		$this->modals['disable-backup-original-image'] = array();
 	}
 
 	/**************************
@@ -261,26 +240,17 @@ class Bulk extends Abstract_Summary_Page implements Interface_Page {
 				'utm_campaign' => 'smush_bulk_smush_progress_BO',
 			)
 		);
-		$upsell_cdn_url 		= $this->get_utm_link(
+		$upsell_cdn_url         = $this->get_utm_link(
 			array(
 				'utm_campaign' => 'smush_bulksmush_cdn',
 			)
 		);
-
-		$bg_optimization               = WP_Smush::get_instance()->core()->mod->bg_optimization;
-		$background_processing_enabled = $bg_optimization->should_use_background();
-		$background_in_processing      = $background_processing_enabled && $bg_optimization->is_in_processing();
-
-		if ( $bg_optimization->can_use_background() ) {
-			$upsell_text = '';
-		} else {
-			$upsell_text = sprintf(
-				/* translators: 1: Open the link, 2: Close the link */
-				__( 'Want to close this tab? Smush Pro lets you optimize in the background — %1$sOn sale now!%2$s', 'wp-smushit' ),
-				'<a class="smush-upsell-link" target="_blank" href="' . esc_url( $in_progress_upsell_url ) . '">',
-				'</a>'
-			);
-		}
+		$upsell_text = sprintf(
+			/* translators: 1: Open the link, 2: Close the link */
+			__( 'Want to close this tab? Smush Pro lets you optimize in the background — %1$sGet Smush Pro!%2$s', 'wp-smushit' ),
+			'<a class="smush-upsell-link" target="_blank" href="' . esc_url( $in_progress_upsell_url ) . '">',
+			'</a>'
+		);
 		$in_processing_notice = sprintf(
 			/* translators: %s: Upsell text */
 			__( 'Bulk Smush is currently running. Please keep this page open until the process is complete. %s', 'wp-smushit' ),
@@ -290,19 +260,14 @@ class Bulk extends Abstract_Summary_Page implements Interface_Page {
 		$this->view(
 			'bulk/meta-box',
 			array(
-				'core'                            => $core,
-				'can_use_background'              => $bg_optimization->can_use_background(),
-				'is_pro'                          => WP_Smush::is_pro(),
-				'unsmushed_count'                 => (int) $array_utils->get_array_value( $global_stats, 'count_unsmushed' ),
-				'resmush_count'                   => (int) $array_utils->get_array_value( $global_stats, 'count_resmush' ),
-				'remaining_count'                 => (int) $array_utils->get_array_value( $global_stats, 'remaining_count' ),
-				'total_count'                     => (int) $array_utils->get_array_value( $global_stats, 'count_total' ),
-				'bulk_upgrade_url'                => $bulk_upgrade_url,
-				'upsell_cdn_url'                  => $upsell_cdn_url,
-				'background_processing_enabled'   => $background_processing_enabled,
-				'background_in_processing'        => $background_in_processing,
-				'background_in_processing_notice' => $bg_optimization->get_in_process_notice(),
-				'in_processing_notice'            => $in_processing_notice,
+				'core'                 => $core,
+				'unsmushed_count'      => (int) $array_utils->get_array_value( $global_stats, 'count_unsmushed' ),
+				'resmush_count'        => (int) $array_utils->get_array_value( $global_stats, 'count_resmush' ),
+				'remaining_count'      => (int) $array_utils->get_array_value( $global_stats, 'remaining_count' ),
+				'total_count'          => (int) $array_utils->get_array_value( $global_stats, 'count_total' ),
+				'bulk_upgrade_url'     => $bulk_upgrade_url,
+				'upsell_cdn_url'       => $upsell_cdn_url,
+				'in_processing_notice' => $in_processing_notice,
 			)
 		);
 	}
@@ -341,7 +306,7 @@ class Bulk extends Abstract_Summary_Page implements Interface_Page {
 
 	public function add_pro_tag( $name ) {
 		$settings = Settings::get_instance();
-		if ( ! $settings->is_pro_field( $name ) || $settings->can_access_pro_field( $name ) ) {
+		if ( ! $settings->is_pro_field( $name ) ) {
 			return;
 		}
 		?>
@@ -355,11 +320,6 @@ class Bulk extends Abstract_Summary_Page implements Interface_Page {
 			array(),
 			'common'
 		);
-	}
-
-
-	public function inline_retry_bulk_smush_notice_box() {
-		$this->view( 'bulk/inline-retry-bulk-smush-notice' );
 	}
 
 	public function ajax_bulk_smush_in_progressing_notice() {

@@ -10,7 +10,7 @@ abstract class Media_Item_Optimization {
 	 */
 	abstract public function __construct( $media_item );
 
-	abstract public function get_key();
+	abstract public static function get_key();
 
 	abstract public function get_name();
 

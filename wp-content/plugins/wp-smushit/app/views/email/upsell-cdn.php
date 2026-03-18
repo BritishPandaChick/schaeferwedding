@@ -31,7 +31,7 @@
 				<td border="0" cellpadding="0" cellspacing="0" colspan="2" style="border-collapse:collapse;border-spacing:0px;border:0;padding:4px 20px 0;">
 					<p style="color:#fff;font-size:13px;font-weight:400;margin:0;padding:0;font-family:Roboto, Arial, sans-serif;line-height:22px;text-decoration:none;">
 						<?php
-						printf( esc_html__( 'Unlock Ultra Smush, blazing-fast CDN, and more. %1$sSmush Pro is on sale!%2$s&#128640;', 'wp-smushit' ),
+						printf( esc_html__( 'Unlock Ultra Smush, blazing-fast CDN, and more. %1$sGet Smush Pro%2$s&#128640;', 'wp-smushit' ),
 							'<a href="' . esc_url( $upsell_url ) . '" target="_blank">',
 							'</a>'
 						);
@@ -57,7 +57,7 @@
 						<span class="smush-dark-img" style="display:inline-block;display:none;width:0;height:0;visibility:hidden;margin:0;padding:0">
 							<img onerror="arguments[0].currentTarget.style.display='none'" style="width:16px;margin-top:16px;margin-right:12px;" src="<?php echo WP_SMUSH_URL . 'app/assets/images/email/valid-dark.png'; ?>" />
 						</span>
-						<?php esc_html_e( 'SALE - Limited Offer', 'wp-smushit' ); ?>
+						<?php esc_html_e( 'Get Smush Pro', 'wp-smushit' ); ?>
 					</p>
 					<p style="margin:0;padding:20px 0 35px;">
 						<a class="button"

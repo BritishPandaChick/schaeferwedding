@@ -55,28 +55,6 @@ class Gutenberg extends Abstract_Integration {
 	 * OVERWRITE PARENT CLASS FUNCTIONALITY
 	 */
 
-	/**
-	 * Filters the setting variable to add Gutenberg setting title and description.
-	 *
-	 * @since 2.8.1
-	 *
-	 * @param array $settings  Settings array.
-	 *
-	 * @return mixed
-	 */
-	public function register( $settings ) {
-		$settings[ $this->module ] = array(
-			'label'       => esc_html__( 'Show Smush stats in Gutenberg blocks', 'wp-smushit' ),
-			'short_label' => esc_html__( 'Gutenberg Support', 'wp-smushit' ),
-			'desc'        => esc_html__(
-				'Add statistics and the manual smush button to Gutenberg blocks that display images.',
-				'wp-smushit'
-			),
-		);
-
-		return $settings;
-	}
-
 	/**************************************
 	 *
 	 * PUBLIC CLASSES

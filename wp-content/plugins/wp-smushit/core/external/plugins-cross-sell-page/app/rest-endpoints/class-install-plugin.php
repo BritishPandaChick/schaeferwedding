@@ -39,7 +39,7 @@ class Install_Plugin extends Rest_Api {
 	 *
 	 * @return void
 	 */
-	public function register_routes(): void {
+	public function register_routes() {
 		// Route to get auth url.
 		register_rest_route(
 			$this->get_namespace(),
@@ -61,7 +61,7 @@ class Install_Plugin extends Rest_Api {
 	 * @since 1.0.0
 	 * @return array{current_slug: array{required: bool, type: string, plugin_slug: array{required: bool, type: string}}}
 	 */
-	protected function input_args(): array {
+	protected function input_args() {
 		return array(
 			'plugin_slug'  => array(
 				'type'     => 'string',
@@ -81,7 +81,7 @@ class Install_Plugin extends Rest_Api {
 	 * @param \WP_REST_Request $request The Request object.
 	 * @return bool
 	 */
-	public function check_permission( \WP_REST_Request $request ): bool {
+	public function check_permission( $request ) {
 		return $this->has_permission( $request, 'install_plugins' );
 	}
 
@@ -94,7 +94,7 @@ class Install_Plugin extends Rest_Api {
 	 *
 	 * @return \WP_REST_Response
 	 */
-	public function install( \WP_REST_Request $request ): \WP_REST_Response {
+	public function install( $request ) {
 		$response_message = '';
 		$success          = true;
 		$plugin_slug      = $request->get_param( 'plugin_slug' );
@@ -133,7 +133,7 @@ class Install_Plugin extends Rest_Api {
 	 * @param string $plugin_slug Will be used to get the path to the plugin.
 	 * @return bool|\WP_Error
 	 */
-	protected function install_plugin( string $plugin_slug ) {
+	protected function install_plugin( $plugin_slug ) {
 		// Include required files for plugin installation.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
@@ -176,7 +176,7 @@ class Install_Plugin extends Rest_Api {
 	 * @param \stdClass $api Plugin installer data in object, see plugins_api().
 	 * @return bool|\WP_Error
 	 */
-	protected function install_from_api( \stdClass $api ) {
+	protected function install_from_api( $api ) {
 
 		// Include necessary plugin functions.
 		$installer = new \Plugin_Upgrader( new \WP_Ajax_Upgrader_Skin() );

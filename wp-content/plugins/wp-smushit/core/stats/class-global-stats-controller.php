@@ -12,13 +12,13 @@ use Smush\Core\Media\Media_Item_Optimizer;
 use Smush\Core\Settings;
 
 class Global_Stats_Controller extends Controller {
-	const IMAGE_ATTACHMENT_COUNT_KEY = 'image_attachment_count';
-	const OPTIMIZED_IMAGES_COUNT_KEY = 'optimized_images_count';
-	const OPTIMIZE_IDS_KEY = 'optimize_attachment_ids';
-	const REOPTIMIZE_IDS_KEY = 'reoptimize_attachment_ids';
-	const ERROR_IDS_KEY = 'error_attachment_ids';
-	const IGNORE_IDS_KEY = 'ignore_attachment_ids';
-	const ANIMATED_IDS_KEY = 'animated_attachment_ids';
+	private static $image_attachment_count_key = 'image_attachment_count';
+	private static $optimized_images_count_key = 'optimized_images_count';
+	private static $optimize_ids_key = 'optimize_attachment_ids';
+	private static $reoptimize_ids_key = 'reoptimize_attachment_ids';
+	private static $error_ids_key = 'error_attachment_ids';
+	private static $ignore_ids_key = 'ignore_attachment_ids';
+	private static $animated_ids_key = 'animated_attachment_ids';
 	/**
 	 * @var Global_Stats
 	 */
@@ -135,15 +135,15 @@ class Global_Stats_Controller extends Controller {
 
 		// Attachment count
 		$optimizer  = new Media_Item_Optimizer( $media_item );
-		$slice_data = $this->accumulate_count( $slice_data, self::IMAGE_ATTACHMENT_COUNT_KEY, 1 );
-		$slice_data = $this->accumulate_count( $slice_data, self::OPTIMIZED_IMAGES_COUNT_KEY, $optimizer->get_optimized_sizes_count() );
+		$slice_data = $this->accumulate_count( $slice_data, self::$image_attachment_count_key, 1 );
+		$slice_data = $this->accumulate_count( $slice_data, self::$optimized_images_count_key, $optimizer->get_optimized_sizes_count() );
 
 		return $slice_data;
 	}
 
 	public function save_counts( $slice_data ) {
-		$this->global_stats->add_image_attachment_count( (int) $this->get_array_value( $slice_data, self::IMAGE_ATTACHMENT_COUNT_KEY ) );
-		$this->global_stats->add_optimized_images_count( (int) $this->get_array_value( $slice_data, self::OPTIMIZED_IMAGES_COUNT_KEY ) );
+		$this->global_stats->add_image_attachment_count( (int) $this->get_array_value( $slice_data, self::$image_attachment_count_key ) );
+		$this->global_stats->add_optimized_images_count( (int) $this->get_array_value( $slice_data, self::$optimized_images_count_key ) );
 
 		return $slice_data;
 	}
@@ -182,20 +182,20 @@ class Global_Stats_Controller extends Controller {
 		}
 
 		if ( $media_item->is_ignored() ) {
-			$this->add_to_list( $slice_data, self::IGNORE_IDS_KEY, $attachment_id );
+			$this->add_to_list( $slice_data, self::$ignore_ids_key, $attachment_id );
 		} elseif ( $media_item->is_animated() ) {
-			$this->add_to_list( $slice_data, self::ANIMATED_IDS_KEY, $attachment_id );
+			$this->add_to_list( $slice_data, self::$animated_ids_key, $attachment_id );
 		} elseif ( $media_item->has_errors() ) {
-			$this->add_to_list( $slice_data, self::ERROR_IDS_KEY, $attachment_id );
+			$this->add_to_list( $slice_data, self::$error_ids_key, $attachment_id );
 		} else {
 			$optimizer = new Media_Item_Optimizer( $media_item );
 			if ( $optimizer->is_optimized() ) {
 				if ( $optimizer->should_reoptimize() ) {
-					$this->add_to_list( $slice_data, self::REOPTIMIZE_IDS_KEY, $attachment_id );
+					$this->add_to_list( $slice_data, self::$reoptimize_ids_key, $attachment_id );
 				}
 			} else {
 				if ( $optimizer->should_optimize() ) {
-					$this->add_to_list( $slice_data, self::OPTIMIZE_IDS_KEY, $attachment_id );
+					$this->add_to_list( $slice_data, self::$optimize_ids_key, $attachment_id );
 				}
 			}
 		}
@@ -212,27 +212,27 @@ class Global_Stats_Controller extends Controller {
 	}
 
 	public function save_optimization_lists( $slice_data ) {
-		$slice_error_ids = empty( $slice_data[ self::ERROR_IDS_KEY ] ) ? array() : $slice_data[ self::ERROR_IDS_KEY ];
+		$slice_error_ids = empty( $slice_data[ self::$error_ids_key ] ) ? array() : $slice_data[ self::$error_ids_key ];
 		if ( $slice_error_ids ) {
 			$this->global_stats->get_error_list()->add_ids( $slice_error_ids );
 		}
 
-		$slice_ignore_ids = empty( $slice_data[ self::IGNORE_IDS_KEY ] ) ? array() : $slice_data[ self::IGNORE_IDS_KEY ];
+		$slice_ignore_ids = empty( $slice_data[ self::$ignore_ids_key ] ) ? array() : $slice_data[ self::$ignore_ids_key ];
 		if ( $slice_ignore_ids ) {
 			$this->global_stats->get_ignore_list()->add_ids( $slice_ignore_ids );
 		}
 
-		$slice_animated_ids = empty( $slice_data[ self::ANIMATED_IDS_KEY ] ) ? array() : $slice_data[ self::ANIMATED_IDS_KEY ];
+		$slice_animated_ids = empty( $slice_data[ self::$animated_ids_key ] ) ? array() : $slice_data[ self::$animated_ids_key ];
 		if ( $slice_animated_ids ) {
 			$this->global_stats->get_animated_list()->add_ids( $slice_animated_ids );
 		}
 
-		$slice_reoptimize_ids = empty( $slice_data[ self::REOPTIMIZE_IDS_KEY ] ) ? array() : $slice_data[ self::REOPTIMIZE_IDS_KEY ];
+		$slice_reoptimize_ids = empty( $slice_data[ self::$reoptimize_ids_key ] ) ? array() : $slice_data[ self::$reoptimize_ids_key ];
 		if ( $slice_reoptimize_ids ) {
 			$this->global_stats->get_reoptimize_list()->add_ids( $slice_reoptimize_ids );
 		}
 
-		$slice_optimize_ids = empty( $slice_data[ self::OPTIMIZE_IDS_KEY ] ) ? array() : $slice_data[ self::OPTIMIZE_IDS_KEY ];
+		$slice_optimize_ids = empty( $slice_data[ self::$optimize_ids_key ] ) ? array() : $slice_data[ self::$optimize_ids_key ];
 		if ( $slice_optimize_ids ) {
 			$this->global_stats->get_optimize_list()->add_ids( $slice_optimize_ids );
 		}
@@ -404,4 +404,14 @@ class Global_Stats_Controller extends Controller {
 
 		$this->global_stats->mark_as_outdated();
 	}
+
+	/**
+	 * Get global_stats_option_id.
+	 *
+	 * @return mixed
+	 */
+	public static function get_global_stats_option_id() {
+		return self::$global_stats_option_id;
+	}
+
 }

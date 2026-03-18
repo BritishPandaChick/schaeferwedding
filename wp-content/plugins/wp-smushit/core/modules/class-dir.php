@@ -108,7 +108,6 @@ class Dir extends Abstract_Module {
 			$current_page   = ! empty( $current_screen ) ? $current_screen->base : '';
 		}
 
-
 		if ( false === strpos( $current_page, 'page_smush-bulk' ) ) {
 			return;
 		}
@@ -186,7 +185,7 @@ class Dir extends Abstract_Module {
 			wp_die( esc_html__( 'Unauthorized', 'wp-smushit' ), 403 );
 		}
 		$this->scanner->init_scan();
-		do_action('wp_smush_directory_smush_start');
+		do_action( 'wp_smush_directory_smush_start' );
 		wp_send_json_success();
 	}
 
@@ -278,20 +277,17 @@ class Dir extends Abstract_Module {
 			wp_send_json_error( $error_msg );
 		}
 
-		// Check smush limit for free users.
-		if ( ! WP_Smush::is_pro() ) {
-			// Free version bulk smush, check the transient counter value.
-			$should_continue = Core::check_bulk_limit( false, 'dir_sent_count' );
+		// Free version bulk smush, check the transient counter value.
+		$should_continue = Core::should_continue_smush( false, 'dir_sent_count' );
 
-			// Send a error for the limit.
-			if ( ! $should_continue ) {
-				wp_send_json_error(
-					array(
-						'error'    => 'dir_smush_limit_exceeded',
-						'continue' => false,
-					)
-				);
-			}
+		// Send a error for the limit.
+		if ( ! $should_continue ) {
+			wp_send_json_error(
+				array(
+					'error'    => 'dir_smush_limit_exceeded',
+					'continue' => false,
+				)
+			);
 		}
 
 		$scanned_images = $this->get_unsmushed_images();
@@ -457,9 +453,10 @@ class Dir extends Abstract_Module {
 	public function get_unsmushed_images() {
 		global $wpdb;
 
-		$condition = 'image_size IS NULL';
-		if ( $this->settings->get( 'lossy' ) ) {
-			$condition .= ' OR lossy <> 1';
+		$condition   = 'image_size IS NULL';
+		$lossy_level = $this->settings->get_lossy_level_setting();
+		if ( $lossy_level > 0 ) {
+			$condition .= ' OR lossy IS NULL OR lossy < ' . intval( $lossy_level );
 		}
 
 		if ( $this->settings->get( 'strip_exif' ) ) {
@@ -1202,7 +1199,7 @@ class Dir extends Abstract_Module {
 		// Get the Smushed count, and stats sum.
 		foreach ( $results as $image ) {
 			if ( ! is_null( $image['image_size'] ) ) {
-				$smushed ++;
+				$smushed++;
 			}
 			// Summation of stats.
 			foreach ( $image as $k => $v ) {
@@ -1342,5 +1339,4 @@ class Dir extends Abstract_Module {
 			<?php
 		}
 	}
-
 }

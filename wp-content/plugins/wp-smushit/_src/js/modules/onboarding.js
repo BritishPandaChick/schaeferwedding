@@ -33,7 +33,7 @@ import GlobalTracking from '../global-tracking';
 			auto: true,
 			lossy: true,
 			strip_exif: true,
-			original: false,
+			original: true,
 			preload_images: true,
 			lazy_load: true,
 		},

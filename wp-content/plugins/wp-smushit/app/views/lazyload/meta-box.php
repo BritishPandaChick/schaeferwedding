@@ -269,45 +269,33 @@ wp_enqueue_style( 'wp-color-picker' );
 
 	<!-- Image Sizing -->
 	<?php
-		$auto_resizing_enabled     = $this->settings->is_auto_resizing_active();
-		$image_dimensions_enabled  = $this->settings->should_add_missing_dimensions();
-		$cdn_dynamic_sizes_enabled = CDN_Helper::get_instance()->is_dynamic_sizes_active();
-		$is_pro                    = WP_Smush::is_pro();
+		$auto_resizing_enabled     = false;
+		$image_dimensions_enabled  = false;
+		$cdn_dynamic_sizes_enabled = false;
 
 	?>
 	<div class="sui-box-settings-row" id="lazyload-image-resizing-settings-row">
 		<div class="sui-box-settings-col-1">
 			<span class="sui-settings-label">
 				<?php esc_html_e( 'Image Sizing', 'wp-smushit' ); ?>
-				<?php if ( ! $is_pro ) : ?>
 				<span class="sui-tag sui-tag-pro" style="margin-left: 3px;"><?php esc_html_e( 'PRO', 'wp-smushit' ); ?></span>
-				<?php endif; ?>
-				<?php if ( self::should_show_new_feature_hotspot() ) : ?>
-					<?php
-					// Hide the new feature hotspot if the user has already seen it.
-					self::hide_new_feature_hotspot();
-					?>
-					<span class="smush-new-feature-dot" style="position:relative; margin-left: 20px;"></span>
-				<?php endif; ?>
 			</span>
 			<span class="sui-description">
 				<?php esc_html_e( 'Automatically resize, add dimensions, and generate dynamic sizes to ensure that the correct image size is loaded in every situation.', 'wp-smushit' ); ?>
 			</span>
 			<?php
-			if ( ! $is_pro ) :
-				$upgrade_url = $this->get_utm_link(
-					array(
-						'utm_campaign' => 'smush_lazyload_image-sizing',
-					)
-				);
+			$upgrade_url = $this->get_utm_link(
+				array(
+					'utm_campaign' => 'smush_lazyload_image-sizing',
+				)
+			);
 			?>
 			<a class="smush-upsell-link" href="<?php echo esc_url( $upgrade_url ); ?>" style="display:block; margin-top:-3px; font-size:13px" target="_blank">
 				<strong>
-					<?php esc_html_e( 'SALE - Limited Offer', 'wp-smushit' ); ?>
+					<?php esc_html_e( 'Get Smush Pro', 'wp-smushit' ); ?>
 				</strong>
 				<span class="sui-icon-open-new-window" aria-hidden="true"></span>
 			</a>
-			<?php endif; ?>
 		</div>
 		<div class="sui-box-settings-col-2">
 			<!-- Auto Resizing -->
@@ -320,7 +308,7 @@ wp_enqueue_style( 'wp-color-picker' );
 						name="auto_resizing"
 						aria-labelledby="auto_resizing-label"
 						aria-describedby="auto_resizing-description"
-						<?php echo $is_pro ? '' : 'disabled'; ?>
+						disabled
 						<?php checked( $auto_resizing_enabled ); ?>
 					/>
 					<span class="sui-toggle-slider" aria-hidden="true"></span>
@@ -329,21 +317,6 @@ wp_enqueue_style( 'wp-color-picker' );
 					</div>
 					<div class="sui-description" style="pointer-events: all">
 						<?php esc_html_e( 'Load your site faster with images that automatically fit the container size, thus eliminating the “Properly size images” PageSpeed warnings.', 'wp-smushit' ); ?>
-					</div>
-					<div style="margin-left: 44px">
-					<?php if ( $is_pro && ! $cdn_dynamic_sizes_enabled && $this->settings->has_cdn_page() ) : ?>
-						<div class="sui-upsell-notice" style="margin-top:10px">
-							<div class="sui-notice sui-notice-blue">
-								<div class="sui-notice-content">
-									<div class="sui-notice-message">
-										<span class="sui-notice-icon sui-icon-info sui-md" aria-hidden="true"></span>
-										<p><?php esc_html_e( 'Optimize performance even more by generating extra image sizes on the fly with the Dynamic Image Sizing feature in the CDN.', 'wp-smushit' ); ?></p>
-										<p><a class="sui-button smush-sui-button-outline smush-sui-button-outline-blue" href="<?php echo esc_url( $this->get_url( 'smush-cdn' ) ); ?>#cdn_dynamic_sizes-settings-row"><?php esc_html_e( 'Go To CDN', 'wp-smushit' ); ?></a></p>
-									</div>
-								</div>
-							</div>
-						</div>
-					<?php endif; ?>
 					</div>
 				</label>
 			</div>
@@ -358,7 +331,7 @@ wp_enqueue_style( 'wp-color-picker' );
 						name="image_dimensions"
 						aria-labelledby="image_dimensions-label"
 						aria-describedby="image_dimensions-description"
-						<?php echo $is_pro ? '' : 'disabled'; ?>
+						disabled
 						<?php checked( $image_dimensions_enabled ); ?>
 					/>
 					<span class="sui-toggle-slider" aria-hidden="true"></span>
@@ -1025,6 +998,3 @@ wp_enqueue_style( 'wp-color-picker' );
 		</div>
 	</div>
 </div>
-
-
-

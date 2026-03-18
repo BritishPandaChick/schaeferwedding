@@ -53,10 +53,16 @@ class ConvertKit_Admin_Section_Tools extends ConvertKit_Admin_Section_Base {
 		return array_merge(
 			$notices,
 			array(
-				'import_configuration_upload_error'      => __( 'An error occured uploading the configuration file.', 'convertkit' ),
-				'import_configuration_invalid_file_type' => __( 'The uploaded configuration file isn\'t valid.', 'convertkit' ),
-				'import_configuration_empty'             => __( 'The uploaded configuration file contains no settings.', 'convertkit' ),
-				'import_configuration_success'           => __( 'Configuration imported successfully.', 'convertkit' ),
+				'import_configuration_upload_error'        => __( 'An error occured uploading the configuration file.', 'convertkit' ),
+				'import_configuration_invalid_file_type'   => __( 'The uploaded configuration file isn\'t valid.', 'convertkit' ),
+				'import_configuration_empty'               => __( 'The uploaded configuration file contains no settings.', 'convertkit' ),
+				'import_configuration_success'             => __( 'Configuration imported successfully.', 'convertkit' ),
+				'migrate_activecampaign_configuration_success' => __( 'ActiveCampaign forms migrated successfully.', 'convertkit' ),
+				'migrate_aweber_configuration_success'     => __( 'AWeber forms migrated successfully.', 'convertkit' ),
+				'migrate_campaignmonitor_configuration_success' => __( 'Campaign Monitor forms migrated successfully.', 'convertkit' ),
+				'migrate_mc4wp_configuration_success'      => __( 'MC4WP forms migrated successfully.', 'convertkit' ),
+				'migrate_mailpoet_configuration_success'   => __( 'MailPoet forms migrated successfully.', 'convertkit' ),
+				'migrate_newsletter_configuration_success' => __( 'Newsletter forms migrated successfully.', 'convertkit' ),
 			)
 		);
 
@@ -75,6 +81,7 @@ class ConvertKit_Admin_Section_Tools extends ConvertKit_Admin_Section_Base {
 		$this->maybe_download_system_info();
 		$this->maybe_export_configuration();
 		$this->maybe_import_configuration();
+		$this->maybe_migrate_forms();
 
 	}
 
@@ -315,6 +322,50 @@ class ConvertKit_Admin_Section_Tools extends ConvertKit_Admin_Section_Base {
 	}
 
 	/**
+	 * Replaces ActiveCampaign Form Shortcodes and Blocks with Kit Form Shortcodes and Blocks, if the user submitted the
+	 * ActiveCampaign Migrate Configuration section.
+	 *
+	 * @since   3.1.7
+	 */
+	private function maybe_migrate_forms() {
+
+		// Bail if nonce verification fails.
+		if ( ! isset( $_REQUEST['_convertkit_settings_tools_nonce'] ) ) {
+			return;
+		}
+
+		if ( ! wp_verify_nonce( sanitize_key( $_REQUEST['_convertkit_settings_tools_nonce'] ), 'convertkit-settings-tools' ) ) {
+			return;
+		}
+
+		// Get importers.
+		$importers = convertkit_get_form_importers();
+
+		// Find the importer that was used for the form submission.
+		foreach ( $importers as $importer ) {
+			// Skip if this importer was not used.
+			if ( ! isset( $_REQUEST[ 'convertkit-import-' . $importer['name'] ] ) ) {
+				continue;
+			}
+
+			// Skip if no mappings were submitted for the importer.
+			if ( ! isset( $_REQUEST[ '_wp_convertkit_integration_' . $importer['name'] . '_settings' ] ) ) {
+				continue;
+			}
+
+			// Sanitize mappings.
+			$mappings = array_map( 'sanitize_text_field', wp_unslash( $_REQUEST[ '_wp_convertkit_integration_' . $importer['name'] . '_settings' ] ) );
+
+			// Replace third party form shortcodes and blocks with Kit form shortcodes and blocks.
+			WP_ConvertKit()->get_class( 'admin_importer_' . $importer['name'] )->import( $mappings );
+
+			// Redirect to Tools screen.
+			$this->redirect_with_success_notice( 'migrate_' . $importer['name'] . '_configuration_success' );
+		}
+
+	}
+
+	/**
 	 * Outputs the Debug Log and System Info view.
 	 *
 	 * @since   1.9.6
@@ -331,6 +382,15 @@ class ConvertKit_Admin_Section_Tools extends ConvertKit_Admin_Section_Base {
 		// Get Log and System Info.
 		$log         = new ConvertKit_Log( CONVERTKIT_PLUGIN_PATH );
 		$system_info = $this->get_system_info();
+
+		// Get Forms.
+		$forms = new ConvertKit_Resource_Forms();
+
+		// Get Importers, if Kit Forms exist.
+		$importers = array();
+		if ( $forms->exist() ) {
+			$importers = convertkit_get_form_importers();
+		}
 
 		// Output view.
 		require_once CONVERTKIT_PLUGIN_PATH . '/views/backend/settings/tools.php';

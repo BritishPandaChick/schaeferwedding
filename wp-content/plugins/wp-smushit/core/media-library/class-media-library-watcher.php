@@ -7,7 +7,7 @@ use Smush\Core\Controller;
 use Smush\Core\Helper;
 
 class Media_Library_Watcher extends Controller {
-	const WP_SMUSH_IMAGE_SIZES_STATE = 'wp_smush_image_sizes_state';
+	private static $wp_smush_image_sizes_state = 'wp_smush_image_sizes_state';
 	/**
 	 * @var Array_Utils
 	 */
@@ -57,7 +57,7 @@ class Media_Library_Watcher extends Controller {
 	}
 
 	private function get_image_sizes_state() {
-		$state = get_option( self::WP_SMUSH_IMAGE_SIZES_STATE );
+		$state = get_option( self::$wp_smush_image_sizes_state );
 		if ( empty( $state ) ) {
 			$state = array();
 		}
@@ -74,7 +74,7 @@ class Media_Library_Watcher extends Controller {
 	}
 
 	private function update_image_sizes_state( $sizes, $hash ) {
-		update_option( self::WP_SMUSH_IMAGE_SIZES_STATE, array(
+		update_option( self::$wp_smush_image_sizes_state, array(
 			'sizes' => empty( $sizes ) || ! is_array( $sizes ) ? array() : $sizes,
 			'hash'  => empty( $hash ) ? '' : $hash,
 		) );

@@ -2,14 +2,12 @@
 
 namespace Smush\Core\Media;
 
-use WP_Smush;
-
 /**
  * TODO: maybe reset the media item when:
  * - a new size is added
  */
 class Media_Item_Cache {
-	const CACHE_GROUP = 'wp-smushit';
+	private static $cache_group = 'wp-smushit';
 	/**
 	 * Static instance
 	 *
@@ -66,9 +64,7 @@ class Media_Item_Cache {
 	}
 
 	private function make_key( $id ) {
-		$membership_type_postfix = WP_Smush::is_pro() ? 'pro' : 'free';
-
-		return "wp-smush-$membership_type_postfix-media-item-$id";
+		return "wp-smush-media-item-$id";
 	}
 
 	private function save_to_cache( $id, $media_item ) {
@@ -90,4 +86,74 @@ class Media_Item_Cache {
 			$media_item->reset();
 		}
 	}
+
+	/**
+	 * Get animated_meta_key.
+	 *
+	 * @return mixed
+	 */
+	public static function get_animated_meta_key() {
+		return self::$animated_meta_key;
+	}
+
+
+	/**
+	 * Get backup_sizes_meta_key.
+	 *
+	 * @return mixed
+	 */
+	public static function get_backup_sizes_meta_key() {
+		return self::$backup_sizes_meta_key;
+	}
+
+
+	/**
+	 * Get default_backup_key.
+	 *
+	 * @return mixed
+	 */
+	public static function get_default_backup_key() {
+		return self::$default_backup_key;
+	}
+
+
+	/**
+	 * Get ignored_meta_key.
+	 *
+	 * @return mixed
+	 */
+	public static function get_ignored_meta_key() {
+		return self::$ignored_meta_key;
+	}
+
+
+	/**
+	 * Get size_key_full.
+	 *
+	 * @return mixed
+	 */
+	public static function get_size_key_full() {
+		return self::$size_key_full;
+	}
+
+
+	/**
+	 * Get size_key_scaled.
+	 *
+	 * @return mixed
+	 */
+	public static function get_size_key_scaled() {
+		return self::$size_key_scaled;
+	}
+
+
+	/**
+	 * Get transparent_meta_key.
+	 *
+	 * @return mixed
+	 */
+	public static function get_transparent_meta_key() {
+		return self::$transparent_meta_key;
+	}
+
 }

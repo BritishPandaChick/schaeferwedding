@@ -93,4 +93,34 @@ class Smush_Optimization_Global_Stats extends Media_Item_Optimization_Global_Sta
 
 		return $this;
 	}
+
+	/**
+	 * Get key.
+	 *
+	 * @return mixed
+	 */
+	public static function get_key() {
+		return self::$key;
+	}
+
+
+	/**
+	 * Get lossy_meta_key.
+	 *
+	 * @return mixed
+	 */
+	public static function get_lossy_meta_key() {
+		return self::$lossy_meta_key;
+	}
+
+
+	/**
+	 * Get smush_meta_key.
+	 *
+	 * @return mixed
+	 */
+	public static function get_smush_meta_key() {
+		return self::$smush_meta_key;
+	}
+
 }

@@ -33,7 +33,7 @@ class Container {
 	 * @param  mixed  $value Service.
 	 * @return void
 	 */
-	public function set( string $key, $value ): void {
+	public function set( $key, $value ) {
 		$this->services[ $key ] = $value;
 	}
 
@@ -43,7 +43,7 @@ class Container {
 	 * @param string $key Service key.
 	 * @throws \InvalidArgumentException If service not found.
 	 */
-	public function get( string $key ) {
+	public function get( $key ) {
 		if ( ! isset( $this->services[ $key ] ) ) {
 			throw new \InvalidArgumentException( esc_html( "Service '{$key}' not found in container." ) );
 		}
@@ -57,7 +57,7 @@ class Container {
 	 * @param string $key Service key.
 	 * @return bool
 	 */
-	public function has( string $key ): bool {
+	public function has( $key ) {
 		return isset( $this->services[ $key ] );
 	}
 }

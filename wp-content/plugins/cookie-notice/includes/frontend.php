@@ -70,8 +70,13 @@ class Cookie_Notice_Frontend {
 			return;
 
 		// purge cache
-		if ( isset( $_GET['hu_purge_cache'] ) )
+		if (
+			isset( $_GET['hu_purge_cache'], $_GET['_wpnonce'] )
+			&& current_user_can( apply_filters( 'cn_manage_cookie_notice_cap', 'manage_options' ) )
+			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'cn-purge-cache' )
+		) {
 			$this->purge_cache();
+		}
 
 		// get main instance
 		$cn = Cookie_Notice();
@@ -384,7 +389,7 @@ class Cookie_Notice_Frontend {
 	public function get_cc_output( $options ) {
 		$output = '
 		<!-- Cookie Compliance -->
-		<script type="text/javascript">var huOptions = ' . wp_json_encode( $options ) . ';</script>
+		<script type="text/javascript">var huOptions = ' . wp_json_encode( $options, JSON_UNESCAPED_SLASHES ) . ';</script>
 		<script type="text/javascript" src="' . esc_url( ( is_ssl() ? 'https:' : 'http:' ) . Cookie_Notice()->get_url( 'widget' ) ) . '"></script>';
 
 		return apply_filters( 'cn_cookie_compliance_output', $output, $options );
@@ -528,7 +533,7 @@ class Cookie_Notice_Frontend {
 			. '<span id="cn-notice-buttons" class="cn-buttons-container"><button id="cn-accept-cookie" data-cookie-set="accept" class="cn-set-cookie ' . esc_attr( $options['button_class'] ) . ( $options['css_class'] !== '' ? ' cn-button-custom ' . esc_attr( $options['css_class'] ) : '' ) . '" aria-label="' . esc_attr( $options['accept_text'] ) . '"' . ( $options['css_class'] == '' ? ' style="background-color: ' . esc_attr( $options['colors']['button'] ) . '"' : '' ) . '>' . esc_html( $options['accept_text'] ) . '</button>'
 			. ( $options['refuse_opt'] ? '<button id="cn-refuse-cookie" data-cookie-set="refuse" class="cn-set-cookie ' . esc_attr( $options['button_class'] ) . ( $options['css_class'] !== '' ? ' cn-button-custom ' . esc_attr( $options['css_class'] ) : '' ) . '" aria-label="' . esc_attr( $options['refuse_text'] ) . '"' . ( $options['css_class'] == '' ? ' style="background-color: ' . esc_attr( $options['colors']['button'] ) . '"' : '' ) . '>' . esc_html( $options['refuse_text'] ) . '</button>' : '' )
 			. ( $options['see_more'] && $options['link_position'] === 'banner' ? '<button data-link-url="' . esc_url( $options['see_more_opt']['link_type'] === 'custom' ? $options['see_more_opt']['link'] : $permalink ) . '" data-link-target="' . esc_attr( $options['link_target'] ) . '" id="cn-more-info" class="cn-more-info ' . esc_attr( $options['button_class'] ) . ( $options['css_class'] !== '' ? ' cn-button-custom ' . esc_attr( $options['css_class'] ) : '' ) . '" aria-label="' . esc_attr( $options['see_more_opt']['text'] ) . '"' . ( $options['css_class'] == '' ? ' style="background-color: ' . esc_attr( $options['colors']['button'] ) . '"' : '' ) . '>' . esc_html( $options['see_more_opt']['text'] ) . '</button>' : '' )
-			. '</span><button id="cn-close-notice" data-cookie-set="accept" class="cn-close-icon" aria-label="' . esc_attr( $options['refuse_text'] ) . '"></button>'
+			. '</span><button type="button" id="cn-close-notice" data-cookie-set="accept" class="cn-close-icon" aria-label="' . esc_attr( $options['refuse_text'] ) . '" tabindex="0"></button>'
 			. '</div>
 			' . ( $options['refuse_opt'] && $options['revoke_cookies'] ?
 			'<div class="cookie-revoke-container" style="color: ' . esc_attr( $options['colors']['text'] ) . '">'
@@ -665,11 +670,14 @@ class Cookie_Notice_Frontend {
 		if ( current_filter() === 'login_enqueue_scripts' && ! empty( $_REQUEST['interim-login'] ) )
 			return;
 
-		if ( $this->compliance )
+		// force script if a reopen shortcode is present on the page
+		$force_enqueue = $this->has_reopen_shortcode();
+
+		if ( $this->compliance && ! $force_enqueue )
 			return;
 
 		// is banner allowed to display?
-		if ( ! $this->maybe_display_banner() )
+		if ( ! $force_enqueue && ! $this->maybe_display_banner() )
 			return;
 
 		// get main instance
@@ -778,6 +786,23 @@ class Cookie_Notice_Frontend {
 			$classes[] = 'cookies-not-set';
 
 		return $classes;
+	}
+
+	/**
+	 * Detect if reopen shortcode is present on the current singular content.
+	 *
+	 * @return bool
+	 */
+	private function has_reopen_shortcode() {
+		if ( ! is_singular() )
+			return false;
+
+		global $post;
+
+		if ( empty( $post ) || ! property_exists( $post, 'post_content' ) )
+			return false;
+
+		return has_shortcode( $post->post_content, 'cookies_revoke' );
 	}
 
 	/**

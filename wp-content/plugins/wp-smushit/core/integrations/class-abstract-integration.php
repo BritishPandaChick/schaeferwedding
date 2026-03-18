@@ -55,9 +55,6 @@ abstract class Abstract_Integration {
 	public function __construct() {
 		$this->settings = Settings::get_instance();
 
-		// Filters the setting variable to add module setting title and description.
-		add_filter( 'wp_smush_settings', array( $this, 'register' ) );
-
 		// Disable setting.
 		add_filter( 'wp_smush_integration_status_' . $this->module, array( $this, 'setting_status' ) );
 

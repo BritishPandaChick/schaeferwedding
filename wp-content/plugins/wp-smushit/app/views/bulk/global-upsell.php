@@ -18,7 +18,7 @@
 		</p>
 		<a href="<?php echo esc_url( $bulk_upgrade_url ); ?>" class="smush-upsell-link" target="_blank">
 			<?php
-			esc_html_e( 'Smush Pro is on sale!', 'wp-smushit' );
+			esc_html_e( 'Get Smush Pro', 'wp-smushit' );
 			?>
 		</a>
 	</div>

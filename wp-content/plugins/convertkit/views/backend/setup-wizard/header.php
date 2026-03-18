@@ -12,7 +12,7 @@
 	<head>
 		<meta name="viewport" content="width=device-width"/>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-		<title><?php echo esc_html( CONVERTKIT_PLUGIN_NAME ); ?> &lsaquo; <?php bloginfo( 'name' ); ?>  &#8212; WordPress</title>
+		<title><?php echo esc_html( 'Kit' ); ?> &lsaquo; <?php bloginfo( 'name' ); ?>  &#8212; WordPress</title>
 		<script type="text/javascript">
 		var ajaxurl = '<?php echo esc_js( admin_url( 'admin-ajax.php', 'relative' ) ); ?>';
 		</script>
@@ -28,7 +28,7 @@
 			if ( ! $this->is_modal() ) {
 				?>
 				<header id="convertkit-setup-wizard-header">
-					<h1><?php echo esc_html( CONVERTKIT_PLUGIN_NAME ); ?></h1>
+					<h1><?php echo esc_html( 'Kit' ); ?></h1>
 				</header>
 				<?php
 			}
@@ -41,10 +41,12 @@
 					<div id="convertkit-setup-wizard-progress">
 						<ol>
 							<?php
-							foreach ( $this->steps as $step_count => $step ) {
+							$step_count = 1;
+							foreach ( $this->steps as $step_name => $step ) {
 								?>
-								<li class="step-<?php echo esc_attr( $step_count ); ?><?php echo ( $step_count <= $this->step ? ' done' : '' ); ?>"><?php echo esc_html( $step['name'] ); ?></li>
+								<li class="step-<?php echo esc_attr( $step_name ); ?><?php echo ( $step_count <= $this->get_current_step_number() ? ' done' : '' ); ?>"><?php echo esc_html( $step['name'] ); ?></li>
 								<?php
+								++$step_count;
 							}
 							?>
 						</ol>
@@ -75,8 +77,8 @@
 								printf(
 									/* translators: %1$s: Current Step, %2$s: Total Steps */
 									esc_html__( 'Step %1$s of %2$s', 'convertkit' ),
-									esc_html( $this->step ),
-									esc_html( count( $this->steps ) )
+									esc_html( $this->get_current_step_number() ),
+									esc_html( $this->get_total_steps() )
 								);
 								?>
 							</div>

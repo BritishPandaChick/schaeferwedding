@@ -116,7 +116,7 @@ if ( ! defined( 'WPINC' ) ) {
 						<span><?php esc_html_e( 'Integrations', 'wp-smushit' ); ?></span>
 					</label>
 					<label class="sui-checkbox sui-checkbox-stacked sui-checkbox-sm">
-						<input type="checkbox" id="module-lazy_load" name="wp-smush-access[]" value="<?php echo esc_attr( Settings::LAZY_PRELOAD_MODULE_NAME ); ?>" <?php checked( ! is_array( $networkwide ) || in_array( 'lazy_load', $networkwide, true ) ); ?>>
+						<input type="checkbox" id="module-lazy_load" name="wp-smush-access[]" value="<?php echo esc_attr( Settings::get_lazy_preload_module_name() ); ?>" <?php checked( ! is_array( $networkwide ) || in_array( 'lazy_load', $networkwide, true ) ); ?>>
 						<span aria-hidden="true">&nbsp;</span>
 						<span><?php esc_html_e( 'Lazy Load & Preload', 'wp-smushit' ); ?></span>
 					</label>

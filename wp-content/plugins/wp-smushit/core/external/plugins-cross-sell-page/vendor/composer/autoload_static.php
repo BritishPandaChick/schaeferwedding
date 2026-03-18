@@ -17,7 +17,7 @@ class ComposerStaticInit65a0a6b53636acc8bd93737adac79345
         'WPMUDEV\\Modules\\Plugin_Cross_Sell\\Utilities' => __DIR__ . '/../..' . '/core/class-utilities.php',
     );
 
-    public static function getInitializer(ClassLoader $loader)
+    public static function getInitializer($loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->classMap = ComposerStaticInit65a0a6b53636acc8bd93737adac79345::$classMap;

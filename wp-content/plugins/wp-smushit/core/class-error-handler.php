@@ -22,17 +22,17 @@ class Error_Handler {
 	/**
 	 * Ignore meta key.
 	 */
-	const IGNORE_KEY = 'wp-smush-ignore-bulk';
+	private static $ignore_key = 'wp-smush-ignore-bulk';
 
 	/**
 	 * Error meta key.
 	 */
-	const ERROR_KEY = 'wp-smush-error';
+	private static $error_key = 'wp-smush-error';
 
 	/**
 	 * Animated error code.
 	 */
-	const ANIMATED_ERROR_CODE = 'animated';
+	private static $animated_error_code = 'animated';
 
 	/**
 	 * Handled error codes.
@@ -152,8 +152,8 @@ class Error_Handler {
 			LEFT JOIN $wpdb->postmeta as post_meta_ignore ON post_meta_ignore.post_id = post_meta_error.post_id AND post_meta_ignore.meta_key= %s
 			WHERE post_meta_ignore.meta_value IS NULL AND post_meta_error.meta_key = %s
 			ORDER BY post_meta_error.post_id DESC LIMIT %d;",
-			Media_Item::IGNORED_META_KEY,
-			Media_Item_Optimizer::ERROR_META_KEY,
+			Media_Item::get_ignored_meta_key(),
+			Media_Item_Optimizer::get_error_meta_key(),
 			$limit
 		);
 		/**
@@ -233,7 +233,7 @@ class Error_Handler {
 	/**
 	 * @return array
 	 */
-	public static function get_error( WP_Error $errors, Media_Item $media_item ) {
+	public static function get_error( $errors, $media_item ) {
 		$thumbnail = $media_item->get_size('thumbnail' );
 		$media_item_size = $media_item->get_scaled_or_full_size();
 		return array(
@@ -273,4 +273,34 @@ class Error_Handler {
 			)
 		);
 	}
+
+	/**
+	 * Get animated_error_code.
+	 *
+	 * @return string
+	 */
+	public static function get_animated_error_code() {
+		return self::$animated_error_code;
+	}
+
+
+	/**
+	 * Get error_key.
+	 *
+	 * @return string
+	 */
+	public static function get_error_key() {
+		return self::$error_key;
+	}
+
+
+	/**
+	 * Get ignore_key.
+	 *
+	 * @return string
+	 */
+	public static function get_ignore_key() {
+		return self::$ignore_key;
+	}
+
 }

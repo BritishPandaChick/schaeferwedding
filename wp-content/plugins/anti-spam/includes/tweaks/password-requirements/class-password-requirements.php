@@ -11,29 +11,29 @@ class Password_Requirements {
 
 	public function run() {
 
-		add_action( 'user_profile_update_errors', array( $this, 'forward_profile_pass_update' ), 0, 3 );
-		add_action( 'validate_password_reset', array( $this, 'forward_reset_pass' ), 10, 2 );
+		add_action( 'user_profile_update_errors', [ $this, 'forward_profile_pass_update' ], 0, 3 );
+		add_action( 'validate_password_reset', [ $this, 'forward_reset_pass' ], 10, 2 );
 
-		add_action( 'profile_update', array( $this, 'handle_update_user' ), 10, 2 );
-		add_action( 'password_reset', array( $this, 'handle_password_reset' ), 10, 2 );
-		add_filter( 'wp_authenticate_user', array( $this, 'check_password_on_login' ), 999, 2 );
+		add_action( 'profile_update', [ $this, 'handle_update_user' ], 10, 2 );
+		add_action( 'password_reset', [ $this, 'handle_password_reset' ], 10, 2 );
+		add_filter( 'wp_authenticate_user', [ $this, 'check_password_on_login' ], 999, 2 );
 
-		add_action( 'add_user_role', array( $this, 'handle_role_change' ) );
-		add_action( 'set_user_role', array( $this, 'handle_role_change' ) );
-		add_action( 'remove_user_role', array( $this, 'handle_role_change' ) );
+		add_action( 'add_user_role', [ $this, 'handle_role_change' ] );
+		add_action( 'set_user_role', [ $this, 'handle_role_change' ] );
+		add_action( 'remove_user_role', [ $this, 'handle_role_change' ] );
 
-		add_action( 'titan_validate_password', array( $this, 'validate_password' ), 10, 4 );
+		add_action( 'titan_validate_password', [ $this, 'validate_password' ], 10, 4 );
 
-		add_action( 'wp_login', array( $this, 'flag_check' ), 9, 2 );
+		add_action( 'wp_login', [ $this, 'flag_check' ], 9, 2 );
 
-		add_action( 'titan_login_interstitial_init', array( $this, 'register_interstitial' ) );
+		add_action( 'titan_login_interstitial_init', [ $this, 'register_interstitial' ] );
 	}
 
 	/**
 	 * When a user's password is updated, or a new user created, verify that the new password is valid.
 	 *
-	 * @param \WP_Error $errors
-	 * @param bool $update
+	 * @param \WP_Error          $errors
+	 * @param bool               $update
 	 * @param \WP_User|\stdClass $user
 	 */
 	public function forward_profile_pass_update( $errors, $update, $user ) {
@@ -52,23 +52,23 @@ class Password_Requirements {
 	/**
 	 * Handle the password being updated for a user.
 	 *
-	 * @param \WP_Error $errors
-	 * @param bool $update
+	 * @param \WP_Error          $errors
+	 * @param bool               $update
 	 * @param \WP_User|\stdClass $user
 	 */
 	private function handle_profile_update_password( $errors, $update, $user ) {
 		if ( ! $update ) {
 			$context = 'admin-user-create';
-		} elseif ( isset( $user->ID ) && $user->ID === get_current_user_id() ) {
+		} elseif ( isset( $user->ID ) && get_current_user_id() === $user->ID ) {
 			$context = 'profile-update';
 		} else {
 			$context = 'admin-profile-update';
 		}
 
-		$args = array(
+		$args = [
 			'error'   => $errors,
-			'context' => $context
-		);
+			'context' => $context,
+		];
 
 		if ( isset( $user->role ) ) {
 			$args['role'] = $user->role;
@@ -80,15 +80,15 @@ class Password_Requirements {
 	/**
 	 * Handle the user's role being updated.
 	 *
-	 * @param \WP_Error $errors
+	 * @param \WP_Error          $errors
 	 * @param \WP_User|\stdClass $user
 	 */
 	private function handle_profile_update_role( $errors, $user ) {
-		$settings = array(
-			'strength' => array(
-				'role' => \WBCR\Titan\Plugin::app()->getPopulateOption( 'strong_password_min_role', 'administrator' ),
-			),
-		);
+		$settings = [
+			'strength' => [
+				'role' => get_option( 'titan_strong_password_min_role', 'administrator' ),
+			],
+		];
 
 		foreach ( \WBCR\Titan\Tweaks\Password_Requirements_Base::get_registered() as $code => $requirement ) {
 
@@ -102,12 +102,12 @@ class Password_Requirements {
 				continue;
 			}
 
-			require_once( WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/class-canonical-roles.php' );
+			require_once WTITAN_PLUGIN_DIR . '/includes/tweaks/password-requirements/class-canonical-roles.php';
 
-			$args = array(
+			$args = [
 				'role'      => $user->role,
 				'canonical' => \WBCR\Titan\Tweaks\Canonical_Roles::get_canonical_role_from_role_and_user( $user->role, $user ),
-			);
+			];
 
 			$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings[ $code ], $args );
 
@@ -115,7 +115,7 @@ class Password_Requirements {
 				continue;
 			}
 
-			$message = $validated ? $validated : esc_html__( "The provided password does not meet this site's requirements.", 'titan-security' );
+			$message = $validated ? $validated : esc_html__( "The provided password does not meet this site's requirements.", 'anti-spam' );
 			$errors->add( 'pass', $message );
 		}
 	}
@@ -124,7 +124,7 @@ class Password_Requirements {
 	 * When a user attempts to reset their password, verify that the new password is valid.
 	 *
 	 * @param \WP_Error $errors
-	 * @param \WP_User $user
+	 * @param \WP_User  $user
 	 */
 	public function forward_reset_pass( $errors, $user ) {
 
@@ -135,16 +135,20 @@ class Password_Requirements {
 			return;
 		}
 
-		\WBCR\Titan\Tweaks\Password_Requirements_Base::validate_password( $user, $_POST['pass1'], array(
-			'error'   => $errors,
-			'context' => 'reset-password',
-		) );
+		\WBCR\Titan\Tweaks\Password_Requirements_Base::validate_password(
+			$user,
+			$_POST['pass1'],
+			[
+				'error'   => $errors,
+				'context' => 'reset-password',
+			] 
+		);
 	}
 
 	/**
 	 * Whenever a user object is updated, set when their password was last updated.
 	 *
-	 * @param int $user_id
+	 * @param int    $user_id
 	 * @param object $old_user_data
 	 */
 	public function handle_update_user( $user_id, $old_user_data ) {
@@ -164,7 +168,7 @@ class Password_Requirements {
 	 * For some unknown reason, the password reset routine uses {@see wp_set_password()} instead of {@see wp_update_user()}.
 	 *
 	 * @param \WP_User $user
-	 * @param string $new_password
+	 * @param string   $new_password
 	 */
 	public function handle_password_reset( $user, $new_password ) {
 		$this->handle_password_updated( $user );
@@ -176,7 +180,7 @@ class Password_Requirements {
 	 * validate it.
 	 *
 	 * @param \WP_User $user
-	 * @param string $password
+	 * @param string   $password
 	 *
 	 * @return \WP_User
 	 */
@@ -202,28 +206,31 @@ class Password_Requirements {
 	 */
 	protected function handle_password_updated( $user ) {
 		delete_user_meta( $user->ID, 'titan_password_change_required' );
-		update_user_meta( $user->ID, 'titan_last_password_change', current_time( 'timestamp', true ) );
+		update_user_meta( $user->ID, 'titan_last_password_change', time() );
 	}
 
 	/**
 	 * When a plain text password is available, we perform any evaluations that have not yet been performed for this password.
 	 *
 	 * @param \WP_User $user
-	 * @param string $password
+	 * @param string   $password
 	 */
 	protected function handle_plain_text_password_available( $user, $password ) {
 
-		$config = wp_parse_args( get_user_meta( $user->ID, self::META_KEY, true ), array(
-			'evaluation_times' => array(),
-		) );
+		$config = wp_parse_args(
+			get_user_meta( $user->ID, self::META_KEY, true ),
+			[
+				'evaluation_times' => [],
+			] 
+		);
 
 		$last_updated = \WBCR\Titan\Tweaks\Password_Requirements_Base::password_last_changed( $user );
 
-		$settings = array(
-			'strength' => array(
-				'role' => \WBCR\Titan\Plugin::app()->getPopulateOption( 'strong_password_min_role', 'administrator' ),
-			),
-		);
+		$settings = [
+			'strength' => [
+				'role' => get_option( 'titan_strong_password_min_role', 'administrator' ),
+			],
+		];
 
 		foreach ( \WBCR\Titan\Tweaks\Password_Requirements_Base::get_registered() as $code => $requirement ) {
 
@@ -245,14 +252,14 @@ class Password_Requirements {
 				continue;
 			}
 
-			$config['evaluation_times'][ $code ] = current_time( 'timestamp', true );
+			$config['evaluation_times'][ $code ] = time();
 			update_user_meta( $user->ID, $requirement['meta'], $evaluation );
 
 			if ( ! \WBCR\Titan\Tweaks\Password_Requirements_Base::is_requirement_enabled( $code ) ) {
 				continue;
 			}
 
-			$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings[ $code ], array() );
+			$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings[ $code ], [] );
 
 			if ( true === $validated ) {
 				continue;
@@ -267,17 +274,17 @@ class Password_Requirements {
 	/**
 	 * Validate password.
 	 *
-	 * @param \WP_Error $error
+	 * @param \WP_Error          $error
 	 * @param \WP_User|\stdClass $user
-	 * @param string $new_password
-	 * @param array $args
+	 * @param string             $new_password
+	 * @param array              $args
 	 */
 	public function validate_password( $error, $user, $new_password, $args ) {
-		$settings = array(
-			'strength' => array(
-				'role' => \WBCR\Titan\Plugin::app()->getPopulateOption( 'strong_password_min_role', 'administrator' ),
-			),
-		);
+		$settings = [
+			'strength' => [
+				'role' => get_option( 'titan_strong_password_min_role', 'administrator' ),
+			],
+		];
 
 		foreach ( \WBCR\Titan\Tweaks\Password_Requirements_Base::get_registered() as $code => $requirement ) {
 
@@ -298,20 +305,20 @@ class Password_Requirements {
 			}
 
 			// The default error message is a safeguard that should never occur.
-			$message = $validated ? $validated : esc_html__( "The provided password does not meet this site's requirements.", 'titan-security' );
+			$message = $validated ? $validated : esc_html__( "The provided password does not meet this site's requirements.", 'anti-spam' );
 
 			switch ( $args['context'] ) {
 				case 'admin-user-create':
-					$message .= ' ' . __( 'The user has not been created.', 'titan-security' );
+					$message .= ' ' . __( 'The user has not been created.', 'anti-spam' );
 					break;
 				case 'admin-profile-update':
-					$message .= ' ' . __( 'The user changes have not been saved.', 'titan-security' );
+					$message .= ' ' . __( 'The user changes have not been saved.', 'anti-spam' );
 					break;
 				case 'profile-update':
-					$message .= ' ' . __( 'Your profile has not been updated.', 'titan-security' );
+					$message .= ' ' . __( 'Your profile has not been updated.', 'anti-spam' );
 					break;
 				case 'reset-password':
-					$message .= ' ' . __( 'The password has not been updated.', 'titan-security' );
+					$message .= ' ' . __( 'The password has not been updated.', 'anti-spam' );
 					break;
 			}
 
@@ -322,7 +329,7 @@ class Password_Requirements {
 	/**
 	 * When a user logs in, run any flag checks to see if a password change should be forced.
 	 *
-	 * @param string $username
+	 * @param string        $username
 	 * @param \WP_User|null $user
 	 */
 	public function flag_check( $username, $user = null ) {
@@ -370,7 +377,7 @@ class Password_Requirements {
 			return true;
 		}
 
-		if ( ! \WBCR\Titan\Plugin::app()->getPopulateOption( 'strong_password' ) ) {
+		if ( ! get_option( 'titan_strong_password' ) ) {
 			return false;
 		}
 
@@ -390,7 +397,7 @@ class Password_Requirements {
 			return;
 		}
 
-		$config['evaluation_times'] = array();
+		$config['evaluation_times'] = [];
 
 		update_user_meta( $user_id, self::META_KEY, $config );
 	}
@@ -401,14 +408,18 @@ class Password_Requirements {
 	 * @param \WBCR\Titan\Tweaks\Login_Interstitial $lib
 	 */
 	public function register_interstitial( $lib ) {
-		$lib->register( 'update-password', array( $this, 'render_interstitial' ), array(
-			'show_to_user' => array( '\WBCR\Titan\Tweaks\Password_Requirements_Base', 'password_change_required' ),
-			'info_message' => array(
-				'\WBCR\Titan\Tweaks\Password_Requirements_Base',
-				'get_message_for_password_change_reason'
-			),
-			'submit'       => array( $this, 'submit' ),
-		) );
+		$lib->register(
+			'update-password',
+			[ $this, 'render_interstitial' ],
+			[
+				'show_to_user' => [ '\WBCR\Titan\Tweaks\Password_Requirements_Base', 'password_change_required' ],
+				'info_message' => [
+					'\WBCR\Titan\Tweaks\Password_Requirements_Base',
+					'get_message_for_password_change_reason',
+				],
+				'submit'       => [ $this, 'submit' ],
+			] 
+		);
 	}
 
 	/**
@@ -422,38 +433,38 @@ class Password_Requirements {
 		do_action( 'titan_password_requirements_change_form', $user );
 		?>
 
-        <div class="user-pass1-wrap">
-            <p><label for="pass1"><?php _e( 'New Password', 'titan-security' ); ?></label></p>
-        </div>
+		<div class="user-pass1-wrap">
+			<p><label for="pass1"><?php _e( 'New Password', 'anti-spam' ); ?></label></p>
+		</div>
 
-        <div class="wp-pwd">
+		<div class="wp-pwd">
 				<span class="password-input-wrapper">
 					<input type="password" data-reveal="1"
-                           data-pw="<?php echo esc_attr( wp_generate_password( 16 ) ); ?>" name="pass1" id="pass1"
-                           class="input" size="20" value="" autocomplete="off" aria-describedby="pass-strength-result"/>
+							data-pw="<?php echo esc_attr( wp_generate_password( 16 ) ); ?>" name="pass1" id="pass1"
+							class="input" size="20" value="" autocomplete="off" aria-describedby="pass-strength-result"/>
 				</span>
-            <div id="pass-strength-result" class="hide-if-no-js"
-                 aria-live="polite"><?php _e( 'Strength indicator', 'titan-security' ); ?></div>
-            <div class="pw-weak">
-                <label>
-                    <input type="checkbox" name="pw_weak" class="pw-checkbox"/>
-					<?php _e( 'Confirm use of weak password' ); ?>
-                </label>
-            </div>
-        </div>
+			<div id="pass-strength-result" class="hide-if-no-js"
+				aria-live="polite"><?php _e( 'Strength indicator', 'anti-spam' ); ?></div>
+			<div class="pw-weak">
+				<label>
+					<input type="checkbox" name="pw_weak" class="pw-checkbox"/>
+					<?php _e( 'Confirm use of weak password', 'anti-spam' ); ?>
+				</label>
+			</div>
+		</div>
 
-        <p class="user-pass2-wrap">
-            <label for="pass2"><?php _e( 'Confirm new password' ) ?></label><br/>
-            <input type="password" name="pass2" id="pass2" class="input" size="20" value="" autocomplete="off"/>
-        </p>
+		<p class="user-pass2-wrap">
+			<label for="pass2"><?php _e( 'Confirm new password', 'anti-spam' ); ?></label><br/>
+			<input type="password" name="pass2" id="pass2" class="input" size="20" value="" autocomplete="off"/>
+		</p>
 
-        <p class="description indicator-hint"><?php echo wp_get_password_hint(); ?></p>
-        <br class="clear"/>
+		<p class="description indicator-hint"><?php echo wp_get_password_hint(); ?></p>
+		<br class="clear"/>
 
-        <p class="submit">
-            <input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large"
-                   value="<?php esc_attr_e( 'Update Password', 'titan-security' ); ?>"/>
-        </p>
+		<p class="submit">
+			<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large"
+					value="<?php esc_attr_e( 'Update Password', 'anti-spam' ); ?>"/>
+		</p>
 
 		<?php
 	}
@@ -462,28 +473,34 @@ class Password_Requirements {
 	 * Handle the request to update the user's password.
 	 *
 	 * @param \WP_User $user
-	 * @param array $data POSTed data.
+	 * @param array    $data POSTed data.
 	 *
 	 * @return \WP_Error|null
 	 */
 	public function submit( $user, $data ) {
 
 		if ( empty( $data['pass1'] ) ) {
-			return new \WP_Error( 'titan-password-requirements-empty-password', __( 'Please enter your new password.', 'titan-security' ) );
+			return new \WP_Error( 'titan-password-requirements-empty-password', __( 'Please enter your new password.', 'anti-spam' ) );
 		}
 
-		$error = \WBCR\Titan\Tweaks\Password_Requirements_Base::validate_password( $user, $data['pass1'], array(
-			'context' => 'interstitial',
-		) );
+		$error = \WBCR\Titan\Tweaks\Password_Requirements_Base::validate_password(
+			$user,
+			$data['pass1'],
+			[
+				'context' => 'interstitial',
+			] 
+		);
 
 		if ( $error->get_error_message() ) {
 			return $error;
 		}
 
-		$error = wp_update_user( array(
-			'ID'        => $user->ID,
-			'user_pass' => $data['pass1']
-		) );
+		$error = wp_update_user(
+			[
+				'ID'        => $user->ID,
+				'user_pass' => $data['pass1'],
+			] 
+		);
 
 		if ( is_wp_error( $error ) ) {
 			return $error;

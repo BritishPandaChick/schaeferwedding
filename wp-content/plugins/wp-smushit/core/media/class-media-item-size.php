@@ -77,9 +77,7 @@ class Media_Item_Size {
 		$this->wp_metadata   = $wp_size_metadata;
 		$this->fs            = new File_System();
 
-		$this->size_limit = WP_Smush::is_pro()
-			? WP_SMUSH_PREMIUM_MAX_BYTES
-			: WP_SMUSH_MAX_BYTES;
+		$this->size_limit = WP_SMUSH_MAX_BYTES;
 		$this->settings   = Settings::get_instance();
 		$this->from_array( $wp_size_metadata );
 	}
